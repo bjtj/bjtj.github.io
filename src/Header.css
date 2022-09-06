@@ -1,0 +1,10 @@
+.Header {
+    background-color: #8c1459;
+    border: solid 1px #8c1459;
+    margin: 0;
+    padding: 0;
+}
+
+.Header-title {
+    color: #e81a8a;
+}
