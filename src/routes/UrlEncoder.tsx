@@ -1,6 +1,6 @@
 import { useState, useCallback } from 'react';
-import Button from './components/Button';
-import Icon from './components/Icon';
+import Button from '../components/Button';
+import Icon from '../components/Icon';
 
 
 export default function UrlEncoder() {
@@ -32,9 +32,9 @@ export default function UrlEncoder() {
   }, [encoded]);
   
   return (
-    <div className="space-y-3 p-3">
-      <h2>URL Encoder / Decoder</h2>
-      <h3>Original:</h3>
+    <div className="space-y-3">
+      <h1 className="">URL Encoder / Decoder</h1>
+      <h3>Original Text:</h3>
       <div>
         <textarea
           className="rounded p-1.5 ring ring-black ring-1 w-full"

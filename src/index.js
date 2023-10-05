@@ -1,15 +1,52 @@
 import React from 'react';
 import ReactDOM from 'react-dom/client';
+import {
+  createRoutesFromElements,
+  createBrowserRouter,
+  RouterProvider,
+  Route,
+} from "react-router-dom";
 import './index.css';
-import App from './App';
+
+import Root, { loader as rootLoader, action as rootAction } from "./routes/root";
+import ErrorPage from "./error-page";
+import Start from './routes/Start';
+import UrlEncoder from './routes/UrlEncoder';
+import XmlParser from './routes/XmlParser';
+
 import reportWebVitals from './reportWebVitals';
-import 'bootstrap/dist/css/bootstrap.min.css';
 import 'material-icons/iconfont/material-icons.css';
+
+
+const router = createBrowserRouter(
+  createRoutesFromElements(
+    <Route
+      path="/"
+      element={<Root />}
+      loader={rootLoader}
+      action={rootAction}
+      errorElement={<ErrorPage />}
+    >
+      <Route errorElement={<ErrorPage />}>
+        <Route index element={<Start />} />
+        <Route
+          path="urlencoder"
+          element={<UrlEncoder />}
+        />
+        <Route
+          path="xmlparser"
+          element={<XmlParser />}
+        />
+      </Route>
+    </Route>
+  )
+);
+
 
 const root = ReactDOM.createRoot(document.getElementById('root'));
 root.render(
   <React.StrictMode>
-    <App />
+    <RouterProvider router={router} />
   </React.StrictMode>
 );
 
