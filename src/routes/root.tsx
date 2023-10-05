@@ -20,7 +20,7 @@ export default function Root() {
           </Link>
           <ul className="m-0 p-1">
             <li className="text-center"><Link to={`/`}>Home</Link></li>
-            <li className="text-center"><Link to={`/urlencoder`}>url encoder</Link></li>
+            <li className="text-center"><Link to={`/urlencoder`}>URL Encoder/Decoder</Link></li>
             {/* <li><Link to={`/xmlparser`}>xml parser</Link></li> */}
           </ul>
           <div className="border my-3 ">

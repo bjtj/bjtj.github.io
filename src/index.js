@@ -3,6 +3,7 @@ import ReactDOM from 'react-dom/client';
 import {
   createRoutesFromElements,
   createBrowserRouter,
+  createHashRouter,
   RouterProvider,
   Route,
 } from "react-router-dom";
@@ -18,7 +19,7 @@ import reportWebVitals from './reportWebVitals';
 import 'material-icons/iconfont/material-icons.css';
 
 
-const router = createBrowserRouter(
+const router = createHashRouter(
   createRoutesFromElements(
     <Route
       path="/"

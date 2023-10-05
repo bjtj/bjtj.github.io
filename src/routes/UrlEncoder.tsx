@@ -33,7 +33,7 @@ export default function UrlEncoder() {
   
   return (
     <div className="space-y-3">
-      <h1 className="">URL Encoder / Decoder</h1>
+      <h1 className="">URL Encoder/Decoder</h1>
       <h3>Original Text:</h3>
       <div>
         <textarea
@@ -41,7 +41,9 @@ export default function UrlEncoder() {
           placeholder="Enter text..."
           value={text}
           onChange={e => setText(e.target.value)}></textarea>
+        <p className="text-sm">Length: {text?.length ?? 0}</p>
       </div>
+      
 
       <div className="flex gap-3">
         <Button onClick={encode} disabled={text ? false : true}>
@@ -60,6 +62,7 @@ export default function UrlEncoder() {
           className="ring ring-1 ring-black p-1.5 rounded min-h-5 w-full"
           placeholder="Encode the original text or enter encoded text here..."
           value={encoded} onChange={e => setEncoded(e.target.value)}></textarea>
+        <p className="text-sm">Length: {encoded?.length ?? 0}</p>
       </div>
 
       { error && (
