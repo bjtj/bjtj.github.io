@@ -14,6 +14,7 @@ import ErrorPage from "./error-page";
 import Start from './routes/Start';
 import UrlEncoder from './routes/UrlEncoder';
 import XmlParser from './routes/XmlParser';
+import Keycode from './routes/Keycode';
 
 import reportWebVitals from './reportWebVitals';
 import 'material-icons/iconfont/material-icons.css';
@@ -37,6 +38,10 @@ const router = createHashRouter(
         <Route
           path="xmlparser"
           element={<XmlParser />}
+        />
+        <Route
+          path="keycode"
+          element={<Keycode />}
         />
       </Route>
     </Route>

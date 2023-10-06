@@ -1,5 +1,6 @@
 import { useState, useCallback } from 'react';
 import Button from '../components/Button';
+import TextArea from '../components/TextArea';
 import Icon from '../components/Icon';
 
 
@@ -36,11 +37,11 @@ export default function UrlEncoder() {
       <h1 className="">URL Encoder/Decoder</h1>
       <h3>Original Text:</h3>
       <div>
-        <textarea
-          className="rounded p-1.5 ring ring-black ring-1 w-full"
+        <TextArea
+          className="w-full font-mono"
           placeholder="Enter text..."
           value={text}
-          onChange={e => setText(e.target.value)}></textarea>
+          onChange={e => setText(e.target.value)}></TextArea>
         <p className="text-sm">Length: {text?.length ?? 0}</p>
       </div>
       
@@ -58,10 +59,10 @@ export default function UrlEncoder() {
       
       <h3>Encoded:</h3>
       <div>
-        <textarea
-          className="ring ring-1 ring-black p-1.5 rounded min-h-5 w-full"
+        <TextArea
+          className="min-h-5 w-full font-mono"
           placeholder="Encode the original text or enter encoded text here..."
-          value={encoded} onChange={e => setEncoded(e.target.value)}></textarea>
+          value={encoded} onChange={e => setEncoded(e.target.value)}></TextArea>
         <p className="text-sm">Length: {encoded?.length ?? 0}</p>
       </div>
 
