@@ -21,22 +21,26 @@ export default function Root() {
       path: '/urlencoder',
       name: 'URL Encoder/Decoder'
     },
-    {
-      path: '/xmlparser',
-      name: 'XML Parser'
-    },
+    /* {
+     *   path: '/xmlparser',
+     *   name: 'XML Parser'
+     * }, */
     {
       path: '/keycode',
       name: 'Keycode'
-    }
+    },
+    {
+      path: '/filebase64',
+      name: 'File -> Base64'
+    },
   ];
 
   return (
-    <div className="h-screen flex flex-col">
-      <div className="flex grow">
-        <div className="px-3 py-1 border-r bg-gray-100 min-w-[240px] flex flex-col items-center">
-          <Link to="/">
-            <img src={LogoPng} width={120} height={120} />
+    <div className="h-screen w-screen inline-flex flex-col">
+      <div className="inline-flex grow">
+        <div className="px-3 py-1 border-r bg-gray-100 min-w-[240px] text-center">
+          <Link className="inline-block" to="/">
+            <img className="text-center" src={LogoPng} width={120} height={120} alt="Hand Tools" />
           </Link>
           <ul className="m-0 p-1">
             {
@@ -45,11 +49,11 @@ export default function Root() {
               ))
             }
           </ul>
-          <div className="border my-3 ">
+          <div className="my-3">
             <DisplayAds.FixedVertical1 />
           </div>
         </div>
-        <div className="grow py-1 px-3">
+        <div className="grow py-1 px-3 overflow-auto">
           <Outlet />
         </div>
       </div>

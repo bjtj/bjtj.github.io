@@ -2,6 +2,7 @@ import { useState, useCallback } from 'react';
 import Button from '../components/Button';
 import TextArea from '../components/TextArea';
 import Icon from '../components/Icon';
+import ErrorPanel from '../components/ErrorPanel';
 
 
 export default function UrlEncoder() {
@@ -42,7 +43,7 @@ export default function UrlEncoder() {
           placeholder="Enter text..."
           value={text}
           onChange={e => setText(e.target.value)}></TextArea>
-        <p className="text-sm">Length: {text?.length ?? 0}</p>
+        <p className="text-sm">Length: {(text?.length ?? 0).toLocaleString()}</p>
       </div>
       
 
@@ -63,14 +64,10 @@ export default function UrlEncoder() {
           className="min-h-5 w-full font-mono"
           placeholder="Encode the original text or enter encoded text here..."
           value={encoded} onChange={e => setEncoded(e.target.value)}></TextArea>
-        <p className="text-sm">Length: {encoded?.length ?? 0}</p>
+        <p className="text-sm">Length: {(encoded?.length ?? 0).toLocaleString()}</p>
       </div>
 
-      { error && (
-          <>
-            <h3>Error:</h3>
-            <pre className="p-3 text-red-600 ring ring-1 ring-red-600 bg-red-300/20">{error}</pre>
-          </>) }
+      <ErrorPanel error={error} label={'Error:'} />
     </div>
   )
 }

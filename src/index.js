@@ -15,6 +15,7 @@ import Start from './routes/Start';
 import UrlEncoder from './routes/UrlEncoder';
 import XmlParser from './routes/XmlParser';
 import Keycode from './routes/Keycode';
+import FileBase64 from './routes/FileBase64';
 
 import reportWebVitals from './reportWebVitals';
 import 'material-icons/iconfont/material-icons.css';
@@ -43,6 +44,11 @@ const router = createHashRouter(
           path="keycode"
           element={<Keycode />}
         />
+        <Route
+          path="filebase64"
+          element={<FileBase64 />}
+        />
+
       </Route>
     </Route>
   )
