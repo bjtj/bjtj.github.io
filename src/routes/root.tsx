@@ -33,6 +33,10 @@ export default function Root() {
       path: '/filebase64',
       name: 'File -> Base64'
     },
+    {
+      path: '/imageinfo',
+      name: 'Image Info'
+    },
   ];
 
   return (

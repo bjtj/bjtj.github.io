@@ -1,5 +1,5 @@
-import React from 'react';
-import ReactDOM from 'react-dom/client';
+import React from "react";
+import ReactDOM from "react-dom/client";
 import {
   createRoutesFromElements,
   createBrowserRouter,
@@ -7,19 +7,22 @@ import {
   RouterProvider,
   Route,
 } from "react-router-dom";
-import './index.css';
+import "./index.css";
 
-import Root, { loader as rootLoader, action as rootAction } from "./routes/root";
+import Root, {
+  loader as rootLoader,
+  action as rootAction,
+} from "./routes/root";
 import ErrorPage from "./error-page";
-import Start from './routes/Start';
-import UrlEncoder from './routes/UrlEncoder';
-import XmlParser from './routes/XmlParser';
-import Keycode from './routes/Keycode';
-import FileBase64 from './routes/FileBase64';
+import Start from "./routes/Start";
+import UrlEncoder from "./routes/UrlEncoder";
+import XmlParser from "./routes/XmlParser";
+import Keycode from "./routes/Keycode";
+import FileBase64 from "./routes/FileBase64";
+import ImageInfo from "./routes/ImageInfo";
 
-import reportWebVitals from './reportWebVitals';
-import 'material-icons/iconfont/material-icons.css';
-
+import reportWebVitals from "./reportWebVitals";
+import "material-icons/iconfont/material-icons.css";
 
 const router = createHashRouter(
   createRoutesFromElements(
@@ -32,30 +35,17 @@ const router = createHashRouter(
     >
       <Route errorElement={<ErrorPage />}>
         <Route index element={<Start />} />
-        <Route
-          path="urlencoder"
-          element={<UrlEncoder />}
-        />
-        <Route
-          path="xmlparser"
-          element={<XmlParser />}
-        />
-        <Route
-          path="keycode"
-          element={<Keycode />}
-        />
-        <Route
-          path="filebase64"
-          element={<FileBase64 />}
-        />
-
+        <Route path="urlencoder" element={<UrlEncoder />} />
+        <Route path="xmlparser" element={<XmlParser />} />
+        <Route path="keycode" element={<Keycode />} />
+        <Route path="filebase64" element={<FileBase64 />} />
+        <Route path="imageinfo" element={<ImageInfo />} />
       </Route>
     </Route>
   )
 );
 
-
-const root = ReactDOM.createRoot(document.getElementById('root'));
+const root = ReactDOM.createRoot(document.getElementById("root"));
 root.render(
   <React.StrictMode>
     <RouterProvider router={router} />
