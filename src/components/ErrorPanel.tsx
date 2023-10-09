@@ -12,7 +12,7 @@ export default function ErrorPanel({error, label} : ErrorPanelProps) {
     { error && (
       <>
         {title}
-        <pre className="p-3 text-red-600 ring ring-1 ring-red-600 bg-red-300/20">{error}</pre>
+        <pre className="p-3 text-red-600 ring ring-1 ring-red-600 bg-red-300/20 overflow-auto">{error}</pre>
       </>
     ) }
     </>);

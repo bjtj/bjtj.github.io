@@ -41,6 +41,10 @@ export default function Root() {
       path: '/webcam',
       name: 'Webcam'
     },
+    {
+      path: '/json',
+      name: 'Json'
+    },
   ];
 
   return (

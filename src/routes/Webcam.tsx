@@ -19,7 +19,7 @@ export default function WebCam() {
                     setError(`${e}`);
                 }} />
             {status && (<p>Status: {status}</p>)}
-            <ErrorPanel error={error} />
+            <ErrorPanel error={error} label="Error:" />
         </div>
     )
 }
