@@ -2,7 +2,6 @@ import React from "react";
 import ReactDOM from "react-dom/client";
 import {
   createRoutesFromElements,
-  createBrowserRouter,
   createHashRouter,
   RouterProvider,
   Route,
@@ -22,6 +21,7 @@ import FileBase64 from "./routes/FileBase64";
 import ImageInfo from "./routes/ImageInfo";
 import WebCam from './routes/Webcam';
 import Json from './routes/Json';
+import Datetime from './routes/Datetime';
 
 import reportWebVitals from "./reportWebVitals";
 import "material-icons/iconfont/material-icons.css";
@@ -44,6 +44,7 @@ const router = createHashRouter(
         <Route path="imageinfo" element={<ImageInfo />} />
         <Route path="webcam" element={<WebCam />} />
         <Route path="json" element={<Json />} />
+        <Route path="datetime" element={<Datetime />} />
 
       </Route>
     </Route>

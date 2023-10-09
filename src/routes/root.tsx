@@ -45,6 +45,10 @@ export default function Root() {
       path: '/json',
       name: 'Json'
     },
+    {
+      path: '/datetime',
+      name: 'Datetime'
+    },
   ];
 
   return (

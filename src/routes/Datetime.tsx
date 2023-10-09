@@ -1,0 +1,80 @@
+import { useCallback, useEffect, useState } from "react";
+import ErrorPanel from "../components/ErrorPanel";
+import Input from "../components/Input";
+import Button from "../components/Button";
+import Icon from "../components/Icon";
+
+const SEC = 1000;
+const MIN = 60 * SEC;
+const HOUR = 60 * MIN;
+const DAY = 24 * HOUR;
+
+export default function Datetime() {
+
+    const [now, setNow] = useState<Date>(new Date());
+    const [time, setTime] = useState<string>(new Date().getTime().toString());
+    const [error, setError] = useState<string>();
+    const [date, setDate] = useState<Date>();
+
+    const convert = useCallback(() => {
+        if (time) {
+            try {
+                setDate(new Date(parseInt(time)));
+            } catch (err) {
+                setError(`${err}`);
+            }
+        }
+    }, [time]);
+
+    function offset(o: number) {
+        let t = parseInt(time) ?? 0;
+        setTime(`${Math.max(0, t + o)}`);
+    }
+
+    useEffect(() => {
+        let timeout = setInterval(() => {
+            setNow(new Date());
+        }, 1000);
+
+        return () => {
+            clearInterval(timeout);
+        }
+    }, []);
+
+    useEffect(() => {
+        convert();
+    }, [time]);
+
+    return (
+        <div>
+            <h1>Datetime</h1>
+            <p className="my-1">Current Time: <code className="select-none text-sm bg-gray-300/30 rounded p-1 border" onClick={() => setTime(`${now.getTime()}`)}>{now.getTime()}</code></p>
+            <div>
+                <div className="flex items-center gap-1">
+                <Input type="number" value={time} onChange={e => setTime(e.target.value)} placeholder="Time in milliseconds..." />
+                {date && <p>{date.toLocaleString()}</p>}
+                </div>
+
+                <div className="flex items-center gap-1">
+                    <Button onClick={() => offset(SEC)}><Icon className="!text-sm">add</Icon> 1sec.</Button>
+                    <Button onClick={() => offset(MIN)}><Icon className="!text-sm">add</Icon> 1min.</Button>
+                    <Button onClick={() => offset(HOUR)}><Icon className="!text-sm">add</Icon> 1hour</Button>
+                    <Button onClick={() => offset(12 * HOUR)}><Icon className="!text-sm">add</Icon> 12hours</Button>
+                    <Button onClick={() => offset(DAY)}><Icon className="!text-sm">add</Icon> 1day</Button>
+                    <Button onClick={() => offset(7 * DAY)}><Icon className="!text-sm">add</Icon> 7days</Button>
+                </div>
+                <div className="flex items-center gap-1">
+                    <Button onClick={() => offset(-SEC)}><Icon className="!text-sm">remove</Icon> 1sec.</Button>
+                    <Button onClick={() => offset(-MIN)}><Icon className="!text-sm">remove</Icon> 1min.</Button>
+                    <Button onClick={() => offset(-HOUR)}><Icon className="!text-sm">remove</Icon> 1hour</Button>
+                    <Button onClick={() => offset(-12 * HOUR)}><Icon className="!text-sm">remove</Icon> 12hours</Button>
+                    <Button onClick={() => offset(-DAY)}><Icon className="!text-sm">remove</Icon> 1day</Button>
+                    <Button onClick={() => offset(-7 * DAY)}><Icon className="!text-sm">add</Icon> 7days</Button>
+                </div>
+            </div>
+            <ErrorPanel error={error} label="Error:" />
+
+            <p className="text-sm my-3 italic">NOTE) Since <code className="">{new Date(0).toLocaleString()}</code></p>
+        </div>
+    )
+}
