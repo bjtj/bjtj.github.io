@@ -37,6 +37,10 @@ export default function Root() {
       path: '/imageinfo',
       name: 'Image Info'
     },
+    {
+      path: '/webcam',
+      name: 'Webcam'
+    },
   ];
 
   return (

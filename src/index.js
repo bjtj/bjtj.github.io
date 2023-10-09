@@ -20,6 +20,7 @@ import XmlParser from "./routes/XmlParser";
 import Keycode from "./routes/Keycode";
 import FileBase64 from "./routes/FileBase64";
 import ImageInfo from "./routes/ImageInfo";
+import WebCam from './routes/Webcam';
 
 import reportWebVitals from "./reportWebVitals";
 import "material-icons/iconfont/material-icons.css";
@@ -40,6 +41,8 @@ const router = createHashRouter(
         <Route path="keycode" element={<Keycode />} />
         <Route path="filebase64" element={<FileBase64 />} />
         <Route path="imageinfo" element={<ImageInfo />} />
+        <Route path="webcam" element={<WebCam />} />
+
       </Route>
     </Route>
   )
