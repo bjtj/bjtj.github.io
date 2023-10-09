@@ -43,7 +43,7 @@ export default function Root() {
     <div className="h-screen w-screen inline-flex flex-col">
       <div className="inline-flex grow">
         <div className="px-3 py-1 border-r bg-gray-100 min-w-[240px] text-center">
-          <Link className="inline-block" to="/">
+          <Link className="inline-block select-none" to="/">
             <img className="text-center" src={LogoPng} width={120} height={120} alt="Hand Tools" />
           </Link>
           <ul className="m-0 p-1">
