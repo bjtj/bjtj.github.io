@@ -27,7 +27,10 @@ export default function Datetime() {
     }, [time]);
 
     function offset(o: number) {
-        let t = parseInt(time) ?? 0;
+        let t = parseInt(time);
+        if (isNaN(t)) {
+            t = 0
+        }
         setTime(`${Math.max(0, t + o)}`);
     }
 
@@ -35,7 +38,6 @@ export default function Datetime() {
         let timeout = setInterval(() => {
             setNow(new Date());
         }, 1000);
-
         return () => {
             clearInterval(timeout);
         }
@@ -51,7 +53,21 @@ export default function Datetime() {
             <p className="my-1">Current Time: <code className="select-none text-sm bg-gray-300/30 rounded p-1 border" onClick={() => setTime(`${now.getTime()}`)}>{now.getTime()}</code></p>
             <div>
                 <div className="flex items-center gap-1">
-                <Input type="number" value={time} onChange={e => setTime(e.target.value)} placeholder="Time in milliseconds..." />
+                <Input type="number" value={time} min={0} onChange={e => {
+                    if (e.target.value === '') {
+                        setTime('');
+                        return;
+                    }
+                    let ret = parseInt(e.target.value);
+                    if (isNaN(ret)) {
+                        if (!time) {
+                            setTime('0')
+                        }
+                    } else {
+                        setTime(e.target.value);
+                    }
+                }} placeholder="Time in milliseconds..."
+                inputMode="numeric" pattern="\d*" />
                 {date && <p>{date.toLocaleString()}</p>}
                 </div>
 
