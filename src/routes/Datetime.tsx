@@ -85,7 +85,7 @@ export default function Datetime() {
                     <Button onClick={() => offset(-HOUR)}><Icon className="!text-sm">remove</Icon> 1hour</Button>
                     <Button onClick={() => offset(-12 * HOUR)}><Icon className="!text-sm">remove</Icon> 12hours</Button>
                     <Button onClick={() => offset(-DAY)}><Icon className="!text-sm">remove</Icon> 1day</Button>
-                    <Button onClick={() => offset(-7 * DAY)}><Icon className="!text-sm">add</Icon> 7days</Button>
+                    <Button onClick={() => offset(-7 * DAY)}><Icon className="!text-sm">remove</Icon> 7days</Button>
                 </div>
             </div>
             <ErrorPanel error={error} label="Error:" />
