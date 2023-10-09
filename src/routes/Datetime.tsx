@@ -53,7 +53,7 @@ export default function Datetime() {
             <p className="my-1">Current Time: <code className="select-none text-sm bg-gray-300/30 rounded p-1 border" onClick={() => setTime(`${now.getTime()}`)}>{now.getTime()}</code></p>
             <div>
                 <div className="flex items-center gap-1">
-                <Input type="number" value={time} min={0} onChange={e => {
+                <Input className="w-[12rem]" type="number" value={time} min={0} onChange={e => {
                     if (e.target.value === '') {
                         setTime('');
                         return;
@@ -68,24 +68,24 @@ export default function Datetime() {
                     }
                 }} placeholder="Time in milliseconds..."
                 inputMode="numeric" pattern="\d*" />
-                {date && <p>{date.toLocaleString()}</p>}
+                {date && <div className="shrink-0">{date.toLocaleString()}</div>}
                 </div>
 
                 <div className="flex items-center gap-1">
-                    <Button onClick={() => offset(SEC)}><Icon className="!text-sm">add</Icon> 1sec.</Button>
-                    <Button onClick={() => offset(MIN)}><Icon className="!text-sm">add</Icon> 1min.</Button>
-                    <Button onClick={() => offset(HOUR)}><Icon className="!text-sm">add</Icon> 1hour</Button>
-                    <Button onClick={() => offset(12 * HOUR)}><Icon className="!text-sm">add</Icon> 12hours</Button>
-                    <Button onClick={() => offset(DAY)}><Icon className="!text-sm">add</Icon> 1day</Button>
-                    <Button onClick={() => offset(7 * DAY)}><Icon className="!text-sm">add</Icon> 7days</Button>
+                    <Button variant="sm" onClick={() => offset(SEC)}><Icon className="!text-sm">add</Icon> 1sec.</Button>
+                    <Button variant="sm" onClick={() => offset(MIN)}><Icon className="!text-sm">add</Icon> 1min.</Button>
+                    <Button variant="sm" onClick={() => offset(HOUR)}><Icon className="!text-sm">add</Icon> 1hour</Button>
+                    <Button variant="sm" onClick={() => offset(12 * HOUR)}><Icon className="!text-sm">add</Icon> 12hours</Button>
+                    <Button variant="sm" onClick={() => offset(DAY)}><Icon className="!text-sm">add</Icon> 1day</Button>
+                    <Button variant="sm" onClick={() => offset(7 * DAY)}><Icon className="!text-sm">add</Icon> 7days</Button>
                 </div>
                 <div className="flex items-center gap-1">
-                    <Button onClick={() => offset(-SEC)}><Icon className="!text-sm">remove</Icon> 1sec.</Button>
-                    <Button onClick={() => offset(-MIN)}><Icon className="!text-sm">remove</Icon> 1min.</Button>
-                    <Button onClick={() => offset(-HOUR)}><Icon className="!text-sm">remove</Icon> 1hour</Button>
-                    <Button onClick={() => offset(-12 * HOUR)}><Icon className="!text-sm">remove</Icon> 12hours</Button>
-                    <Button onClick={() => offset(-DAY)}><Icon className="!text-sm">remove</Icon> 1day</Button>
-                    <Button onClick={() => offset(-7 * DAY)}><Icon className="!text-sm">remove</Icon> 7days</Button>
+                    <Button variant="sm" onClick={() => offset(-SEC)}><Icon className="!text-sm">remove</Icon> 1sec.</Button>
+                    <Button variant="sm" onClick={() => offset(-MIN)}><Icon className="!text-sm">remove</Icon> 1min.</Button>
+                    <Button variant="sm" onClick={() => offset(-HOUR)}><Icon className="!text-sm">remove</Icon> 1hour</Button>
+                    <Button variant="sm" onClick={() => offset(-12 * HOUR)}><Icon className="!text-sm">remove</Icon> 12hours</Button>
+                    <Button variant="sm" onClick={() => offset(-DAY)}><Icon className="!text-sm">remove</Icon> 1day</Button>
+                    <Button variant="sm" onClick={() => offset(-7 * DAY)}><Icon className="!text-sm">remove</Icon> 7days</Button>
                 </div>
             </div>
             <ErrorPanel error={error} label="Error:" />

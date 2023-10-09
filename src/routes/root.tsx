@@ -21,10 +21,6 @@ export default function Root() {
       path: '/urlencoder',
       name: 'URL Encoder/Decoder'
     },
-    /* {
-     *   path: '/xmlparser',
-     *   name: 'XML Parser'
-     * }, */
     {
       path: '/keycode',
       name: 'Keycode'
@@ -49,19 +45,22 @@ export default function Root() {
       path: '/datetime',
       name: 'Datetime'
     },
+
   ];
 
   return (
-    <div className="h-screen w-screen inline-flex flex-col">
-      <div className="inline-flex grow">
-        <div className="px-3 py-1 border-r bg-gray-100 min-w-[240px] text-center">
+    <div className="h-screen w-screen max-h-screen max-w-screen inline-flex flex-col">
+      <div className="inline-flex flex-col sm:flex-row grow overflow-auto">
+
+        {/* MENU */}
+        <div className="px-3 py-1 min-w-[240px] min-h-[240px] max-h-[30%] sm:w-[240px] sm:max-h-full sm:text-center border-b border-b-gray-100 sm:border-r sm:border-r-gray-100 overflow-y-auto overflow-x-hidden">
           <Link className="inline-block select-none" to="/">
-            <img className="text-center" src={LogoPng} width={120} height={120} alt="Hand Tools" />
+            <img className="" src={LogoPng} width={120} height={120} alt="Hand Tools" />
           </Link>
-          <ul className="m-0 p-1">
+          <ul className="m-0 p-1 inline-flex flex-wrap sm:block sm:flex-nowrap">
             {
               menu.map((m, i) => (
-                <li key={`menu-${i}`} className="text-center"><Link to={m.path}>{m.name}</Link></li>
+                <li key={`menu-${i}`} className="text-center p-1 sm:p-0"><Link to={m.path}>{m.name}</Link></li>
               ))
             }
           </ul>
@@ -69,10 +68,14 @@ export default function Root() {
             <DisplayAds.FixedVertical1 />
           </div>
         </div>
+
+        {/* CONTENT */}
         <div className="grow py-1 px-3 overflow-auto">
           <Outlet />
         </div>
       </div>
+
+      {/* BOTTOM */}
       <p className="p-1.5 m-0 border-t">
         Go to <a href="https://github.com/bjtj" target="_blank" rel="noreferrer">Github</a>
       </p>
