@@ -25,12 +25,12 @@ h3 {
 
 a {
     color: blue;
-    text-decoration: underline;
+    text-decoration: no-underline;
 }
 
 a:hover {
     color: darkblue;
-    text-decoration: none;
+    text-decoration: underline;
 }
 
 pre {
