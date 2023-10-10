@@ -53,6 +53,10 @@ export default function Root() {
       path: '/datetime',
       name: 'Datetime'
     },
+    {
+      path: '/markdown',
+      name: 'Markdown'
+    },
   ];
 
   return (

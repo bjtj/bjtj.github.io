@@ -22,6 +22,7 @@ import ImageInfo from "./routes/ImageInfo";
 import WebCam from './routes/Webcam';
 import Json from './routes/Json';
 import Datetime from './routes/Datetime';
+import Markdown from './routes/Markdown';
 
 import reportWebVitals from "./reportWebVitals";
 import "material-icons/iconfont/material-icons.css";
@@ -45,6 +46,7 @@ const router = createHashRouter(
         <Route path="webcam" element={<WebCam />} />
         <Route path="json" element={<Json />} />
         <Route path="datetime" element={<Datetime />} />
+        <Route path="markdown" element={<Markdown />} />
 
       </Route>
     </Route>
