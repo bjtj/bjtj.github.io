@@ -57,6 +57,10 @@ export default function Root() {
       path: '/markdown',
       name: 'Markdown'
     },
+    {
+      path: '/fetch',
+      name: 'Fetch'
+    },
   ];
 
   return (
