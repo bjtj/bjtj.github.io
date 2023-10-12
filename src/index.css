@@ -36,3 +36,11 @@ a:hover {
 pre {
     font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
 }
+
+code {
+    background-color: #eaeaea;
+    border: 1px solid #dddddd;
+    color: #404040;
+    border-radius: 0.25em;
+    padding: 0.15em 0.25em;
+}
