@@ -19,7 +19,7 @@ type FetchResult = {
 const METHODS = ['GET', 'POST', 'PUT', 'DELETE', 'HEAD', 'OPTIONS'];
 
 export default function Fetch() {
-  const [url, setUrl] = useState<string>('http://localhost:5000/api/products');
+  const [url, setUrl] = useState<string>('http://localhost:3000/');
   const [result, setResult] = useState<FetchResult>();
   const [method, setMethod] = useState<string>('GET');
   const [requestHeaders, setRequestHeaders] = useState<{[key:string]:string}>({});
@@ -120,7 +120,6 @@ export default function Fetch() {
             headers: requestHeaders,
             ...(requestBody ? {body: requestBody} : {})
           };
-          console.log(opts);
           setResult(await doFetch(url, opts));
         }}>Send</Button>
       </div>
