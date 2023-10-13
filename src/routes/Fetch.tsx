@@ -159,7 +159,7 @@ function ResultView({result}:ResultViewProps) {
       {result.json && (
         <>
           <h2>Body: JSON</h2>
-          <pre className="overflow-auto text-sm">
+          <pre className="overflow-auto text-sm border p-1 rounded">
             {result.json && JSON.stringify(result.json, null, 2)}
           </pre></>)}
       {result.text && (
