@@ -52,7 +52,7 @@ export default function Datetime() {
       <h1>Datetime</h1>
       <p className="my-1">Current Time: <code className="select-none p-1" onClick={() => setTime(`${now.getTime()}`)}>{now.getTime()}</code> (<span>{now.toLocaleString()}</span>)</p>
       <div>
-        <div className="flex items-center gap-1 my-3">
+        <div className="flex flex-wrap items-center gap-1 my-3">
           <Input className="w-[12rem]" type="number" value={time} min={0} onChange={e => {
             if (e.target.value === '') {
               setTime('');
@@ -71,7 +71,7 @@ export default function Datetime() {
           {date && <div className="shrink-0">{date.toLocaleString()}</div>}
         </div>
 
-        <div className="flex items-center gap-1">
+        <div className="flex items-center gap-1 overflow-auto">
           <Button variant="sm" onClick={() => offset(SEC)}><Icon className="!text-sm">add</Icon> 1sec.</Button>
           <Button variant="sm" onClick={() => offset(MIN)}><Icon className="!text-sm">add</Icon> 1min.</Button>
           <Button variant="sm" onClick={() => offset(HOUR)}><Icon className="!text-sm">add</Icon> 1hour</Button>
@@ -79,7 +79,7 @@ export default function Datetime() {
           <Button variant="sm" onClick={() => offset(DAY)}><Icon className="!text-sm">add</Icon> 1day</Button>
           <Button variant="sm" onClick={() => offset(7 * DAY)}><Icon className="!text-sm">add</Icon> 7days</Button>
         </div>
-        <div className="flex items-center gap-1">
+        <div className="flex items-center gap-1 overflow-auto">
           <Button variant="sm" onClick={() => offset(-SEC)}><Icon className="!text-sm">remove</Icon> 1sec.</Button>
           <Button variant="sm" onClick={() => offset(-MIN)}><Icon className="!text-sm">remove</Icon> 1min.</Button>
           <Button variant="sm" onClick={() => offset(-HOUR)}><Icon className="!text-sm">remove</Icon> 1hour</Button>

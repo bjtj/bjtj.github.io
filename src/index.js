@@ -24,6 +24,7 @@ import Json from './routes/Json';
 import Datetime from './routes/Datetime';
 import Markdown from './routes/Markdown';
 import Fetch from './routes/Fetch';
+import Compare from './routes/Compare';
 
 import reportWebVitals from "./reportWebVitals";
 import "material-icons/iconfont/material-icons.css";
@@ -49,6 +50,7 @@ const router = createHashRouter(
         <Route path="datetime" element={<Datetime />} />
         <Route path="markdown" element={<Markdown />} />
         <Route path="fetch" element={<Fetch />} />
+        <Route path="compare" element={<Compare />} />
 
       </Route>
     </Route>
