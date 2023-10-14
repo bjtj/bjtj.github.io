@@ -1,7 +1,7 @@
 {
   "files": {
     "main.css": "/static/css/main.c102def6.css",
-    "main.js": "/static/js/main.5cb31ad9.js",
+    "main.js": "/static/js/main.b9c923f3.js",
     "static/js/787.96d4b4a5.chunk.js": "/static/js/787.96d4b4a5.chunk.js",
     "static/media/material-icons-two-tone.woff": "/static/media/material-icons-two-tone.3baa5b8f3469222b822d.woff",
     "static/media/material-icons-two-tone.woff2": "/static/media/material-icons-two-tone.4ef4218c522f1eb6b5b1.woff2",
@@ -13,13 +13,15 @@
     "static/media/material-icons-outlined.woff2": "/static/media/material-icons-outlined.6f420cf17cc0d7676fad.woff2",
     "static/media/material-icons-sharp.woff2": "/static/media/material-icons-sharp.219aa9140e099e6c72ed.woff2",
     "static/media/material-icons.woff2": "/static/media/material-icons.0c35d18bf06992036b69.woff2",
+    "static/media/logo-toss-symbol-alpha.png": "/static/media/logo-toss-symbol-alpha.d84b7d185513048563fc.png",
+    "static/media/paypal_logo.png": "/static/media/paypal_logo.25b341e7e8db7bd5e1e5.png",
     "index.html": "/index.html",
     "main.c102def6.css.map": "/static/css/main.c102def6.css.map",
-    "main.5cb31ad9.js.map": "/static/js/main.5cb31ad9.js.map",
+    "main.b9c923f3.js.map": "/static/js/main.b9c923f3.js.map",
     "787.96d4b4a5.chunk.js.map": "/static/js/787.96d4b4a5.chunk.js.map"
   },
   "entrypoints": [
     "static/css/main.c102def6.css",
-    "static/js/main.5cb31ad9.js"
+    "static/js/main.b9c923f3.js"
   ]
 }
