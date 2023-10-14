@@ -113,9 +113,14 @@ export default function Fetch() {
       <h1>Fetch</h1>
       <p className="italic">WARNING: It uses client side fetch() API</p>
       <div className="flex items-center gap-2 p-1 overflow-auto">
-        <select className="px-3 py-1.5 rounded bg-white border border-gray-300 enabled:hover:border-gray-500 enabled:hover:bg-gray-100/50 disabled:bg-gray-500/20 disabled:text-gray-400" name="method" onChange={e => setMethod(e.target.value)} disabled={fetching}>
+        <select
+          className="px-3 py-1.5 rounded bg-white border border-gray-300 enabled:hover:border-gray-500 enabled:hover:bg-gray-100/50 disabled:bg-gray-500/20 disabled:text-gray-400"
+          name="method"
+          value={method}
+          onChange={e => setMethod(e.target.value)}
+          disabled={fetching}>
           {
-            METHODS.map((m, i) => (<option key={`method-${i}`} value={m} selected={m === method}>{m}</option>))
+            METHODS.map((m, i) => (<option key={`method-${i}`} value={m}>{m}</option>))
           }
         </select>
         <Input className="grow" value={url} onChange={e => setUrl(e.target.value)} placeholder="URL..." disabled={fetching} onKeyPress={e => { if (e.key === 'Enter') { e.preventDefault(); onClickSend(); }}} />
