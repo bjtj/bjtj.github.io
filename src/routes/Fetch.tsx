@@ -109,7 +109,7 @@ export default function Fetch() {
   }, [url, method, requestHeaders, requestBody]);
   
   return (
-    <div className="overflow-hidden p-[1px]">
+    <div className="p-[1px]">
       <h1>Fetch</h1>
       <p className="italic">WARNING: It uses client side fetch() API</p>
       <div className="flex items-center gap-2 p-1 overflow-auto">

@@ -10,17 +10,26 @@ h1 {
     font-size: 26pt;
     font-weight: 800;
     line-height: 1.75em;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    overflow: hidden;
 }
 
 h2 {
     font-size: 20pt;
     font-weight: 600;
     line-height: 1.75em;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    overflow: hidden;
 }
 
 h3 {
     font-size: 16pt;
     line-height: 1.2em;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    overflow: hidden;
 }
 
 a {

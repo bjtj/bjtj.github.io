@@ -53,16 +53,17 @@ export default function Markdown() {
       <h1>Markdown <span className="text-sm font-light">by </span><a className="text-sm font-light" href={refUrl} target="_blank">{refUrl}</a></h1>
       <div className="w-full flex gap-1 grow overflow-hidden relative">
         <TextArea
-          className="flex-1 h-full" value={mdText}
+          className="w-full h-full" value={mdText}
           onChange={e => setMdText(e.target.value)}
           placeholder="Type markdown..."
         />
-        <div className="flex-1 h-full border border-gray-400 rounded overflow-auto">
-          <div className={`relative w-full h-full`}>
+        <div className="w-full h-full border border-gray-400 rounded overflow-auto">
+          <div className={`relative w-full h-full `}>
             <pre className={`w-full h-full text-sm ${showCode ? '' : 'hidden'}`}>{htmlText}</pre>
             <iframe ref={iframeRef} className={`w-full h-full ${showCode ? 'hidden' : ''}`}></iframe>
             <Button
               className="absolute right-1 top-0"
+              variant="sm"
               icon={copyDone ? "done_outline" : "content_copy"}
               onClick={copyCode} disabled={!htmlText}>Copy HTML</Button>
           </div>

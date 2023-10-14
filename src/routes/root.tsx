@@ -86,7 +86,7 @@ export default function Root() {
         </div>
 
         {/* CONTENT */}
-        <div className="grow py-0 px-3 overflow-auto">
+        <div className="grow py-0 px-3 overflow-x-hidden">
           <Outlet />
         </div>
       </div>
