@@ -109,8 +109,9 @@ function ImageView({ file }: ImageViewProps) {
       {
         tags && (<>
           <h2>Exif <span className="text-base font-light">by <a href="https://github.com/mattiasw/ExifReader" target="_blank">exifreader</a></span></h2>
-          <ul>{Object.keys(tags).map((k, i) => (
-            <li key={`tag-${i}`}><strong>{k}:</strong> <ExifTag tag={tags[k]} /></li>
+          <ul className="space-y-1">{Object.keys(tags).map((k, i) => (
+            <li key={`tag-${i}`}><strong>{k}:</strong> <code>{JSON.stringify(tags[k].value) ?? ''}</code> {
+              true ? (<ExifTag tag={tags[k]} />) : (<span>{JSON.stringify(tags?.[k])}</span>)}</li>
             ))}</ul></>)
       }
 
@@ -123,17 +124,11 @@ type ExifTagProps = {
 };
 
 function ExifTag({tag}: ExifTagProps) {
-
   return (
-    <div className="inline-flex items-center gap-1">
-      {
-        Object.keys(tag).map((k) => (
-          <React.Fragment key={`tag-${k}`}>
-            <div className="">{k}</div>
-            <code className="text-sm">{tag[k]}</code>
-          </React.Fragment>
-        ))
-      }
+    <div>
+      <pre className="border text-sm p-1 my-1 roudned bg-gray-100/20 overflow-auto">
+        { JSON.stringify(tag, null, 2) }
+      </pre>
     </div>
   );
 }
