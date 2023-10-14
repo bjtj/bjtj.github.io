@@ -25,6 +25,7 @@ import Datetime from './routes/Datetime';
 import Markdown from './routes/Markdown';
 import Fetch from './routes/Fetch';
 import Compare from './routes/Compare';
+import Ffmpeg from './routes/Ffmpeg';
 
 import reportWebVitals from "./reportWebVitals";
 import "material-icons/iconfont/material-icons.css";
@@ -51,6 +52,7 @@ const router = createHashRouter(
         <Route path="markdown" element={<Markdown />} />
         <Route path="fetch" element={<Fetch />} />
         <Route path="compare" element={<Compare />} />
+        <Route path="ffmpeg" element={<Ffmpeg />} />
 
       </Route>
     </Route>
