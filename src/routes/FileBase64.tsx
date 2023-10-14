@@ -55,7 +55,7 @@ export default function FileBase64() {
   )
 }
 
-const file_to_base64 = async (a_file: File) => {
+export const file_to_base64 = async (a_file: File) => {
   let a_function = 
     (file: File) => new Promise((resolve, reject) => {
       const reader = new FileReader();

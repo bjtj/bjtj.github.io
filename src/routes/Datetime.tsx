@@ -11,86 +11,86 @@ const DAY = 24 * HOUR;
 
 export default function Datetime() {
 
-    const [now, setNow] = useState<Date>(new Date());
-    const [time, setTime] = useState<string>(new Date().getTime().toString());
-    const [error, setError] = useState<string>();
-    const [date, setDate] = useState<Date>();
+  const [now, setNow] = useState<Date>(new Date());
+  const [time, setTime] = useState<string>(new Date().getTime().toString());
+  const [error, setError] = useState<string>();
+  const [date, setDate] = useState<Date>();
 
-    const convert = useCallback(() => {
-        if (time) {
-            try {
-                setDate(new Date(parseInt(time)));
-            } catch (err) {
-                setError(`${err}`);
-            }
-        }
-    }, [time]);
-
-    function offset(o: number) {
-        let t = parseInt(time);
-        if (isNaN(t)) {
-            t = 0
-        }
-        setTime(`${Math.max(0, t + o)}`);
+  const convert = useCallback(() => {
+    if (time) {
+      try {
+        setDate(new Date(parseInt(time)));
+      } catch (err) {
+        setError(`${err}`);
+      }
     }
+  }, [time]);
 
-    useEffect(() => {
-        let timeout = setInterval(() => {
-            setNow(new Date());
-        }, 1000);
-        return () => {
-            clearInterval(timeout);
-        }
-    }, []);
+  function offset(o: number) {
+    let t = parseInt(time);
+    if (isNaN(t)) {
+      t = 0
+    }
+    setTime(`${Math.max(0, t + o)}`);
+  }
 
-    useEffect(() => {
-        convert();
-    }, [time]);
+  useEffect(() => {
+    let timeout = setInterval(() => {
+      setNow(new Date());
+    }, 1000);
+    return () => {
+      clearInterval(timeout);
+    }
+  }, []);
 
-    return (
-        <div>
-            <h1>Datetime</h1>
-            <p className="my-1">Current Time: <code className="select-none text-sm bg-gray-300/30 rounded p-1 border" onClick={() => setTime(`${now.getTime()}`)}>{now.getTime()}</code></p>
-            <div>
-                <div className="flex items-center gap-1">
-                <Input className="w-[12rem]" type="number" value={time} min={0} onChange={e => {
-                    if (e.target.value === '') {
-                        setTime('');
-                        return;
-                    }
-                    let ret = parseInt(e.target.value);
-                    if (isNaN(ret)) {
-                        if (!time) {
-                            setTime('0')
-                        }
-                    } else {
-                        setTime(e.target.value);
-                    }
-                }} placeholder="Time in milliseconds..."
-                inputMode="numeric" pattern="\d*" />
-                {date && <div className="shrink-0">{date.toLocaleString()}</div>}
-                </div>
+  useEffect(() => {
+    convert();
+  }, [time]);
 
-                <div className="flex items-center gap-1">
-                    <Button variant="sm" onClick={() => offset(SEC)}><Icon className="!text-sm">add</Icon> 1sec.</Button>
-                    <Button variant="sm" onClick={() => offset(MIN)}><Icon className="!text-sm">add</Icon> 1min.</Button>
-                    <Button variant="sm" onClick={() => offset(HOUR)}><Icon className="!text-sm">add</Icon> 1hour</Button>
-                    <Button variant="sm" onClick={() => offset(12 * HOUR)}><Icon className="!text-sm">add</Icon> 12hours</Button>
-                    <Button variant="sm" onClick={() => offset(DAY)}><Icon className="!text-sm">add</Icon> 1day</Button>
-                    <Button variant="sm" onClick={() => offset(7 * DAY)}><Icon className="!text-sm">add</Icon> 7days</Button>
-                </div>
-                <div className="flex items-center gap-1">
-                    <Button variant="sm" onClick={() => offset(-SEC)}><Icon className="!text-sm">remove</Icon> 1sec.</Button>
-                    <Button variant="sm" onClick={() => offset(-MIN)}><Icon className="!text-sm">remove</Icon> 1min.</Button>
-                    <Button variant="sm" onClick={() => offset(-HOUR)}><Icon className="!text-sm">remove</Icon> 1hour</Button>
-                    <Button variant="sm" onClick={() => offset(-12 * HOUR)}><Icon className="!text-sm">remove</Icon> 12hours</Button>
-                    <Button variant="sm" onClick={() => offset(-DAY)}><Icon className="!text-sm">remove</Icon> 1day</Button>
-                    <Button variant="sm" onClick={() => offset(-7 * DAY)}><Icon className="!text-sm">remove</Icon> 7days</Button>
-                </div>
-            </div>
-            <ErrorPanel error={error} label="Error:" />
-
-            <p className="text-sm my-3 italic">NOTE) Since <code className="">{new Date(0).toLocaleString()}</code></p>
+  return (
+    <div>
+      <h1>Datetime</h1>
+      <p className="my-1">Current Time: <code className="select-none p-1" onClick={() => setTime(`${now.getTime()}`)}>{now.getTime()}</code> (<span>{now.toLocaleString()}</span>)</p>
+      <div>
+        <div className="flex items-center gap-1 my-3">
+          <Input className="w-[12rem]" type="number" value={time} min={0} onChange={e => {
+            if (e.target.value === '') {
+              setTime('');
+              return;
+            }
+            let ret = parseInt(e.target.value);
+            if (isNaN(ret)) {
+              if (!time) {
+                setTime('0')
+              }
+            } else {
+              setTime(e.target.value);
+            }
+          }} placeholder="Time in milliseconds..."
+            inputMode="numeric" pattern="\d*" />
+          {date && <div className="shrink-0">{date.toLocaleString()}</div>}
         </div>
-    )
+
+        <div className="flex items-center gap-1">
+          <Button variant="sm" onClick={() => offset(SEC)}><Icon className="!text-sm">add</Icon> 1sec.</Button>
+          <Button variant="sm" onClick={() => offset(MIN)}><Icon className="!text-sm">add</Icon> 1min.</Button>
+          <Button variant="sm" onClick={() => offset(HOUR)}><Icon className="!text-sm">add</Icon> 1hour</Button>
+          <Button variant="sm" onClick={() => offset(12 * HOUR)}><Icon className="!text-sm">add</Icon> 12hours</Button>
+          <Button variant="sm" onClick={() => offset(DAY)}><Icon className="!text-sm">add</Icon> 1day</Button>
+          <Button variant="sm" onClick={() => offset(7 * DAY)}><Icon className="!text-sm">add</Icon> 7days</Button>
+        </div>
+        <div className="flex items-center gap-1">
+          <Button variant="sm" onClick={() => offset(-SEC)}><Icon className="!text-sm">remove</Icon> 1sec.</Button>
+          <Button variant="sm" onClick={() => offset(-MIN)}><Icon className="!text-sm">remove</Icon> 1min.</Button>
+          <Button variant="sm" onClick={() => offset(-HOUR)}><Icon className="!text-sm">remove</Icon> 1hour</Button>
+          <Button variant="sm" onClick={() => offset(-12 * HOUR)}><Icon className="!text-sm">remove</Icon> 12hours</Button>
+          <Button variant="sm" onClick={() => offset(-DAY)}><Icon className="!text-sm">remove</Icon> 1day</Button>
+          <Button variant="sm" onClick={() => offset(-7 * DAY)}><Icon className="!text-sm">remove</Icon> 7days</Button>
+        </div>
+      </div>
+      <ErrorPanel error={error} label="Error:" />
+      
+      <p className="text-sm my-3 italic"><strong>NOTE)</strong> Since <code className="">{new Date(0).toLocaleString()}</code></p>
+    </div>
+)
 }

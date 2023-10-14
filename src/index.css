@@ -38,8 +38,9 @@ pre {
 }
 
 code {
-    background-color: #eaeaea;
-    border: 1px solid #dddddd;
+    font-size: 0.9em;
+    background-color: #f8f8f8;
+    border: 1px solid #dfdfdf;
     color: #404040;
     border-radius: 0.25em;
     padding: 0.15em 0.25em;
