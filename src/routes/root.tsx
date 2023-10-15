@@ -66,6 +66,10 @@ export default function Root() {
       path: '/compare',
       name: 'Compare'
     },
+    {
+      path: '/ffmpeg',
+      name: 'FFMPEG'
+    },
   ];
 
   return (
