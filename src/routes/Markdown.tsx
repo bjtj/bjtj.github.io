@@ -74,7 +74,8 @@ export default function Markdown() {
               className="absolute right-1 top-0"
               variant="sm"
               icon={copyDone ? "done_outline" : "content_copy"}
-              onClick={copyCode} disabled={!htmlText}></Button>
+              onClick={copyCode}
+              disabled={!htmlText}></Button>
           </div>
           <div className="absolute right-1 bottom-0">
             <Button onClick={() => setShowCode(!showCode)}>{showCode ? 'show html' : 'show code'}</Button>

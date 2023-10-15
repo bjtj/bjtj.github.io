@@ -1,0 +1,679 @@
+{
+  "control": [
+    {
+      "code": 0,
+      "caret": "^@",
+      "escape_sequence": "0",
+      "name": "Null"
+    },
+    {
+      "code": 1,
+      "caret": "^A",
+      "escape_sequence": "",
+      "name": "Start of Heading"
+    },
+    {
+      "code": 2,
+      "caret": "^B",
+      "escape_sequence": "",
+      "name": "Start of Text"
+    },
+    {
+      "code": 3,
+      "caret": "^C",
+      "escape_sequence": "",
+      "name": "End of Text"
+    },
+    {
+      "code": 4,
+      "caret": "^D",
+      "escape_sequence": "",
+      "name": "End of Transmission"
+    },
+    {
+      "code": 5,
+      "caret": "^E",
+      "escape_sequence": "",
+      "name": "Enquiry"
+    },
+    {
+      "code": 6,
+      "caret": "^F",
+      "escape_sequence": "",
+      "name": "Acknowledgement"
+    },
+    {
+      "code": 7,
+      "caret": "^G",
+      "escape_sequence": "a",
+      "name": "Bell"
+    },
+    {
+      "code": 8,
+      "caret": "^H",
+      "escape_sequence": "b",
+      "name": "Backspace"
+    },
+    {
+      "code": 9,
+      "caret": "^I",
+      "escape_sequence": "t",
+      "name": "Horizontal Tab"
+    },
+    {
+      "code": 10,
+      "caret": "^J",
+      "escape_sequence": "n",
+      "name": "Line Feed"
+    },
+    {
+      "code": 11,
+      "caret": "^K",
+      "escape_sequence": "v",
+      "name": "Vertical Tab"
+    },
+    {
+      "code": 12,
+      "caret": "^L",
+      "escape_sequence": "f",
+      "name": "Form Feed"
+    },
+    {
+      "code": 13,
+      "caret": "^M",
+      "escape_sequence": "r",
+      "name": "Carriage Return"
+    },
+    {
+      "code": 14,
+      "caret": "^N",
+      "escape_sequence": "",
+      "name": "Shift Out"
+    },
+    {
+      "code": 15,
+      "caret": "^O",
+      "escape_sequence": "",
+      "name": "Shift In"
+    },
+    {
+      "code": 16,
+      "caret": "^P",
+      "escape_sequence": "",
+      "name": "Data Link Escape"
+    },
+    {
+      "code": 17,
+      "caret": "^Q",
+      "escape_sequence": "",
+      "name": "Device Control 1 (often XON)"
+    },
+    {
+      "code": 18,
+      "caret": "^R",
+      "escape_sequence": "",
+      "name": "Device Control 2"
+    },
+    {
+      "code": 19,
+      "caret": "^S",
+      "escape_sequence": "",
+      "name": "Device Control 3 (often XOFF)"
+    },
+    {
+      "code": 20,
+      "caret": "^T",
+      "escape_sequence": "",
+      "name": "Device Control 4"
+    },
+    {
+      "code": 21,
+      "caret": "^U",
+      "escape_sequence": "",
+      "name": "Negative Acknowledgement"
+    },
+    {
+      "code": 22,
+      "caret": "^V",
+      "escape_sequence": "",
+      "name": "Synchronous Idle"
+    },
+    {
+      "code": 23,
+      "caret": "^W",
+      "escape_sequence": "",
+      "name": "End of Transmission Block"
+    },
+    {
+      "code": 24,
+      "caret": "^X",
+      "escape_sequence": "",
+      "name": "Cancel"
+    },
+    {
+      "code": 25,
+      "caret": "^Y",
+      "escape_sequence": "",
+      "name": "End of Medium"
+    },
+    {
+      "code": 26,
+      "caret": "^Z",
+      "escape_sequence": "",
+      "name": "Substitute"
+    },
+    {
+      "code": 27,
+      "caret": "^[",
+      "escape_sequence": "e",
+      "name": "Escape"
+    },
+    {
+      "code": 28,
+      "caret": "^\\",
+      "escape_sequence": "",
+      "name": "File Separator"
+    },
+    {
+      "code": 29,
+      "caret": "^]",
+      "escape_sequence": "",
+      "name": "Group Separator"
+    },
+    {
+      "code": 30,
+      "caret": "^^",
+      "escape_sequence": "",
+      "name": "Record Separator"
+    },
+    {
+      "code": 31,
+      "caret": "^_",
+      "escape_sequence": "",
+      "name": "Unit Separator"
+    },
+    {
+      "code": 127,
+      "caret": "^?",
+      "escape_sequence": "",
+      "name": "Delete"
+    }
+  ],
+  "printable": [
+    {
+      "code": 32,
+      "glyph": "space",
+      "char": " "
+    },
+    {
+      "code": 33,
+      "glyph": "!",
+      "char": "!"
+    },
+    {
+      "code": 34,
+      "glyph": "\"",
+      "char": "\""
+    },
+    {
+      "code": 35,
+      "glyph": "#",
+      "char": "#"
+    },
+    {
+      "code": 36,
+      "glyph": "$",
+      "char": "$"
+    },
+    {
+      "code": 37,
+      "glyph": "%",
+      "char": "%"
+    },
+    {
+      "code": 38,
+      "glyph": "&",
+      "char": "&"
+    },
+    {
+      "code": 39,
+      "glyph": "'",
+      "char": "'"
+    },
+    {
+      "code": 40,
+      "glyph": "(",
+      "char": "("
+    },
+    {
+      "code": 41,
+      "glyph": ")",
+      "char": ")"
+    },
+    {
+      "code": 42,
+      "glyph": "*",
+      "char": "*"
+    },
+    {
+      "code": 43,
+      "glyph": "+",
+      "char": "+"
+    },
+    {
+      "code": 44,
+      "glyph": ",",
+      "char": ","
+    },
+    {
+      "code": 45,
+      "glyph": "-",
+      "char": "-"
+    },
+    {
+      "code": 46,
+      "glyph": ".",
+      "char": "."
+    },
+    {
+      "code": 47,
+      "glyph": "/",
+      "char": "/"
+    },
+    {
+      "code": 48,
+      "glyph": "0",
+      "char": "0"
+    },
+    {
+      "code": 49,
+      "glyph": "1",
+      "char": "1"
+    },
+    {
+      "code": 50,
+      "glyph": "2",
+      "char": "2"
+    },
+    {
+      "code": 51,
+      "glyph": "3",
+      "char": "3"
+    },
+    {
+      "code": 52,
+      "glyph": "4",
+      "char": "4"
+    },
+    {
+      "code": 53,
+      "glyph": "5",
+      "char": "5"
+    },
+    {
+      "code": 54,
+      "glyph": "6",
+      "char": "6"
+    },
+    {
+      "code": 55,
+      "glyph": "7",
+      "char": "7"
+    },
+    {
+      "code": 56,
+      "glyph": "8",
+      "char": "8"
+    },
+    {
+      "code": 57,
+      "glyph": "9",
+      "char": "9"
+    },
+    {
+      "code": 58,
+      "glyph": ":",
+      "char": ":"
+    },
+    {
+      "code": 59,
+      "glyph": ";",
+      "char": ";"
+    },
+    {
+      "code": 60,
+      "glyph": "<",
+      "char": "<"
+    },
+    {
+      "code": 61,
+      "glyph": "=",
+      "char": "="
+    },
+    {
+      "code": 62,
+      "glyph": ">",
+      "char": ">"
+    },
+    {
+      "code": 63,
+      "glyph": "?",
+      "char": "?"
+    },
+    {
+      "code": 64,
+      "glyph": "@",
+      "char": "@"
+    },
+    {
+      "code": 65,
+      "glyph": "A",
+      "char": "A"
+    },
+    {
+      "code": 66,
+      "glyph": "B",
+      "char": "B"
+    },
+    {
+      "code": 67,
+      "glyph": "C",
+      "char": "C"
+    },
+    {
+      "code": 68,
+      "glyph": "D",
+      "char": "D"
+    },
+    {
+      "code": 69,
+      "glyph": "E",
+      "char": "E"
+    },
+    {
+      "code": 70,
+      "glyph": "F",
+      "char": "F"
+    },
+    {
+      "code": 71,
+      "glyph": "G",
+      "char": "G"
+    },
+    {
+      "code": 72,
+      "glyph": "H",
+      "char": "H"
+    },
+    {
+      "code": 73,
+      "glyph": "I",
+      "char": "I"
+    },
+    {
+      "code": 74,
+      "glyph": "J",
+      "char": "J"
+    },
+    {
+      "code": 75,
+      "glyph": "K",
+      "char": "K"
+    },
+    {
+      "code": 76,
+      "glyph": "L",
+      "char": "L"
+    },
+    {
+      "code": 77,
+      "glyph": "M",
+      "char": "M"
+    },
+    {
+      "code": 78,
+      "glyph": "N",
+      "char": "N"
+    },
+    {
+      "code": 79,
+      "glyph": "O",
+      "char": "O"
+    },
+    {
+      "code": 80,
+      "glyph": "P",
+      "char": "P"
+    },
+    {
+      "code": 81,
+      "glyph": "Q",
+      "char": "Q"
+    },
+    {
+      "code": 82,
+      "glyph": "R",
+      "char": "R"
+    },
+    {
+      "code": 83,
+      "glyph": "S",
+      "char": "S"
+    },
+    {
+      "code": 84,
+      "glyph": "T",
+      "char": "T"
+    },
+    {
+      "code": 85,
+      "glyph": "U",
+      "char": "U"
+    },
+    {
+      "code": 86,
+      "glyph": "V",
+      "char": "V"
+    },
+    {
+      "code": 87,
+      "glyph": "W",
+      "char": "W"
+    },
+    {
+      "code": 88,
+      "glyph": "X",
+      "char": "X"
+    },
+    {
+      "code": 89,
+      "glyph": "Y",
+      "char": "Y"
+    },
+    {
+      "code": 90,
+      "glyph": "Z",
+      "char": "Z"
+    },
+    {
+      "code": 91,
+      "glyph": "[",
+      "char": "["
+    },
+    {
+      "code": 92,
+      "glyph": "\\",
+      "char": "\\"
+    },
+    {
+      "code": 93,
+      "glyph": "]",
+      "char": "]"
+    },
+    {
+      "code": 94,
+      "glyph": "^",
+      "char": "^"
+    },
+    {
+      "code": 95,
+      "glyph": "_",
+      "char": "_"
+    },
+    {
+      "code": 96,
+      "glyph": "`",
+      "char": "`"
+    },
+    {
+      "code": 97,
+      "glyph": "a",
+      "char": "a"
+    },
+    {
+      "code": 98,
+      "glyph": "b",
+      "char": "b"
+    },
+    {
+      "code": 99,
+      "glyph": "c",
+      "char": "c"
+    },
+    {
+      "code": 100,
+      "glyph": "d",
+      "char": "d"
+    },
+    {
+      "code": 101,
+      "glyph": "e",
+      "char": "e"
+    },
+    {
+      "code": 102,
+      "glyph": "f",
+      "char": "f"
+    },
+    {
+      "code": 103,
+      "glyph": "g",
+      "char": "g"
+    },
+    {
+      "code": 104,
+      "glyph": "h",
+      "char": "h"
+    },
+    {
+      "code": 105,
+      "glyph": "i",
+      "char": "i"
+    },
+    {
+      "code": 106,
+      "glyph": "j",
+      "char": "j"
+    },
+    {
+      "code": 107,
+      "glyph": "k",
+      "char": "k"
+    },
+    {
+      "code": 108,
+      "glyph": "l",
+      "char": "l"
+    },
+    {
+      "code": 109,
+      "glyph": "m",
+      "char": "m"
+    },
+    {
+      "code": 110,
+      "glyph": "n",
+      "char": "n"
+    },
+    {
+      "code": 111,
+      "glyph": "o",
+      "char": "o"
+    },
+    {
+      "code": 112,
+      "glyph": "p",
+      "char": "p"
+    },
+    {
+      "code": 113,
+      "glyph": "q",
+      "char": "q"
+    },
+    {
+      "code": 114,
+      "glyph": "r",
+      "char": "r"
+    },
+    {
+      "code": 115,
+      "glyph": "s",
+      "char": "s"
+    },
+    {
+      "code": 116,
+      "glyph": "t",
+      "char": "t"
+    },
+    {
+      "code": 117,
+      "glyph": "u",
+      "char": "u"
+    },
+    {
+      "code": 118,
+      "glyph": "v",
+      "char": "v"
+    },
+    {
+      "code": 119,
+      "glyph": "w",
+      "char": "w"
+    },
+    {
+      "code": 120,
+      "glyph": "x",
+      "char": "x"
+    },
+    {
+      "code": 121,
+      "glyph": "y",
+      "char": "y"
+    },
+    {
+      "code": 122,
+      "glyph": "z",
+      "char": "z"
+    },
+    {
+      "code": 123,
+      "glyph": "{",
+      "char": "{"
+    },
+    {
+      "code": 124,
+      "glyph": "|",
+      "char": "|"
+    },
+    {
+      "code": 125,
+      "glyph": "}",
+      "char": "}"
+    },
+    {
+      "code": 126,
+      "glyph": "~",
+      "char": "~"
+    }
+  ]
+}

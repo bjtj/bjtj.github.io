@@ -1,0 +1,212 @@
+import { useEffect, useState, useRef } from 'react';
+import AsciiCodes from '../assets/asciicodes.json';
+import Block from '../components/Block';
+import TextArea from '../components/TextArea';
+
+const PRINTABLE_ASCII_CHAR2CODE_TABLE = make_printable_ascii_char2code_table();
+const PRINTABLE_ASCII_CODE2CHAR_TABLE =  make_printable_ascii_code2char_table();
+const ASCII_CODE2PRINT_TABLE = make_ascii_code2print_table();
+
+
+type ControlCode = {
+  code: number;
+  caret: string;
+  escape_sequence: string;
+  name: string;
+};
+
+type PrintableCode = {
+  code: number;
+  glyph: string;
+  char: string;
+};
+
+export default function Ascii() {
+
+  return (
+    <div>
+      <h1>ASCII</h1>
+      <Block variant="note">Reference: <a href="https://en.wikipedia.org/wiki/ASCII" target="_blank">ASCII (wiki)</a></Block>
+
+      <LiveCharCode />
+
+      <PrintFile />
+      
+      <h2>Control Codes</h2>
+      <table className="table-fixed border-collapse text-sm">
+        <thead className="sticky top-0">
+          <tr className="text-center font-bold bg-gray-100">
+            <td className="p-3 border border-gray-300">Dec</td>
+            <td className="p-3 border border-gray-300">Hex</td>
+            <td className="p-3 border border-gray-300">Oct</td>
+            <td className="p-3 border border-gray-300">Caret</td>
+            <td className="p-3 border border-gray-300">Escape Sequence</td>
+            <td className="p-3 border border-gray-300">Name</td>
+          </tr>
+        </thead>
+        <tbody>
+          {
+            AsciiCodes.control.map((code, i) =>(
+              <ControlCode key={`cc-${i}`} code={code} />
+            ))
+          }
+        </tbody>
+      </table>
+
+      <h2>Printable Codes</h2>
+      <table className="table-fixed border-collapse text-sm">
+        <thead className="sticky top-0">
+          <tr className="text-center font-bold bg-gray-100">
+            <td className="p-3 border border-gray-300">Dec</td>
+            <td className="p-3 border border-gray-300">Hex</td>
+            <td className="p-3 border border-gray-300">Oct</td>
+            <td className="p-3 border border-gray-300">Glyph</td>
+          </tr>
+        </thead>
+        <tbody>
+          {
+            AsciiCodes.printable.map((code, i) =>(
+              <PrintableCode key={`pc-${i}`} code={code} />
+            ))
+          }
+        </tbody>
+      </table>
+    </div>
+  );
+}
+
+function LiveCharCode() {
+
+  const [text, setText] = useState<string>('');
+  
+  return (
+    <div>
+      <h2>Char Code</h2>
+      <TextArea value={text} onChange={e => setText(e.target.value)} />
+      <div className="flex flex-wrap my-3 border border-black">
+        {
+          text.split('').map(c => (
+            <div className="border border-black text-center">
+              <div className="font-mono h-[1.5em]">{c}</div>
+              <div><code>{c.charCodeAt(0)}</code></div>
+              <div><code>{printhex(c.charCodeAt(0))}</code></div>
+            </div>))
+        }
+      </div>
+    </div>
+  )
+}
+
+
+
+function PrintFile() {
+
+  const [file, setFile] = useState<File>();
+  const [array, setArray] = useState<string[]>();
+
+  useEffect(() => {
+    if (file) {
+      let reader = new FileReader();
+      reader.onload = () => {
+        let buffer = reader.result as ArrayBuffer;
+        let dataview = new DataView(buffer, 0);
+        let arr = [];
+        for (var i = 0; i < buffer.byteLength; i++) {
+          let d = dataview.getUint8(i);
+          arr.push(asciicode2str(d));
+        }
+        setArray(arr);
+      };
+      reader.readAsArrayBuffer(file);
+    }
+  }, [file]);
+  
+  
+  return (
+    <div>
+      <h2>Print File</h2>
+      <input type="file" onChange={e => e.target.files && setFile(e.target.files[0])} />
+
+      <div className="grid grid-cols-16 max-h-[500px] max-w-[600px] overflow-auto border p-1 bg-gray-100">
+        {
+          array && array.map(a => (
+            <code className={`text-center ${a.length == 2 && 'bg-gray-400 text-gray-100'} ${a.startsWith('<?') && 'bg-red-500 text-red-100 flex items-center justify-center text-xs overflow-hidden'}`}>
+              {a}
+            </code>))
+        }
+      </div>
+    </div>
+  );
+}
+
+
+type ControlCodeProps = {
+  code: ControlCode;
+};
+
+function ControlCode({code}: ControlCodeProps) {
+  return (
+    <tr className="text-center">
+      <td className="px-3 border border-gray-300"><code>{code.code}</code></td>
+      <td className="px-3 border border-gray-300"><code>{printhex(code.code)}</code></td>
+      <td className="px-3 border border-gray-300"><code>{printoct(code.code)}</code></td>
+      <td className="px-3 border border-gray-300"><code>{code.caret}</code></td>
+      <td className="px-3 border border-gray-300">{ code.escape_sequence && <code>\{code.escape_sequence}</code> }</td>
+      <td className="px-3 border border-gray-300">{code.name}</td>
+    </tr>
+  )
+}
+
+type PrintableCodeProps = {
+  code: PrintableCode;
+};
+
+function PrintableCode({code}: PrintableCodeProps) {
+  return (
+    <tr className="text-center">
+      <td className="px-3 border border-gray-300"><code>{code.code}</code></td>
+      <td className="px-3 border border-gray-300"><code>{printhex(code.code)}</code></td>
+      <td className="px-3 border border-gray-300"><code>{printoct(code.code)}</code></td>
+      <td className="px-3 border border-gray-300"><code>{code.glyph}</code></td>
+    </tr>
+  )
+}
+
+
+function make_printable_ascii_char2code_table() {
+  return AsciiCodes.printable.reduce((table, item) => ({
+    ...table,
+    [item.char]: item.code
+  }), {});
+}
+
+function make_printable_ascii_code2char_table(): {[key:number]: string} {
+  return AsciiCodes.printable.reduce((table, item) => ({
+    ...table,
+    [item.code]: item.char
+  }), {});
+}
+
+function make_ascii_code2print_table(): {[key:number]: string} {
+  const table = AsciiCodes.printable.reduce((table, item) => ({
+    ...table,
+    [item.code]: item.char
+  }), {});
+
+  return AsciiCodes.control.reduce((table, item) => ({
+    ...table,
+    [item.code]: item.caret
+  }), table);
+}
+
+function asciicode2str(code: number) {
+  return ASCII_CODE2PRINT_TABLE[code] ?? `<?${code}?>`;
+}
+
+function printhex(num: number) {
+  return '0x' + num.toString(16).padStart(2, '0');
+}
+
+function printoct(num: number) {
+  return num.toString(8).padStart(3, '0');
+}

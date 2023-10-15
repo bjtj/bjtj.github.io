@@ -70,6 +70,10 @@ export default function Root() {
       path: '/ffmpeg',
       name: 'FFMPEG'
     },
+    {
+      path: '/ascii',
+      name: 'ASCII'
+    },
   ];
 
   return (
