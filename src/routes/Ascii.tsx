@@ -2,6 +2,9 @@ import { useEffect, useState, useRef } from 'react';
 import AsciiCodes from '../assets/asciicodes.json';
 import Block from '../components/Block';
 import TextArea from '../components/TextArea';
+import Table from '../components/Table';
+import Input from '../components/Input';
+import Button from '../components/Button';
 
 const PRINTABLE_ASCII_CHAR2CODE_TABLE = make_printable_ascii_char2code_table();
 const PRINTABLE_ASCII_CODE2CHAR_TABLE =  make_printable_ascii_code2char_table();
@@ -31,49 +34,33 @@ export default function Ascii() {
       <LiveCharCode />
 
       <PrintFile />
-      
-      <h2>Control Codes</h2>
-      <table className="table-fixed border-collapse text-sm">
-        <thead className="sticky top-0">
-          <tr className="text-center font-bold bg-gray-100">
-            <td className="p-3 border border-gray-300">Dec</td>
-            <td className="p-3 border border-gray-300">Hex</td>
-            <td className="p-3 border border-gray-300">Oct</td>
-            <td className="p-3 border border-gray-300">Caret</td>
-            <td className="p-3 border border-gray-300">Escape Sequence</td>
-            <td className="p-3 border border-gray-300">Name</td>
-          </tr>
-        </thead>
-        <tbody>
+
+      <CharCodeToString />
+        
+        <h2>Control Codes</h2>
+        <Table head={['Dec', 'Hex', 'Oct', 'Caret', 'Escape Sequence', 'Name']}>
           {
             AsciiCodes.control.map((code, i) =>(
               <ControlCode key={`cc-${i}`} code={code} />
             ))
           }
-        </tbody>
-      </table>
+        </Table>
+        
+        <h2>Printable Codes</h2>
 
-      <h2>Printable Codes</h2>
-      <table className="table-fixed border-collapse text-sm">
-        <thead className="sticky top-0">
-          <tr className="text-center font-bold bg-gray-100">
-            <td className="p-3 border border-gray-300">Dec</td>
-            <td className="p-3 border border-gray-300">Hex</td>
-            <td className="p-3 border border-gray-300">Oct</td>
-            <td className="p-3 border border-gray-300">Glyph</td>
-          </tr>
-        </thead>
-        <tbody>
+        <Table head={['Dec', 'Hex', 'Oct', 'Glyph']}>
           {
             AsciiCodes.printable.map((code, i) =>(
               <PrintableCode key={`pc-${i}`} code={code} />
             ))
           }
-        </tbody>
-      </table>
+        </Table>
+
+        <FromCharCodeTable />
     </div>
   );
 }
+
 
 function LiveCharCode() {
 
@@ -97,6 +84,29 @@ function LiveCharCode() {
   )
 }
 
+
+function CharCodeToString() {
+
+  const [num, setNum] = useState<number>(0);
+  
+  return (
+    <div>
+      <h2>Char Code To String</h2>
+      <div className="flex gap-1">
+        <Input type="number" min={0} value={num} onChange={e => setNum(parseInt(e.target.value))} />
+        <Button onClick={() => setNum(Math.max(0, num-256))}>-256</Button>
+        <Button onClick={() => setNum(num+256)}>+256</Button>
+      </div>
+      <Table head={['Hex', 'FromCharCode', 'Encode']}>
+        <tr className="text-center">
+          <td className="border p-1"><code>{printhex(num)}</code></td>
+          <td className="border p-1"><code>{String.fromCharCode(num)}</code></td>
+          <td className="border p-1"><code>{encodeURIComponent(String.fromCharCode(num))}</code></td>
+        </tr>
+      </Table>
+    </div>
+  )
+}
 
 
 function PrintFile() {
@@ -125,16 +135,21 @@ function PrintFile() {
   return (
     <div>
       <h2>Print File</h2>
-      <input type="file" onChange={e => e.target.files && setFile(e.target.files[0])} />
-
-      <div className="grid grid-cols-16 max-h-[500px] max-w-[600px] overflow-auto border p-1 bg-gray-100">
-        {
-          array && array.map(a => (
-            <code className={`text-center ${a.length == 2 && 'bg-gray-400 text-gray-100'} ${a.startsWith('<?') && 'bg-red-500 text-red-100 flex items-center justify-center text-xs overflow-hidden'}`}>
-              {a}
-            </code>))
-        }
-      </div>
+      <input className="border p-3 bg-gray-100 rounded"
+        type="file" onChange={e => e.target.files && setFile(e.target.files[0])} />
+      { file && (
+          <>
+            <p><strong>Filename:</strong> {file.name} ({file.size.toLocaleString()} bytes)</p>
+            <div className="grid grid-cols-16 max-h-[500px] max-w-[600px] overflow-auto border p-1 bg-gray-100">
+              {
+                array && array.map(a => (
+                  <code className={`text-center ${a.length == 2 && 'bg-gray-400 text-gray-100'} ${a.startsWith('<?') && 'bg-red-500 text-red-100 flex items-center justify-center text-xs overflow-hidden'}`}>
+                    {a}
+                  </code>))
+              }
+            </div>
+          </>
+      )}
     </div>
   );
 }
@@ -172,6 +187,25 @@ function PrintableCode({code}: PrintableCodeProps) {
   )
 }
 
+
+function FromCharCodeTable() {
+  return (
+    <div>
+      <h2>String.fromCharCode</h2>
+      <Table head={['Code', 'Char', 'Encode']}>
+        {
+          [...new Array(256)].map((_, i) => (
+            <tr className="text-center">
+              <td className="border">{i}</td>
+              <td className="border"><code>{String.fromCharCode(i)}</code></td>
+              <td className="border"><code>{encodeURIComponent(String.fromCharCode(i))}</code></td>
+            </tr>
+          ))
+        }
+      </Table>
+    </div>
+  )
+}
 
 function make_printable_ascii_char2code_table() {
   return AsciiCodes.printable.reduce((table, item) => ({
