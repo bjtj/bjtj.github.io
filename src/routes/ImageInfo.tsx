@@ -1,6 +1,7 @@
-import React, { SyntheticEvent, useEffect, useRef, useState } from "react";
+import { SyntheticEvent, useEffect, useRef, useState } from "react";
 import ExifReader from 'exifreader';
 import Button from '../components/Button';
+import Divider from '../components/Divider';
 import { file_to_base64 } from './FileBase64';
 
 export default function ImageInfo() {
@@ -12,11 +13,13 @@ export default function ImageInfo() {
       <div className="py-3 sticky top-0 bg-white/90">
         <h1>Image Information</h1>
         <input
+          className="bg-gray-100 p-3"
           type="file" onChange={e =>
             e.target.files && e.target.files.length > 0 && setFile(e.target.files[0])
           }
           accept="image/png, image/gif, image/jpeg" />
       </div>
+      <Divider />
       {file && (
         <ImageView file={file} />
       )}
@@ -32,6 +35,7 @@ function ImageView({ file }: ImageViewProps) {
   const imgRef = useRef<HTMLImageElement | null>(null);
   const [info, setInfo] = useState<{ [key: string]: string }>();
   const [tags, setTags] = useState<ExifReader.Tags>();
+  const foldTable = useRef<boolean[]>([]);
   const [base64Image, setBase64Image] = useState<string>();
   const [processingBase64Image, setProcessingBase64Image] = useState<boolean>(false);
 
@@ -50,6 +54,7 @@ function ImageView({ file }: ImageViewProps) {
 
   useEffect(() => {
     ExifReader.load(file).then(tags => {
+      foldTable.current = [...new Array(Object.keys(tags).length)].map(() => true);
       setTags(tags);
     });
   }, [file]);
@@ -77,6 +82,7 @@ function ImageView({ file }: ImageViewProps) {
         <li><strong>Type:</strong> {file.type}</li>
         <li><strong>Last Modified:</strong> {new Date(file.lastModified).toLocaleString()}</li>
       </ul>
+      <Divider />
       <h2>Preview</h2>
       <img ref={onImgRef} className="border" src={URL.createObjectURL(file)} alt="preview"
         onLoad={onLoad}
@@ -87,15 +93,15 @@ function ImageView({ file }: ImageViewProps) {
         onClick={toBase64Image}>To Base64 Image</Button>
       {
         base64Image && (
-          <div className="border p-3 rounded">
-          <pre className="overflow-auto border border-gray-500 text-sm">
-            {base64Image}
-          </pre>
-          <div className="text-sm"><strong>Size:</strong> {base64Image.length.toLocaleString()} bytes</div>
+          <div className="">
+            <pre className="overflow-auto border border-gray-500 text-sm">
+              {base64Image}
+            </pre>
+            <div className="text-sm"><strong>Size:</strong> {base64Image.length.toLocaleString()} bytes</div>
           </div>
         )
       }
-      
+      <Divider />
       {info && (
         <>
           <h2>Image Information</h2>
@@ -106,13 +112,36 @@ function ImageView({ file }: ImageViewProps) {
           </ul>
         </>
       )}
+      <Divider />
       {
         tags && (<>
           <h2>Exif <span className="text-base font-light">by <a href="https://github.com/mattiasw/ExifReader" target="_blank">exifreader</a></span></h2>
+          <div className="flex gap-1">
+            <Button onClick={() => {
+              foldTable.current = foldTable.current.map(() => true);
+            }}>Fold all</Button>
+            <Button onClick={() => {
+              foldTable.current = foldTable.current.map(() => false);
+            }}>Unfold all</Button>
+          </div>
           <ul className="space-y-1">{Object.keys(tags).map((k, i) => (
-            <li key={`tag-${i}`}><strong>{k}:</strong> <code>{JSON.stringify(tags[k].value) ?? ''}</code> {
-              true ? (<ExifTag tag={tags[k]} />) : (<span>{JSON.stringify(tags?.[k])}</span>)}</li>
-            ))}</ul></>)
+            <li key={`tag-${i}`}>
+              <div className="flex gap-1 items-center">
+                <Button
+                  variant="sm" icon={foldTable.current[i] ? 'arrow_right' : 'arrow_drop_down'}
+                  onClick={e => {
+                    foldTable.current[i] = !foldTable.current[i];
+                  }}
+                />
+                <strong>{k}:</strong> <code>{JSON.stringify(tags[k].value) ?? ''}</code>
+              </div>
+              {
+                (!foldTable.current[i]) && (<ExifTag tag={tags[k]} />)
+              }
+            </li>
+            ))}</ul>
+          
+        </>)
       }
 
     </div>

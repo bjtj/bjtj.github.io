@@ -12,10 +12,10 @@ type ButtonProps = {
 } & ButtonHTMLAttributes<HTMLButtonElement>;
 
 const buttonvars = {
-  'xl': 'text-xl',
-  'lg': 'text-lg',
-  'md': 'text-base',
-  'sm': 'text-sm',
+  'xl': 'px-3 py-1.5 text-xl',
+  'lg': 'px-3 py-1.5 text-lg',
+  'md': 'px-3 py-1.5 text-base',
+  'sm': 'px-1 py-0.5 text-sm',
 }
 
 const iconvars = {
@@ -31,7 +31,7 @@ export default function Button({ icon, className, variant, processing, children,
 
   return (
     <button
-      className={`px-3 my-1 py-1.5 ring-0 outline-none
+      className={`my-1 ring-0 outline-none
 border border-1 border-black border-r-2 border-b-2 rounded-md
 focus:ring focus:ring-2
 enabled:bg-white/70

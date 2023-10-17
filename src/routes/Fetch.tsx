@@ -114,16 +114,16 @@ export default function Fetch() {
       <p className="italic">WARNING: It uses client side fetch() API</p>
       <div className="flex items-center gap-2 p-1 overflow-auto">
         <select
-          className="px-3 py-1.5 rounded bg-white border border-gray-300 enabled:hover:border-gray-500 enabled:hover:bg-gray-100/50 disabled:bg-gray-500/20 disabled:text-gray-400"
+          className="text-center px-3 py-1.5 rounded bg-white border border-gray-300 enabled:hover:border-gray-500 enabled:hover:bg-gray-100/50 disabled:bg-gray-500/20 disabled:text-gray-400"
           name="method"
           value={method}
           onChange={e => setMethod(e.target.value)}
           disabled={fetching}>
           {
-            METHODS.map((m, i) => (<option key={`method-${i}`} value={m}>{m}</option>))
+            METHODS.map((m, i) => (<option className="" key={`method-${i}`} value={m}>{m}</option>))
           }
         </select>
-        <Input className="grow" value={url} onChange={e => setUrl(e.target.value)} placeholder="URL..." disabled={fetching} onKeyPress={e => { if (e.key === 'Enter') { e.preventDefault(); onClickSend(); }}} />
+        <Input className="grow w-full" value={url} onChange={e => setUrl(e.target.value)} placeholder="URL..." disabled={fetching} onKeyPress={e => { if (e.key === 'Enter') { e.preventDefault(); onClickSend(); }}} />
         <Button className="shrink-0" onClick={onClickSend} disabled={fetching}>Send</Button>
       </div>
 
@@ -282,8 +282,8 @@ function HeaderFieldEdit({ idx, defaultKey, defaultValue, disabled, onChange, on
   
   return (
     <div className="flex items-center gap-2">
-      <Input className="w-[10em]" value={key} onChange={e => setKey(e.target.value)} placeholder="Key" disabled={disabled}/>
-      <Input className="grow" value={value} onChange={e => setValue(e.target.value)} placeholder="Value" disabled={disabled}/>
+      <Input className="w-[10em] max-w-[30%]" value={key} onChange={e => setKey(e.target.value)} placeholder="Key" disabled={disabled}/>
+      <Input className="grow w-full" value={value} onChange={e => setValue(e.target.value)} placeholder="Value" disabled={disabled}/>
       <Button onClick={onDelete}><Icon className="!text-base">remove</Icon></Button>
     </div>
   )

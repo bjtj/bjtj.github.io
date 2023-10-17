@@ -1,13 +1,12 @@
-import { useEffect, useState, useRef } from 'react';
+import { useEffect, useState } from 'react';
 import AsciiCodes from '../assets/asciicodes.json';
 import Block from '../components/Block';
 import TextArea from '../components/TextArea';
 import Table from '../components/Table';
 import Input from '../components/Input';
 import Button from '../components/Button';
+import Divider from '../components/Divider';
 
-const PRINTABLE_ASCII_CHAR2CODE_TABLE = make_printable_ascii_char2code_table();
-const PRINTABLE_ASCII_CODE2CHAR_TABLE =  make_printable_ascii_code2char_table();
 const ASCII_CODE2PRINT_TABLE = make_ascii_code2print_table();
 
 
@@ -27,36 +26,50 @@ type PrintableCode = {
 export default function Ascii() {
 
   return (
-    <div>
+    <div className="overflow-x-hidden">
       <h1>ASCII</h1>
       <Block variant="note">Reference: <a href="https://en.wikipedia.org/wiki/ASCII" target="_blank">ASCII (wiki)</a></Block>
 
       <LiveCharCode />
 
+      <Divider />
+
       <PrintFile />
 
+      <Divider />
+
       <CharCodeToString />
-        
-        <h2>Control Codes</h2>
-        <Table head={['Dec', 'Hex', 'Oct', 'Caret', 'Escape Sequence', 'Name']}>
-          {
-            AsciiCodes.control.map((code, i) =>(
-              <ControlCode key={`cc-${i}`} code={code} />
-            ))
-          }
-        </Table>
-        
-        <h2>Printable Codes</h2>
 
-        <Table head={['Dec', 'Hex', 'Oct', 'Glyph']}>
-          {
-            AsciiCodes.printable.map((code, i) =>(
-              <PrintableCode key={`pc-${i}`} code={code} />
-            ))
-          }
-        </Table>
+      <Divider />
+      
+      <h2>Control Codes</h2>
+      <Table
+        className="text-sm"
+        head={['Dec', 'Hex', 'Oct', 'Caret', 'Escape Sequence', 'Name']}>
+        {
+          AsciiCodes.control.map((code, i) =>(
+            <ControlCode key={`cc-${i}`} code={code} />
+          ))
+        }
+      </Table>
 
-        <FromCharCodeTable />
+      <Divider />
+      
+      <h2>Printable Codes</h2>
+
+      <Table
+        className="text-sm"
+        head={['Dec', 'Hex', 'Oct', 'Glyph']}>
+        {
+          AsciiCodes.printable.map((code, i) =>(
+            <PrintableCode key={`pc-${i}`} code={code} />
+          ))
+        }
+      </Table>
+
+      <Divider />
+
+      <FromCharCodeTable />
     </div>
   );
 }
@@ -70,10 +83,10 @@ function LiveCharCode() {
     <div>
       <h2>Char Code</h2>
       <TextArea value={text} onChange={e => setText(e.target.value)} />
-      <div className="flex flex-wrap my-3 border border-black">
+      <div className="flex flex-wrap gap-1 my-3">
         {
           text.split('').map(c => (
-            <div className="border border-black text-center">
+            <div className="border border-black text-center rounded">
               <div className="font-mono h-[1.5em]">{c}</div>
               <div><code>{c.charCodeAt(0)}</code></div>
               <div><code>{printhex(c.charCodeAt(0))}</code></div>
@@ -93,11 +106,13 @@ function CharCodeToString() {
     <div>
       <h2>Char Code To String</h2>
       <div className="flex gap-1">
-        <Input type="number" min={0} value={num} onChange={e => setNum(parseInt(e.target.value))} />
-        <Button onClick={() => setNum(Math.max(0, num-256))}>-256</Button>
-        <Button onClick={() => setNum(num+256)}>+256</Button>
+        <Input className="grow w-full max-w-[15em]" type="number" min={0} value={num} onChange={e => setNum(parseInt(e.target.value))} />
+        <Button variant="sm" onClick={() => setNum(Math.max(0, num-256))}>-256</Button>
+        <Button variant="sm" onClick={() => setNum(num+256)}>+256</Button>
       </div>
-      <Table head={['Hex', 'FromCharCode', 'Encode']}>
+      <Table
+        className="text-sm mt-3"
+        head={['Hex', 'FromCharCode', 'Encode']}>
         <tr className="text-center">
           <td className="border p-1"><code>{printhex(num)}</code></td>
           <td className="border p-1"><code>{String.fromCharCode(num)}</code></td>
@@ -149,7 +164,7 @@ function PrintFile() {
               }
             </div>
           </>
-      )}
+        )}
     </div>
   );
 }
@@ -192,7 +207,9 @@ function FromCharCodeTable() {
   return (
     <div>
       <h2>String.fromCharCode</h2>
-      <Table head={['Code', 'Char', 'Encode']}>
+      <Table
+        className="text-sm"
+        head={['Code', 'Char', 'Encode']}>
         {
           [...new Array(256)].map((_, i) => (
             <tr className="text-center">
@@ -205,20 +222,6 @@ function FromCharCodeTable() {
       </Table>
     </div>
   )
-}
-
-function make_printable_ascii_char2code_table() {
-  return AsciiCodes.printable.reduce((table, item) => ({
-    ...table,
-    [item.char]: item.code
-  }), {});
-}
-
-function make_printable_ascii_code2char_table(): {[key:number]: string} {
-  return AsciiCodes.printable.reduce((table, item) => ({
-    ...table,
-    [item.code]: item.char
-  }), {});
 }
 
 function make_ascii_code2print_table(): {[key:number]: string} {

@@ -1,22 +1,26 @@
 import { ReactNode } from 'react';
 
 type TableProps = {
+  className?: string;
   head?: ReactNode[];
   children: ReactNode;
 };
 
-export default function Table({head, children}: TableProps) {
+export default function Table({ className, head, children}: TableProps) {
   return (
-    <table className="table-fixed border-collapse text-sm">
-      { head && (
-          <thead className="sticky top-0">
-            <tr className="text-center font-bold bg-gray-100">
-              {
-                head.map(h => (<td className="p-3 border border-gray-300">{h}</td>))
-              }
-            </tr>
-          </thead>)}
-      { children && (<tbody>{children}</tbody>) }
-    </table>
+    <div className="overflow-x-auto">
+      <table className={`table-fixed border-collapse ${className ?? ''}`}>
+        { head && (
+            <thead className="bg-gray-100">
+              <tr className="sticky top-0">
+                {
+                  head.map(h => (
+                    <th className="text-center font-bold p-3 border border-gray-300">{h}</th>))
+                }
+              </tr>
+            </thead>)}
+        { children && (<tbody className="">{children}</tbody>) }
+      </table>
+    </div>
   )
 }

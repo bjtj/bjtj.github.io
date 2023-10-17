@@ -81,15 +81,15 @@ export default function Root() {
       <div className="inline-flex flex-col sm:flex-row grow overflow-auto">
 
         {/* MENU */}
-        <div className="px-3 bg-gray-100 py-1 min-w-[240px] min-h-[60px] max-h-[30%] sm:w-[240px] sm:max-h-full sm:text-center border-b border-b-gray-200 sm:border-r sm:border-r-gray-200 overflow-y-auto overflow-x-hidden">
-          <Link className="inline-block select-none" to="/">
-            <img className="hidden sm:block" src={LogoPng} width={120} height={120} alt="Hand Tools" />
-            <h1 className="block sm:hidden text-black italic">Hand Tools</h1>
+        <div className="flex sm:flex-col sm:items-center px-3 bg-gray-100 py-1 min-w-[240px] min-h-[60px] max-h-[30%] sm:w-[240px] sm:max-h-full sm:text-center border-b border-b-gray-200 sm:border-r sm:border-r-gray-200 overflow-y-auto overflow-x-hidden">
+          <Link className="inline-block select-none max-w-[50%] overflow-x-clip" to="/">
+            <img className="hidden sm:block" src={LogoPng} width={120} height={120} alt="HandTools" />
+            <h1 className="block sm:hidden text-black italic">HandTools</h1>
           </Link>
-          <ul className="m-0 p-1 inline-flex flex-wrap sm:block sm:flex-nowrap">
+          <ul className="m-0 p-1 flex items-center sm:block sm:flex-nowrap overflow-auto">
             {
               menu.map((m, i) => (
-                <li key={`menu-${i}`} className="text-center p-1 sm:p-0"><Link className="flex items-center justify-center" to={m.path}>{m.icon && (<Icon className="!text-lg !leading-0">{m.icon}</Icon>)}{m.name}</Link></li>
+                <li key={`menu-${i}`} className="text-center p-1 sm:p-0 whitespace-nowrap"><Link className="flex items-center justify-center" to={m.path}>{m.icon && (<Icon className="!text-lg !leading-0">{m.icon}</Icon>)}{m.name}</Link></li>
               ))
             }
           </ul>
@@ -105,7 +105,7 @@ export default function Root() {
       </div>
 
       {/* BOTTOM */}
-      <p className="p-1.5 m-0 border-t">
+      <p className="p-1.5 m-0 border-t hidden sm:block">
         Go to <a href="https://github.com/bjtj" target="_blank" rel="noreferrer"><img className="inline-block mr-1" src={GithubPng} width={20} height={20} />Github</a>
       </p>
     </div>

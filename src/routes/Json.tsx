@@ -2,6 +2,7 @@ import { useCallback, useState } from "react";
 import TextArea from "../components/TextArea";
 import ErrorPanel from "../components/ErrorPanel";
 import Button from "../components/Button";
+import Divider from '../components/Divider';
 
 export default function Json() {
 
@@ -38,6 +39,7 @@ export default function Json() {
         onChange={e => setJson(e.target.value)}
         placeholder="Enter json string..." />
       <Button disabled={json ? false : true} onClick={topretty}>Read</Button>
+      <Divider />
       <Button
         icon={copyDone ? "done_outline" : "content_copy"}
         onClick={copy}

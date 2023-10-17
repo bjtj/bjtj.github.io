@@ -23,9 +23,9 @@ export default function Keycode({ }:KeycodeProps) {
   }
   
   return (
-    <div>
+    <div className="overflow-x-auto pl-[1px]">
       <h1>Keycode</h1>
-      <Input className="font-mono min-w-[20em] text-center" type="text"
+      <Input className="font-mono min-w-[15em] text-center" type="text"
         value={keycode}
         onKeyDown={(e) => {
           e.preventDefault();
