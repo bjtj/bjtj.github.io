@@ -1,8 +1,9 @@
-import { useCallback, useEffect, useState, HTMLAttributes } from "react";
+import { useCallback, useEffect, useState, HTMLAttributes, useRef } from "react";
 import ErrorPanel from "../components/ErrorPanel";
 import Input from "../components/Input";
 import Button from "../components/Button";
 import Icon from "../components/Icon";
+import Table from "../components/Table";
 
 const SEC = 1000;
 const MIN = 60 * SEC;
@@ -94,9 +95,11 @@ export default function Datetime() {
           <Button variant="sm" onClick={() => offset(-365 * DAY)}><Icon className="!text-sm">remove</Icon> 365days</Button>
         </div>
       </div>
+
       <ErrorPanel error={error} label="Error:" />
-      
       <p className="text-sm my-3 italic"><strong>NOTE)</strong> Since <code className=""><DateView date={new Date(0)} /></code></p>
+
+      <UnitsTable />
     </div>
 )
 }
@@ -109,5 +112,61 @@ function DateView({ className, date} : DateViewProps) {
 
   return (
     <span className={`${className ?? ''}`}>{date.toLocaleString()} [{WEEKDAY[date.getDay()]}]</span>
+  )
+}
+
+
+const UNIT_SEC = 1;
+const UNIT_MINUTE = 60 * UNIT_SEC;
+const UNIT_HOUR = 60 * UNIT_MINUTE;
+const UNIT_HALF_DAY = 12 * UNIT_HOUR;
+const UNIT_DAY = 24 * UNIT_HOUR;
+const UNIT_WEEK = 7 * UNIT_DAY;
+const UNIT_30DAYS = 30 * UNIT_DAY;
+const UNIT_365DAYS = 365 * UNIT_DAY;
+
+type Unit = {
+  name: string;
+  second: number;
+};
+
+function UnitsTable() {
+
+  const units = useRef<Unit[]>([
+    { name: '1 Second', second: UNIT_SEC },
+    { name: '1 Minute', second: UNIT_MINUTE },
+    { name: '1 Hour', second: UNIT_HOUR },
+    { name: '12 Hours', second: UNIT_HALF_DAY },
+    { name: '24 Hours', second: UNIT_DAY },
+    { name: '1 Week', second: UNIT_WEEK },
+    { name: '30 Days', second: UNIT_30DAYS},
+    { name: '365 Days', second: UNIT_365DAYS },
+  ]);
+  
+  return (
+    <div className="overflow-x-hidden">
+      <h2>Units</h2>
+      <Table className="overflow-x-auto">
+        <thead className="bg-gray-100">
+          <tr>
+            <th className="border border-gray-300 p-1"></th>
+            <th className="border border-gray-300 p-1">Second(s)</th>
+            <th className="border border-gray-300 p-1">Millisecond(s)</th>
+          </tr>
+        </thead>
+        <tbody>
+          {
+            units.current.map((u, i) => (
+              <tr key={`unit=${i}`}>
+                <td className="border border-gray-300 p-1 whitespace-nowrap">{u.name}</td>
+                <td className="border border-gray-300 p-1">{u.second.toLocaleString()}</td>
+                <td className="border border-gray-300 p-1">{(u.second * 1000).toLocaleString()}</td>
+              </tr>
+            ))
+          }
+          
+        </tbody>
+      </Table>
+    </div>
   )
 }

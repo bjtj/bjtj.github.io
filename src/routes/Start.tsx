@@ -25,13 +25,9 @@ export default function Start() {
       {myip && (<p><strong>Your IP: </strong><code className="inline text-sm">{myip}</code> (by
         <a className="px-1 py-0.5 rounded bg-blue-200/50 border border-blue-500 mx-1" href="https://www.ipify.org/">ipfy</a>)</p>)}
       <Divider className="w-full max-w-[20em]" />
-      <div className="flex gap-3 my-1">
+      <div className="flex gap-3">
         <a href="https://toss.me/uridongsu">
           <img className="inline" src={TossLogoPng} width={20} height={20} />토스
-        </a>
-        <a href="https://paypal.me/bjtj10?country.x=KR&locale.x=ko_KR">
-          <img className="inline" src={PayPalLogoPng} width={20} height={20} />
-          PayPal
         </a>
       </div>
     </div>
