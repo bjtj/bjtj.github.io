@@ -161,7 +161,7 @@ function TextEditView({title, label, className, value, onChange, ...others}: Tex
         className=""
         variant="sm"
         disabled={saved}
-        icon={saved ? "done_outline" : "content_copy"}
+        icon={saved ? "done_outline" : "save"}
         onClick={saveToLocalStorage}>Save to local storage</Button>
       <TextArea
         className="w-full grow font-mono"

@@ -74,6 +74,10 @@ export default function Root() {
       path: '/ascii',
       name: 'ASCII'
     },
+    {
+      path: '/text',
+      name: 'Text'
+    },
   ];
 
   return (
@@ -81,12 +85,12 @@ export default function Root() {
       <div className="inline-flex flex-col sm:flex-row grow overflow-auto">
 
         {/* MENU */}
-        <div className="flex sm:flex-col sm:items-center px-3 bg-gray-100 py-1 min-w-[240px] min-h-[60px] max-h-[30%] sm:w-[240px] sm:max-h-full sm:text-center border-b border-b-gray-200 sm:border-r sm:border-r-gray-200 overflow-y-auto overflow-x-hidden">
+        <div className="flex sm:flex-col sm:items-center px-3 bg-gray-100 py-1 min-w-[240px] min-h-[4em] sm:w-[240px] sm:max-h-full sm:text-center border-b border-b-gray-200 sm:border-r sm:border-r-gray-200 overflow-y-auto overflow-x-hidden">
           <Link className="inline-block select-none max-w-[50%] overflow-x-clip" to="/">
             <img className="hidden sm:block" src={LogoPng} width={120} height={120} alt="HandTools" />
             <h1 className="block sm:hidden text-black italic">HandTools</h1>
           </Link>
-          <ul className="m-0 p-1 flex items-center sm:block sm:flex-nowrap overflow-auto">
+          <ul className="m-0 p-1 flex items-center sm:block sm:flex-nowrap overflow-x-auto overflow-y-hidden sm:overflow-x-hidden sm:overflow-y-auto">
             {
               menu.map((m, i) => (
                 <li key={`menu-${i}`} className="text-center p-1 sm:p-0 whitespace-nowrap"><Link className="flex items-center justify-center" to={m.path}>{m.icon && (<Icon className="!text-lg !leading-0">{m.icon}</Icon>)}{m.name}</Link></li>
