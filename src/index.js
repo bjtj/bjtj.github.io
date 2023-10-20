@@ -28,6 +28,7 @@ import Compare from './routes/Compare';
 import Ffmpeg from './routes/Ffmpeg';
 import Ascii from './routes/Ascii';
 import Text from './routes/Text';
+import Random from './routes/Random';
 
 import reportWebVitals from "./reportWebVitals";
 import "material-icons/iconfont/material-icons.css";
@@ -57,6 +58,7 @@ const router = createHashRouter(
         <Route path="ffmpeg" element={<Ffmpeg />} />
         <Route path="ascii" element={<Ascii />} />
         <Route path="text" element={<Text />} />
+        <Route path="random" element={<Random />} />
 
       </Route>
     </Route>

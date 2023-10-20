@@ -78,6 +78,10 @@ export default function Root() {
       path: '/text',
       name: 'Text'
     },
+    {
+      path: '/random',
+      name: 'Random'
+    },
   ];
 
   return (
