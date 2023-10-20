@@ -40,7 +40,7 @@ export default function UrlEncoder() {
       <div>
         <TextArea
           className="w-full font-mono"
-          placeholder="Enter text..."
+          placeholder="Text..."
           value={text}
           onChange={e => setText(e.target.value)}></TextArea>
         <p className="text-sm">Length: {(text?.length ?? 0).toLocaleString()}</p>
@@ -62,7 +62,7 @@ export default function UrlEncoder() {
       <div>
         <TextArea
           className="min-h-5 w-full font-mono"
-          placeholder="Encode the original text or enter encoded text here..."
+          placeholder="Encoded Text..."
           value={encoded} onChange={e => setEncoded(e.target.value)}></TextArea>
         <p className="text-sm">Length: {(encoded?.length ?? 0).toLocaleString()}</p>
       </div>

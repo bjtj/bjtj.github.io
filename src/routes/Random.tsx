@@ -83,13 +83,13 @@ export default function Random() {
     <div className="overflow-auto px-[1px]">
       <h1>Random</h1>
       
-      <Button onClick={genRandom}>Generate Random</Button>
+      <Button className="whitespace-nowrap" onClick={genRandom}>Generate Random</Button>
       <RandomValue value={randomNum} />
 
       <Divider />
       
-      <div className="flex gap-1 items-center justify-start">
-        <Button onClick={genRandomInt} disabled={(error.low || error.high) ? true : false}>Generate Random Int</Button>
+      <div className="flex gap-1 items-center justify-start overflow-x-auto px-[1px]">
+        <Button className="whitespace-nowrap" onClick={genRandomInt} disabled={(error.low || error.high) ? true : false}>Generate Random Int</Button>
         <InputNumber label="Low" error={error.low} value={lowStr} setValue={setLowStr} />
         <InputNumber label="High" error={error.high} value={highStr} setValue={setHighStr} />
       </div>
@@ -97,21 +97,21 @@ export default function Random() {
 
       <Divider />
       
-      <Button onClick={genCryptoRandom}>Generate Random Values</Button>
+      <Button className="whitespace-nowrap" onClick={genCryptoRandom}>Generate Random Values</Button>
       <RandomValue value={cryptoRandomNum && `${cryptoRandomNum}`} />
       <div className="text-sm">Ref: <a href="https://developer.mozilla.org/en-US/docs/Web/API/Crypto/getRandomValues" target="_blank">Crypto: getRandomValues() method</a></div>
 
       <Divider />
 
       
-      <Button onClick={genCryptoRandomUuid}>Generate Random UUID</Button>
+      <Button className="whitespace-nowrap" onClick={genCryptoRandomUuid}>Generate Random UUID</Button>
       <RandomValue value={cryptoRandomUuid} />
       <p className="text-sm">Ref: <a href="https://developer.mozilla.org/en-US/docs/Web/API/Crypto/randomUUID" target="_blank">Crypto: randomUUID() method</a></p>
 
       <Divider />
 
       <h2>History</h2>
-      <Button disabled={!history || history.length === 0} onClick={e => setHistory([])}>Clear</Button>
+      <Button className="whitespace-nowrap" disabled={!history || history.length === 0} onClick={e => setHistory([])}>Clear</Button>
       <pre className="w-full whitespace-pre-wrap border p-3 overflow-auto">
         {history.join(' ')}
       </pre>
