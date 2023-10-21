@@ -14,7 +14,7 @@ type ButtonProps = {
 const buttonvars = {
   'xl': 'px-3 py-1.5 text-xl',
   'lg': 'px-3 py-1.5 text-lg',
-  'md': 'px-3 py-1.5 text-base',
+  'md': 'px-3 py-1 text-base',
   'sm': 'px-1 py-0.5 text-sm',
 }
 

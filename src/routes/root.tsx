@@ -3,6 +3,8 @@ import DisplayAds from '../components/DisplayAds';
 import Icon from '../components/Icon';
 import LogoPng from '../assets/logo.png';
 import GithubPng from '../assets/github.png';
+import { ToastContainer, toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 
 export async function loader() {
   return {};
@@ -89,10 +91,9 @@ export default function Root() {
       <div className="inline-flex flex-col sm:flex-row grow overflow-auto">
 
         {/* MENU */}
-        <div className="flex sm:flex-col sm:items-center px-3 bg-gray-100 py-1 min-w-[240px] min-h-[4em] sm:w-[240px] sm:max-h-full sm:text-center border-b border-b-gray-200 sm:border-r sm:border-r-gray-200 overflow-y-auto overflow-x-hidden">
-          <Link className="inline-block select-none max-w-[50%] overflow-x-clip" to="/">
-            <img className="sm:block" src={LogoPng} alt="HandTools" />
-            <h1 className="block hidden text-black italic">HandTools</h1>
+        <div className="flex items-center sm:flex-col px-3 bg-gray-100 py-1 min-w-[240px] min-h-[3em] sm:w-[240px] sm:max-h-full sm:text-center border-b border-b-gray-200 sm:border-r sm:border-r-gray-200 overflow-y-auto overflow-x-hidden">
+          <Link className="inline-block select-none max-w-[50%] flex justify-center items-center" to="/">
+            <img className="h-[30px] min-w-[30px] sm:w-[120px] sm:h-[120px]" src={LogoPng} alt="HandTools" />
           </Link>
           <ul className="m-0 p-1 flex items-center sm:block sm:flex-nowrap overflow-x-auto overflow-y-hidden sm:overflow-x-hidden sm:overflow-y-auto">
             {
@@ -116,6 +117,8 @@ export default function Root() {
       <p className="p-1.5 m-0 border-t hidden sm:block">
         Go to <a href="https://github.com/bjtj" target="_blank" rel="noreferrer"><img className="inline-block mr-1" src={GithubPng} width={20} height={20} />Github</a>
       </p>
+
+      <ToastContainer />
     </div>
   )
 }
