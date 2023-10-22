@@ -46,7 +46,7 @@ export default function Ffmpeg() {
     <div className="flex flex-col h-full">
       <h1 className="shrink-0">FFMPEG <span className="text-sm font-light">by </span><a className="text-sm font-light" href={refUrl} target="_blank" rel="noreferrer">{refUrl}</a></h1>
 
-      <div className="flex flex-col grow justify-start items-start overflow-y-hidden">
+      <div className="flex flex-col grow justify-start items-start overflow-y-hidden px-[1px]">
         { !loaded ?
           (<Button
              onClick={load}
@@ -294,102 +294,108 @@ function MainView({ffmpeg} : MainViewProps) {
               className="absolute left-1 top-1 bg-white/50 px-1 rounded">
               {currentFilePath}
             </div>)}
-        </div>
-        {
-          fileList && (
-            <FileList
-              className="w-full overflow-hidden"
-              currentDir={currentDir}
-              list={fileList}
-              onRefresh={() => {
-                loadDir();
-              }}
-              onParent={() => {
-                setCurrentDir(getParentDir());
-              }}
-              onChild={name => {
-                setCurrentDir(joinPathes(currentDir, name));
-              }}
-              onFile={name => {
-                let ext = name.split('.').pop();
-                if (ext) {
-                  let mimetype = getType(ext);
-                  if (mimetype) {
-                    if (mimetype.startsWith('image')) {
-                      if (imgParentRef.current) {
-                        const {width, height} = imgParentRef.current.getBoundingClientRect();
-                        setImgParentSize({
-                          width, height
-                        });
-                      }
-                      readImage(joinPathes(currentDir, name), mimetype);
-                    }
-                    if (mimetype.startsWith('video')) {
-                      readVideo(joinPathes(currentDir, name), mimetype);
-                    }
+    </div>
+    {
+      fileList && (
+        <FileList
+          className="w-full overflow-hidden"
+          currentDir={currentDir}
+          list={fileList}
+          onRefresh={() => {
+            loadDir();
+          }}
+          onParent={() => {
+            setCurrentDir(getParentDir());
+          }}
+          onChild={name => {
+            setCurrentDir(joinPathes(currentDir, name));
+          }}
+          onFile={name => {
+            let ext = name.split('.').pop();
+            if (ext) {
+              let mimetype = getType(ext);
+              if (mimetype) {
+                if (mimetype.startsWith('image')) {
+                  if (imgParentRef.current) {
+                    const {width, height} = imgParentRef.current.getBoundingClientRect();
+                    setImgParentSize({
+                      width, height
+                    });
                   }
+                  readImage(joinPathes(currentDir, name), mimetype);
                 }
-              }}
-              createDirectory={name => {
-                ffmpeg.createDir(joinPathes(currentDir, name))
-                      .then(() => {
-                        loadDir();
-                      }).catch(err => {
-                        toast.error(`${err}`);
-                      });
-                
-              }}
-              removeDirectory={name => {
-                ffmpeg.deleteDir(joinPathes(currentDir, name))
-                      .then(() => {
-                        loadDir();
-                      }).catch(err => {
-                        toast.error(`${err}`);
-                      });
-              }}
-              removeFile={name => {
-                ffmpeg.deleteFile(joinPathes(currentDir, name))
-                      .then(() => {
-                        loadDir();
-                      }).catch(err => {
-                        toast.error(`${err}`);
-                      });
-              }}
-              rename={(oldName, newName) => {
-                ffmpeg.rename(joinPathes(currentDir, oldName), joinPathes(currentDir, newName))
-                      .then(() => {
-                        loadDir();
-                      }).catch(err => {
-                        toast.error(`${err}`);
-                      });
-              }}
-              download={(name) => {
-                ffmpeg.readFile(joinPathes(currentDir, name)).then(data => {
-                  let ext = name.split('.').pop();
-                  let mimetype = getType(ext ?? '') ?? 'application/octet-stream';
-                  let url = URL.createObjectURL(new Blob([data], { type: mimetype }));
-                  let link = document.createElement('a');
-                  link.href = url;
-                  link.download = name;
-                  link.click();
-                });
-              }}
-            />
-          )
-        }
-      </div>
+                if (mimetype.startsWith('video')) {
+                  readVideo(joinPathes(currentDir, name), mimetype);
+                }
+              }
+            }
+          }}
+          createDirectory={name => {
+            ffmpeg.createDir(joinPathes(currentDir, name))
+                  .then(() => {
+                    loadDir();
+                  }).catch(err => {
+                    toast.error(`${err}`);
+                  });
+            
+          }}
+          removeDirectory={name => {
+            ffmpeg.deleteDir(joinPathes(currentDir, name))
+                  .then(() => {
+                    loadDir();
+                  }).catch(err => {
+                    toast.error(`${err}`);
+                  });
+          }}
+          removeFile={name => {
+            ffmpeg.deleteFile(joinPathes(currentDir, name))
+                  .then(() => {
+                    loadDir();
+                  }).catch(err => {
+                    toast.error(`${err}`);
+                  });
+          }}
+          rename={(oldName, newName) => {
+            ffmpeg.rename(joinPathes(currentDir, oldName), joinPathes(currentDir, newName))
+                  .then(() => {
+                    loadDir();
+                  }).catch(err => {
+                    toast.error(`${err}`);
+                  });
+          }}
+          download={(name) => {
+            ffmpeg.readFile(joinPathes(currentDir, name)).then(data => {
+              let ext = name.split('.').pop();
+              let mimetype = getType(ext ?? '') ?? 'application/octet-stream';
+              let url = URL.createObjectURL(new Blob([data], { type: mimetype }));
+              let link = document.createElement('a');
+              link.href = url;
+              link.download = name;
+              link.click();
+            });
+          }}
+        />
+      )
+    }
+    </div>
 
-      <div className="p-1 grow min-h-[100px] bg-gray-600 overflow-auto">
-        <ul className="h-full">
-          {
-            logs.map((log, i) => (<li key={`log-${i}`}>
-              <pre className={`whitespace-pre text-sm text-gray-100 ${log.type === 'stderr' ? 'text-red-500' : ''}`}>{log.message}</pre>
-            </li>))
-          }
-          <div ref={lastRef}></div>
-        </ul>
-      </div>
-      <Button className="fixed right-5 bottom-10" variant="sm" onClick={clearLog}>Clear Logs</Button>
+    <div className="p-1 grow min-h-[100px] bg-gray-600 overflow-hidden relative">
+      <ul className="h-full overflow-auto">
+        {
+          logs.map((log, i) => (<li key={`log-${i}`}>
+            <pre className={`whitespace-pre text-sm text-gray-100 ${log.type === 'stderr' ? 'text-red-500' : ''}`}>{log.message}</pre>
+          </li>))
+        }
+        <div ref={lastRef}></div>
+      </ul>
+      <Button
+        className="absolute right-5 bottom-5" variant="sm" onClick={clearLog}
+        icon="clear_all"
+      >
+        Clear Logs
+      </Button>
+    </div>
+    
     </div>);
 }
 

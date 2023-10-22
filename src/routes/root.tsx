@@ -1,4 +1,4 @@
-import { Outlet, Link } from "react-router-dom";
+import { Outlet, Link, useLocation } from "react-router-dom";
 import DisplayAds from '../components/DisplayAds';
 import Icon from '../components/Icon';
 import LogoPng from '../assets/logo.png';
@@ -21,6 +21,8 @@ type MenuItem = {
 };
 
 export default function Root() {
+
+  const location = useLocation();
 
   const menu: MenuItem[] = [
     {
@@ -98,7 +100,13 @@ export default function Root() {
           <ul className="m-0 p-1 flex items-center sm:block sm:flex-nowrap overflow-x-auto overflow-y-hidden sm:overflow-x-hidden sm:overflow-y-auto">
             {
               menu.map((m, i) => (
-                <li key={`menu-${i}`} className="text-center p-1 sm:p-0 whitespace-nowrap"><Link className="flex items-center justify-center" to={m.path}>{m.icon && (<Icon className="!text-lg !leading-0">{m.icon}</Icon>)}{m.name}</Link></li>
+                <li key={`menu-${i}`} className="text-center p-1 sm:p-0 whitespace-nowrap">
+                  <Link
+                    className={`flex items-center justify-center ${location.pathname === m.path && 'font-bold text-red-600 hover:text-red-900'}`}
+                    to={m.path}>
+                    {m.icon && (<Icon className="!text-lg !leading-0">{m.icon}</Icon>)}{m.name}
+                  </Link>
+                </li>
               ))
             }
           </ul>

@@ -44,7 +44,7 @@ export default function FileBase64() {
           </div>
         )
       }
-      <Button onClick={convertFile2base64} disabled={file ? false : true}>Conver to Base64</Button>
+      <Button onClick={convertFile2base64} disabled={file ? false : true}>Convert to Base64</Button>
       { base64 && (<>
         <h2>Base64:</h2>
         <pre className="overflow-auto whitespace-pre text-sm border border-gray-400 p-1 rounded">{base64}</pre>
