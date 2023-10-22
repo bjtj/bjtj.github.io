@@ -99,14 +99,14 @@ export default function Random() {
       
       <Button className="whitespace-nowrap" onClick={genCryptoRandom}>Generate Random Values</Button>
       <RandomValue value={cryptoRandomNum && `${cryptoRandomNum}`} />
-      <div className="text-sm">Ref: <a href="https://developer.mozilla.org/en-US/docs/Web/API/Crypto/getRandomValues" target="_blank">Crypto: getRandomValues() method</a></div>
+      <div className="text-sm">Ref: <a href="https://developer.mozilla.org/en-US/docs/Web/API/Crypto/getRandomValues" target="_blank" rel="noreferrer">Crypto: getRandomValues() method</a></div>
 
       <Divider />
 
       
       <Button className="whitespace-nowrap" onClick={genCryptoRandomUuid}>Generate Random UUID</Button>
       <RandomValue value={cryptoRandomUuid} />
-      <p className="text-sm">Ref: <a href="https://developer.mozilla.org/en-US/docs/Web/API/Crypto/randomUUID" target="_blank">Crypto: randomUUID() method</a></p>
+      <p className="text-sm">Ref: <a href="https://developer.mozilla.org/en-US/docs/Web/API/Crypto/randomUUID" target="_blank" rel="noreferrer">Crypto: randomUUID() method</a></p>
 
       <Divider />
 

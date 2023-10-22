@@ -11,7 +11,7 @@ export default function WebCam() {
 
   return (
     <div>
-      <h1>Webcam <span className="text-sm font-light">by </span><a className="text-sm font-light" href={refUrl} target="_blank">{refUrl}</a></h1>
+      <h1>Webcam <span className="text-sm font-light">by </span><a className="text-sm font-light" href={refUrl} target="_blank" rel="noreferrer">{refUrl}</a></h1>
 
       { !confirm && (<Button onClick={() => setConfirm(true)}>Enable Webcam</Button>) }
 

@@ -3,7 +3,7 @@ import DisplayAds from '../components/DisplayAds';
 import Icon from '../components/Icon';
 import LogoPng from '../assets/logo.png';
 import GithubPng from '../assets/github.png';
-import { ToastContainer, toast } from 'react-toastify';
+import { ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 
 export async function loader() {
@@ -115,7 +115,7 @@ export default function Root() {
 
       {/* BOTTOM */}
       <p className="p-1.5 m-0 border-t hidden sm:block">
-        Go to <a href="https://github.com/bjtj" target="_blank" rel="noreferrer"><img className="inline-block mr-1" src={GithubPng} width={20} height={20} />Github</a>
+        <a href="https://github.com/bjtj" target="_blank" rel="noreferrer"><img className="inline-block mr-1" src={GithubPng} width={20} height={20} alt="Github" />Github</a>
       </p>
 
       <ToastContainer />

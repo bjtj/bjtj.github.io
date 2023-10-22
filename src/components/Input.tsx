@@ -13,7 +13,7 @@ export default function Input({type, autoFocus, className, ...others}: InputProp
       }
     }
     inputRef.current = ref;
-  }, []);
+  }, [autoFocus]);
   return (
     <input
       ref={onInputRef}

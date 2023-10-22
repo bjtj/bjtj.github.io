@@ -48,7 +48,7 @@ export default function Datetime() {
 
   useEffect(() => {
     convert();
-  }, [time]);
+  }, [time, convert]);
 
   return (
     <div>

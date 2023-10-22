@@ -92,7 +92,7 @@ export default function Fetch() {
       localStorage.setItem('fetch-headers', JSON.stringify(requestHeaders));
       localStorage.setItem('fetch-body', requestBody);
     }
-  }, [result]);
+  }, [result, method, requestBody, requestHeaders, url]);
 
   const onClickSend = useCallback(async () => {
     try {
@@ -228,7 +228,7 @@ function HeaderEdit({ defaultHeaders, disabled, onChangeHeaders }: HeaderEditPro
       ...obj,
       [item.key]: item.value
     }), {}));
-  }, [headers]);
+  }, [headers, onChangeHeaders]);
   
   return (
     <div className="p-3 border rounded-xl overflow-auto">
@@ -278,7 +278,7 @@ function HeaderFieldEdit({ idx, defaultKey, defaultValue, disabled, onChange, on
 
   useEffect(() => {
     onChange(idx, key, value);
-  }, [key, value]);
+  }, [key, value, idx, onChange]);
   
   return (
     <div className="flex items-center gap-2">

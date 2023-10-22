@@ -31,7 +31,7 @@ export default function Markdown() {
   useEffect(() => {
     convert();
     setCopyDone(false);
-  }, [mdText]);
+  }, [mdText, convert]);
 
   function copyCode() {
     if (htmlText) {
@@ -47,7 +47,7 @@ export default function Markdown() {
 
   return (
     <div className="inline-flex flex-col items-start w-full h-full">
-      <h1>Markdown <span className="text-sm font-light">by </span><a className="text-sm font-light" href={refUrl} target="_blank">{refUrl}</a></h1>
+      <h1>Markdown <span className="text-sm font-light">by </span><a className="text-sm font-light" href={refUrl} target="_blank" rel="noreferrer">{refUrl}</a></h1>
       <div className="w-full flex gap-1 grow overflow-hidden relative">
         <div className="w-full flex flex-col pl-[1px]">
           <TextArea
@@ -69,7 +69,11 @@ export default function Markdown() {
         <div className="w-full h-full border border-gray-400 rounded overflow-auto">
           <div className={`relative w-full h-full `}>
             <pre className={`w-full h-full bg-gray-100/50 text-sm ${showCode ? '' : 'hidden'}`}>{htmlText}</pre>
-            <iframe ref={iframeRef} className={`w-full h-full ${showCode ? 'hidden' : ''}`} srcDoc={htmlText}></iframe>
+            <iframe
+              ref={iframeRef}
+              title="HTML Preview"
+              className={`w-full h-full ${showCode ? 'hidden' : ''}`}
+              srcDoc={htmlText}></iframe>
             <Button
               className="absolute right-1 top-0"
               variant="sm"

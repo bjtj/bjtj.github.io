@@ -10,7 +10,7 @@ function escapeText(text: string) {
     .replaceAll('\n', '\\n')
     .replaceAll('\r', '\\r')
     .replaceAll('\t', '\\t')
-    .replaceAll('\"', '\\\"')
+    .replaceAll('"', '\\"');
 }
 
 
@@ -23,7 +23,7 @@ export default function Text() {
 
   const escape = useCallback((text:string) => {
     setEscapedText(escapeText(text));
-  }, [text]);
+  }, []);
 
   const unescape = useCallback((escapedText:string) => {
     try {
@@ -33,7 +33,7 @@ export default function Text() {
     } catch (err) {
       setError(`${err}`);
     }
-  }, [escapedText]);
+  }, []);
 
   const saveToLocalStorage = () => {
     localStorage.setItem('text-text', text);

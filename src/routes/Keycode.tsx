@@ -1,16 +1,12 @@
 import { useState } from 'react';
 import Input from '../components/Input';
 
-type KeycodeProps = {
-  
-};
-
 type KeycodeHistItem = {
   key: string;
   keyCode: number;
 };
 
-export default function Keycode({ }:KeycodeProps) {
+export default function Keycode() {
 
   const [keycode, setKeycode] = useState<string>();
   const [keycodeHist, setKeycodeHist] = useState<KeycodeHistItem[]>([]);

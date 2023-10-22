@@ -28,7 +28,7 @@ export default function Ascii() {
   return (
     <div className="overflow-x-hidden">
       <h1>ASCII</h1>
-      <Block variant="note">Reference: <a href="https://en.wikipedia.org/wiki/ASCII" target="_blank">ASCII (wiki)</a></Block>
+      <Block variant="note">Reference: <a href="https://en.wikipedia.org/wiki/ASCII" target="_blank" rel="noreferrer">ASCII (wiki)</a></Block>
 
       <LiveCharCode />
 
@@ -48,7 +48,7 @@ export default function Ascii() {
         head={['Dec', 'Hex', 'Oct', 'Caret', 'Escape Sequence', 'Name']}>
         {
           AsciiCodes.control.map((code, i) =>(
-            <ControlCode key={`cc-${i}`} code={code} />
+            <ControlCodeView key={`cc-${i}`} code={code} />
           ))
         }
       </Table>
@@ -62,7 +62,7 @@ export default function Ascii() {
         head={['Dec', 'Hex', 'Oct', 'Glyph']}>
         {
           AsciiCodes.printable.map((code, i) =>(
-            <PrintableCode key={`pc-${i}`} code={code} />
+            <PrintableCodeView key={`pc-${i}`} code={code} />
           ))
         }
       </Table>
@@ -85,8 +85,8 @@ function LiveCharCode() {
       <TextArea value={text} onChange={e => setText(e.target.value)} />
       <div className="flex flex-wrap gap-1 my-3">
         {
-          text.split('').map(c => (
-            <div className="border border-black text-center rounded">
+          text.split('').map((c, i) => (
+            <div className="border border-black text-center rounded" key={`live-${i}`}>
               <div className="font-mono h-[1.5em]">{c}</div>
               <div><code>{c.charCodeAt(0)}</code></div>
               <div><code>{printhex(c.charCodeAt(0))}</code></div>
@@ -157,8 +157,11 @@ function PrintFile() {
             <p><strong>Filename:</strong> {file.name} ({file.size.toLocaleString()} bytes)</p>
             <div className="grid grid-cols-16 max-h-[500px] max-w-[600px] overflow-auto border p-1 bg-gray-100">
               {
-                array && array.map(a => (
-                  <code className={`text-center ${a.length == 2 && 'bg-gray-400 text-gray-100'} ${a.startsWith('<?') && 'bg-red-500 text-red-100 flex items-center justify-center text-xs overflow-hidden'}`}>
+                array && array.map((a, i) => (
+                  <code
+                    className={`text-center ${a.length === 2 && 'bg-gray-400 text-gray-100'} ${a.startsWith('<?') && 'bg-red-500 text-red-100 flex items-center justify-center text-xs overflow-hidden'}`}
+                    key={`fcode-${i}`}
+                  >
                     {a}
                   </code>))
               }
@@ -170,11 +173,11 @@ function PrintFile() {
 }
 
 
-type ControlCodeProps = {
+type ControlCodeViewProps = {
   code: ControlCode;
 };
 
-function ControlCode({code}: ControlCodeProps) {
+function ControlCodeView({code}: ControlCodeViewProps) {
   return (
     <tr className="text-center">
       <td className="px-3 border border-gray-300"><code>{code.code}</code></td>
@@ -187,11 +190,11 @@ function ControlCode({code}: ControlCodeProps) {
   )
 }
 
-type PrintableCodeProps = {
+type PrintableCodeViewProps = {
   code: PrintableCode;
 };
 
-function PrintableCode({code}: PrintableCodeProps) {
+function PrintableCodeView({code}: PrintableCodeViewProps) {
   return (
     <tr className="text-center">
       <td className="px-3 border border-gray-300"><code>{code.code}</code></td>
@@ -212,7 +215,7 @@ function FromCharCodeTable() {
         head={['Code', 'Char', 'Encode']}>
         {
           [...new Array(256)].map((_, i) => (
-            <tr className="text-center">
+            <tr className="text-center" key={`code-${i}`}>
               <td className="border">{i}</td>
               <td className="border"><code>{String.fromCharCode(i)}</code></td>
               <td className="border"><code>{encodeURIComponent(String.fromCharCode(i))}</code></td>

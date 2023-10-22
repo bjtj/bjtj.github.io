@@ -1,6 +1,5 @@
 import { useEffect, useState } from "react";
 import TossLogoPng from '../assets/logo-toss-symbol-alpha.png';
-import PayPalLogoPng from '../assets/paypal_logo.png';
 import Divider from '../components/Divider';
 
 export default function Start() {
@@ -27,7 +26,7 @@ export default function Start() {
       <Divider className="w-full max-w-[20em]" />
       <div className="flex gap-3">
         <a href="https://toss.me/uridongsu">
-          <img className="inline" src={TossLogoPng} width={20} height={20} />토스
+          <img className="inline" src={TossLogoPng} width={20} height={20} alt="toss" />토스
         </a>
       </div>
     </div>

@@ -115,7 +115,7 @@ function ImageView({ file }: ImageViewProps) {
       <Divider />
       {
         tags && (<>
-          <h2>Exif <span className="text-base font-light">by <a href="https://github.com/mattiasw/ExifReader" target="_blank">exifreader</a></span></h2>
+          <h2>Exif <span className="text-base font-light">by <a href="https://github.com/mattiasw/ExifReader" target="_blank" rel="noreferrer">exifreader</a></span></h2>
           <div className="flex gap-1">
             <Button onClick={() => {
               foldTable.current = foldTable.current.map(() => true);

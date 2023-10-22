@@ -1,4 +1,4 @@
-import { useEffect, useState, useRef, useCallback, useLayoutEffect } from 'react';
+import { useEffect, useState, useRef, useCallback, } from 'react';
 import { FFmpeg, } from '@ffmpeg/ffmpeg';
 import { fetchFile, toBlobURL, } from '@ffmpeg/util';
 import Button from '../components/Button';
@@ -44,7 +44,7 @@ export default function Ffmpeg() {
 
   return (
     <div className="flex flex-col h-full">
-      <h1 className="shrink-0">FFMPEG <span className="text-sm font-light">by </span><a className="text-sm font-light" href={refUrl} target="_blank">{refUrl}</a></h1>
+      <h1 className="shrink-0">FFMPEG <span className="text-sm font-light">by </span><a className="text-sm font-light" href={refUrl} target="_blank" rel="noreferrer">{refUrl}</a></h1>
 
       <div className="flex flex-col grow justify-start items-start overflow-y-hidden">
         { !loaded ?
@@ -130,34 +130,11 @@ function MainView({ffmpeg} : MainViewProps) {
       ffmpeg.off('log', onLog);
       window.removeEventListener('resize', onResize);
     }
-  }, []);
+  }, [ffmpeg]);
 
   useEffect(() => {
     lastRef.current?.scrollIntoView({behavior: 'smooth'});
   }, [logs]);
-
-  const extractFrames = async (file: File) => {
-    setImageUrl('');
-    setCurrentFilePath('');
-    await ffmpeg.writeFile(file.name, await fetchFile(file));
-    try {
-      let filenames = (await ffmpeg.listDir('/frames/'))
-        .filter(i => i.isDir == false && i.name !== '.' && i.name !== '..')
-        .map(i => i.name);
-      for (var i = 0; i < filenames.length; i++) {
-        console.log(`delete file - ${filenames[i]}`);
-        await ffmpeg.deleteFile(`/frames/${filenames[i]}`);
-      }
-    } catch (err) {
-      console.error(err);
-    }
-    try {
-      await ffmpeg.createDir('/frames');
-    } catch (err) {
-      console.log(err);
-    }
-    await ffmpeg.exec(['-i', file.name, '/frames/frame-%06d.bmp']);
-  };
 
   const readCommand = useCallback(() => {
     if (!command) {
@@ -200,7 +177,7 @@ function MainView({ffmpeg} : MainViewProps) {
     } catch (err) {
       toast.error(`${err}`);
     }
-  }, [command]);
+  }, [ffmpeg, readCommand, command]);
 
   const readImage = async (filepath: string, mimetype: string) => {
     const data = await ffmpeg.readFile(filepath);
@@ -218,7 +195,7 @@ function MainView({ffmpeg} : MainViewProps) {
 
   const clearLog = useCallback(() => {
     setLogs([]);
-  }, [logs]);
+  }, []);
 
   const getParentDir = useCallback(() => {
     let tokens = currentDir.split('/').filter(x => x);
@@ -233,11 +210,11 @@ function MainView({ffmpeg} : MainViewProps) {
           .then(list => {
             setFileList(list);
           });
-  }, [currentDir]);
+  }, [ffmpeg, currentDir]);
 
   useEffect(() => {
     loadDir();
-  }, [currentDir]);
+  }, [loadDir, currentDir]);
 
   const joinPathes = (dir1: string, dir2: string) => {
     if (dir1 === '/') {
@@ -251,7 +228,7 @@ function MainView({ffmpeg} : MainViewProps) {
       await ffmpeg.writeFile(joinPathes(currentDir, file.name), await fetchFile(file));
       loadDir();
     }
-  }, [file]);
+  }, [file, currentDir, ffmpeg, loadDir]);
   
   return (
     <div className="relative flex flex-col w-full h-full overflow-auto p-[1px]">
@@ -298,13 +275,15 @@ function MainView({ffmpeg} : MainViewProps) {
                 }}
                 onLoad={e => {
                   setImgSize({width: e.currentTarget.naturalWidth, height: e.currentTarget.naturalHeight });
-                }} />
+                }}
+                alt="preview"
+              />
               {
                 showImage && createPortal(
                   <div
                     className="fixed inset-0 flex justify-center items-center bg-black/70"
                     onClick={() => setShowImage(!showImage)}>
-                    <img src={imageUrl} />
+                    <img src={imageUrl} alt="preview" />
                   </div>,
                   document.body
                 )

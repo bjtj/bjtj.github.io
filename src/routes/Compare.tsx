@@ -11,7 +11,6 @@ type DiffReport = {
 }
 
 const KB = 1024;
-const MB = 1024 * KB;
 
 export default function Compare() {
   const [equals, setEquals] = useState<boolean>(false);
@@ -35,7 +34,7 @@ export default function Compare() {
     } else {
       setWarning('');
     }
-  }, [text1, text2]);
+  }, [text1, text2, testEquals]);
 
   const onClickDiff = () => {
     if (warning) {
@@ -73,11 +72,11 @@ export default function Compare() {
     } finally {
       
     }
-  }, [warning, text1, text2]);
+  }, [text1, text2]);
 
   return (
     <div className="flex flex-col items-start justify-start h-full">
-      <h1 className="shrink-0">Compare <span className="text-sm font-light">by </span><a className="text-sm font-light" href={refUrl} target="_blank">{refUrl}</a></h1>
+      <h1 className="shrink-0">Compare <span className="text-sm font-light">by </span><a className="text-sm font-light" href={refUrl} target="_blank" rel="noreferrer">{refUrl}</a></h1>
       <div className="flex items-center gap-3">
         <Button onClick={onClickDiff}>Diff</Button>
         {warning && (
