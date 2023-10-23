@@ -23,7 +23,7 @@ export default function Start() {
       <h1 className="pointer-events-none select-none">HandTools</h1>
       {myip && (<p><strong>Your IP: </strong><code className="inline text-sm">{myip}</code> (by
         <a className="px-1 py-0.5 rounded bg-blue-200/50 border border-blue-500 mx-1" href="https://www.ipify.org/">ipfy</a>)</p>)}
-      <Divider className="w-full max-w-[20em]" />
+      <Divider className="w-[20em] max-w-[80%]" />
       <div className="flex gap-3">
         <a href="https://toss.me/uridongsu">
           <img className="inline" src={TossLogoPng} width={20} height={20} alt="toss" />토스

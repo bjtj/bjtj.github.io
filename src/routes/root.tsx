@@ -20,6 +20,8 @@ type MenuItem = {
   name: string;
 };
 
+const test_ad_vertical = false;
+
 export default function Root() {
 
   const location = useLocation();
@@ -93,33 +95,52 @@ export default function Root() {
       <div className="inline-flex flex-col sm:flex-row grow overflow-auto">
 
         {/* MENU */}
-        <div className="flex items-center sm:flex-col px-3 bg-gray-100 py-1 min-w-[240px] min-h-[3em] sm:w-[240px] sm:max-h-full sm:text-center border-b border-b-gray-200 sm:border-r sm:border-r-gray-200 overflow-y-auto overflow-x-hidden">
-          <Link className="inline-block select-none max-w-[50%] flex justify-center items-center" to="/">
-            <img className="h-[30px] min-w-[30px] sm:w-[120px] sm:h-[120px]" src={LogoPng} alt="HandTools" />
+        <div
+          className="flex items-center sm:flex-col bg-gray-100 py-1 min-w-[240px] min-h-[3em] sm:w-[200px] sm:max-h-full sm:text-center border-b border-b-gray-200 sm:border-r sm:border-r-gray-200 overflow-y-auto overflow-x-hidden">
+          <Link
+            className="inline-block select-none max-w-[50%] flex justify-center items-center" to="/">
+            <img
+              className="h-[30px] min-w-[30px] sm:w-[120px] sm:h-[120px]" src={LogoPng} alt="HandTools" />
           </Link>
-          <ul className="m-0 p-1 flex items-center sm:block sm:flex-nowrap overflow-x-auto overflow-y-hidden sm:overflow-x-hidden sm:overflow-y-auto">
-            {
-              menu.map((m, i) => (
-                <li key={`menu-${i}`} className="text-center p-1 sm:p-0 whitespace-nowrap">
-                  <Link
-                    className={`flex items-center justify-center ${location.pathname === m.path && 'font-bold text-red-600 hover:text-red-900'}`}
-                    to={m.path}>
-                    {m.icon && (<Icon className="!text-lg !leading-0">{m.icon}</Icon>)}{m.name}
-                  </Link>
-                </li>
-              ))
-            }
-          </ul>
-          <div className="my-3 hidden sm:block mx-auto">
-            <DisplayAds.FixedVertical1 />
+          <div
+            className="overflow-x-auto sm:overflow-x-hidden overflow-y-hidden sm:overflow-y-auto h-full w-full">
+            <ul
+              className="m-0 p-0 flex items-center sm:block sm:flex-nowrap">
+              {
+                menu.map((m, i) => (
+                  <li
+                    key={`menu-${i}`}
+                    className="text-center p-1 sm:p-0 whitespace-nowrap">
+                    <Link
+                      className={`flex items-center justify-center ${location.pathname === m.path && 'font-bold text-red-600 hover:text-red-900'}`}
+                      to={m.path}>
+                      {m.icon && (<Icon className="!text-lg !leading-0">{m.icon}</Icon>)}{m.name}
+                    </Link>
+                  </li>
+                ))
+              }
+            </ul>
+
+            { location.pathname !== '/' && (
+                <div
+                  className={`mx-auto my-3 hidden sm:block ${test_ad_vertical && 'w-[140px] h-[480px] border'}`}>
+                  <DisplayAds.FixedVertical1 />
+                </div>)}
           </div>
         </div>
 
         {/* CONTENT */}
-        <div className="grow py-0 px-3 overflow-x-hidden">
+        <div
+          className="grow flex-1 py-0 px-1 overflow-x-hidden h-full border">
           <Outlet />
         </div>
       </div>
+
+      { false && location.pathname !== '/' && (
+          <div
+            className={`fixed right-0 bottom-0 max-w-[50px] max-h-[50px] w-[50px] h-[50px] overflow-hidden block sm:hidden border bg-gray-100 opacity-50`}>
+            <DisplayAds.FlexibleHorizontal1 />
+          </div>)}
 
       {/* BOTTOM */}
       <p className="p-1.5 m-0 border-t hidden sm:block">

@@ -88,21 +88,36 @@ export default function DisplayAds({client, slot, auto, responsive }: DisplayAds
   );
 }
 
-function Horizontal1() {
-  return (<DisplayAds
-            client={'ca-pub-6589893128899904'}
-            slot={'data-ad-slot="9732378227'}
-            auto={true}
-            responsive={true}
-          />)
+
+function FlexibleBox1() {
+  return (
+    <DisplayAds
+      client={'ca-pub-6589893128899904'}
+      slot={'9732378227'}
+      auto={true}
+      responsive={true}
+    />);
 }
 
 
 function FixedVertical1() {
-  return (<DisplayAds
-            client={'ca-pub-6589893128899904'}
-            slot={'2910204606'} />)
+  return (
+    <DisplayAds
+      client={'ca-pub-6589893128899904'}
+      slot={'2910204606'} />);
 }
 
-DisplayAds.Horizontal1 = Horizontal1;
-DisplayAds.FixedVertical1 = FixedVertical1;;
+
+function FlexibleHorizontal1() {
+  return (
+    <DisplayAds
+      client={'ca-pub-6589893128899904'}
+      slot={'3961443693'}
+      auto={true}
+      responsive={true}
+    />)
+}
+
+DisplayAds.FlexibleBox1 = FlexibleBox1;
+DisplayAds.FixedVertical1 = FixedVertical1;
+DisplayAds.FlexibleHorizontal1 = FlexibleHorizontal1;
