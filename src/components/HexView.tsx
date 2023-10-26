@@ -17,6 +17,8 @@ type Opts = {
 
 export default function HexView({ arrayBuffer, offset, size } : HexViewProps) {
 
+  const [selected, setSelected] = useState<number>();
+
   const [opts, setOpts] = useState<Opts>({
     arrayBuffer,
     dataView: new DataView(arrayBuffer),
@@ -25,6 +27,8 @@ export default function HexView({ arrayBuffer, offset, size } : HexViewProps) {
   });
 
   useEffect(() => {
+
+    setSelected(undefined);
 
     let o = Math.max(0, offset ?? 0);
     
@@ -45,6 +49,8 @@ export default function HexView({ arrayBuffer, offset, size } : HexViewProps) {
             dataView={opts.dataView}
             offset={opts.offset + (i * 16)}
             size={opts.size - (i * 16)}
+            selected={selected}
+            setSelected={setSelected}
           />
         ))
       }
@@ -57,9 +63,11 @@ type LineProps = {
   dataView: DataView;
   offset: number;
   size: number;
+  selected?: number;
+  setSelected?: (selected: number) => void;
 };
 
-function Line({ dataView, offset, size } : LineProps) {
+function Line({ dataView, offset, size, selected, setSelected } : LineProps) {
 
   const printableTable = useRef<{[key:number]: string}>(AsciiCodes.printable.reduce((table, item) => ({
     ...table,
@@ -67,14 +75,18 @@ function Line({ dataView, offset, size } : LineProps) {
   }), {})).current;
   
   return (
-    <div className="flex gap-3 text-sm font-mono">
+    <div className="flex gap-3 text-sm font-mono select-none">
       <div className="text-blue-600">
         {offset.toString(16).padStart(10, '0')}
       </div>
       <div className="flex gap-1">
         {
           [...new Array(Math.min(16, size))].map((_, i) => (
-            <div key={`offset-${i}`}>{dataView.getUint8(offset + i).toString(16).padStart(2, '0')}</div>
+            <div
+              key={`offset-${i}`}
+              onClick={() => setSelected?.(offset + i)}
+              className={`${selected === offset + i ? 'bg-blue-300' : 'hover:bg-blue-100'}`}
+            >{dataView.getUint8(offset + i).toString(16).padStart(2, '0')}</div>
           ))
         }
         {
@@ -87,7 +99,11 @@ function Line({ dataView, offset, size } : LineProps) {
       <div className="flex border-l pl-1">
         {
           [...new Array(Math.min(16, size))].map((_, i) => (
-            <div key={`pr-${i}`} className="w-[.8em]">{printableTable[dataView.getUint8(offset + i)] ?? '.'}</div>
+            <div
+              key={`pr-${i}`}
+              onClick={() => setSelected?.(offset + i)}
+              className={`w-[.8em] ${selected === offset + i ? 'bg-blue-300' : 'hover:bg-blue-100'}`}
+            >{printableTable[dataView.getUint8(offset + i)] ?? '.'}</div>
           ))
         }
       </div>

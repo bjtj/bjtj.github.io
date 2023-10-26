@@ -81,24 +81,29 @@ type HeadProps = {
 function Head({ arrayBuffer }: HeadProps) {
 
   const [show, setShow] = useState<boolean>(false);
-  const [size, setSize] = useState<number>(64);
-  const [value, setValue] = useState<string>('64');
+  const [value, setValue] = useState<string>(localStorage.getItem('file-head-size') ?? '64');
+  const [size, setSize] = useState<number>(parseInt(value));
 
   useEffect(() => {
     let n = parseInt(value);
     if (!isNaN(n)) {
       setSize(n);
+      localStorage.setItem('file-head-size', n.toString());
     }
   }, [value]);
 
   return (
     <div>
-      <Button onClick={() => setShow(true)}>Head</Button>
-      <Input
-        type="number"
-        value={value}
-        onChange={e => setValue(e.target.value)}
-      />
+      <div className="flex gap-1 items-center">
+        <Button onClick={() => setShow(true)}>Head</Button>
+        Size:
+        <Input
+          type="number"
+          className="w-[5em]"
+          value={value}
+          onChange={e => setValue(e.target.value)}
+        />
+      </div>
       {
         show && (
           <HexView arrayBuffer={arrayBuffer} offset={0} size={size} />
@@ -115,30 +120,36 @@ type TailProps = {
 function Tail({ arrayBuffer }: TailProps) {
 
   const [show, setShow] = useState<boolean>(false);
-  const [size, setSize] = useState<number>(64);
-  const [value, setValue] = useState<string>('64');
+  const [value, setValue] = useState<string>(localStorage.getItem('file-tail-size') ?? '64');
+  const [size, setSize] = useState<number>(parseInt(value));
+  
 
   useEffect(() => {
     let n = parseInt(value);
     if (!isNaN(n)) {
       setSize(n);
+      localStorage.setItem('file-tail-size', n.toString());
     }
   }, [value]);
 
   return (
     <div>
-      <Button onClick={() => setShow(true)}>Tail</Button>
-      <Input
-        type="number"
-        value={value}
-        onChange={e => setValue(e.target.value)}
-      />
-      {
-        show && (
-          <HexView arrayBuffer={arrayBuffer} offset={arrayBuffer.byteLength - size} />
-        )
-      }
-    </div>
+      <div className="flex gap-1 items-center">
+        <Button onClick={() => setShow(true)}>Tail</Button>
+        Size:
+        <Input
+          type="number"
+          className="w-[5em]"
+          value={value}
+          onChange={e => setValue(e.target.value)}
+        />
+      </div>
+        {
+          show && (
+            <HexView arrayBuffer={arrayBuffer} offset={arrayBuffer.byteLength - size} />
+          )
+        }
+      </div>
   )
 }
 
