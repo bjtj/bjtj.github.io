@@ -2,6 +2,7 @@ import { SyntheticEvent, useEffect, useRef, useState } from "react";
 import ExifReader from 'exifreader';
 import Button from '../components/Button';
 import Divider from '../components/Divider';
+import Image from '../components/Image';
 import { file_to_base64 } from './FileBase64';
 
 export default function ImageInfo() {
@@ -19,7 +20,6 @@ export default function ImageInfo() {
           }
           accept="image/png, image/gif, image/jpeg" />
       </div>
-      <Divider />
       {file && (
         <ImageView file={file} />
       )}
@@ -84,9 +84,15 @@ function ImageView({ file }: ImageViewProps) {
       </ul>
       <Divider />
       <h2>Preview</h2>
-      <img ref={onImgRef} className="border" src={URL.createObjectURL(file)} alt="preview"
+      <Image
+        ref={onImgRef}
+        className="border"
+        src={URL.createObjectURL(file)}
+        alt="preview"
         onLoad={onLoad}
+        enableFullscreen
       />
+      <Divider />
       <Button
         processing={processingBase64Image}
         disabled={processingBase64Image}
