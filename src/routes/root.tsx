@@ -1,6 +1,8 @@
+import { useState } from 'react';
 import { Outlet, Link, useLocation } from "react-router-dom";
 import DisplayAds from '../components/DisplayAds';
 import Icon from '../components/Icon';
+import Button from '../components/Button';
 import LogoPng from '../assets/logo.png';
 import GithubPng from '../assets/github.png';
 import { ToastContainer } from 'react-toastify';
@@ -25,8 +27,79 @@ const test_ad_vertical = false;
 export default function Root() {
 
   const location = useLocation();
+  const [showMenu, setShowMenu] = useState<boolean>(false);
 
-  const menu: MenuItem[] = [
+  return (
+    <div className="h-screen w-screen max-h-screen max-w-screen inline-flex flex-col">
+
+      <Button
+        className="fixed bottom-0 left-1 z-50 sm:hidden opacity-50 hover:opacity-100 active:opacity-100"
+        icon="menu"
+        onClick={() => setShowMenu(!showMenu)}
+      />
+      
+      <div
+        className={`inline-flex flex-row grow overflow-auto`}>
+
+        {/* MENU */}
+        <div
+          className={`z-50 fixed inset-0 bg-black/50 sm:static sm:w-[200px] ${showMenu ? '' : 'hidden sm:block'}`}
+          onClick={() => setShowMenu(false)}
+        >
+          <div
+            className={`flex items-center flex-col bg-gray-100 py-1 w-[200px] max-w-[90%] sm:max-w-full h-full text-center border-r border-r-1 border-r-gray-200 overflow-y-auto overflow-x-hidden ${showMenu ? '' : 'hidden sm:flex'}`}>
+            <Link
+              className="inline-block select-none max-w-[50%] flex justify-center items-center" to="/">
+              <img
+                className=" min-w-[30px] w-[60px] sm:w-[120px]" src={LogoPng} alt="HandTools" />
+            </Link>
+            <div
+              className="overflow-x-hidden overflow-y-auto h-full w-full">
+              <ul
+                className="m-0 p-0 block flex-nowrap">
+                {
+                  menu.map((m, i) => (
+                    <li
+                      key={`menu-${i}`}
+                      className="text-center p-0 whitespace-nowrap">
+                      <Link
+                        className={`flex items-cente justify-start px-1 ${location.pathname === m.path && 'font-bold text-red-600 hover:text-red-900'}`}
+                        to={m.path}>
+                        {m.icon && (<Icon className="!text-lg !leading-0">{m.icon}</Icon>)}{m.name}
+                      </Link>
+                    </li>
+                  ))
+                }
+              </ul>
+
+              { location.pathname !== '/' && (
+                  <div
+                    className={`mx-auto my-3 block ${test_ad_vertical && 'w-[140px] h-[480px] border'}`}>
+                    <DisplayAds.FixedVertical1 />
+                  </div>)}
+            </div>
+          </div>
+        </div>
+
+        {/* CONTENT */}
+        <div
+          className={`grow flex-1 py-0 px-1 pb-7 sm:pb-0 overflow-x-hidden w-full h-full`}>
+          <Outlet />
+        </div>
+      </div>
+
+      {/* BOTTOM */}
+      <p className="p-1.5 m-0 border-t hidden sm:block">
+        <a href="https://github.com/bjtj" target="_blank" rel="noreferrer"><img className="inline-block mr-1" src={GithubPng} width={20} height={20} alt="Github" />Github</a>
+      </p>
+
+      <ToastContainer />
+    </div>
+  )
+}
+
+
+const menu: MenuItem[] = [
     {
       path: '/',
       name: 'Home'
@@ -88,66 +161,4 @@ export default function Root() {
       path: '/random',
       name: 'Random'
     },
-  ];
-
-  return (
-    <div className="h-screen w-screen max-h-screen max-w-screen inline-flex flex-col">
-      <div className="inline-flex flex-col sm:flex-row grow overflow-auto">
-
-        {/* MENU */}
-        <div
-          className="flex items-center sm:flex-col bg-gray-100 py-1 min-w-[240px] min-h-[3em] sm:w-[200px] sm:max-h-full sm:text-center border-b border-b-gray-200 sm:border-r sm:border-r-gray-200 overflow-y-auto overflow-x-hidden">
-          <Link
-            className="inline-block select-none max-w-[50%] flex justify-center items-center" to="/">
-            <img
-              className="h-[30px] min-w-[30px] sm:w-[120px] sm:h-[120px]" src={LogoPng} alt="HandTools" />
-          </Link>
-          <div
-            className="overflow-x-auto sm:overflow-x-hidden overflow-y-hidden sm:overflow-y-auto h-full w-full">
-            <ul
-              className="m-0 p-0 flex items-center sm:block sm:flex-nowrap">
-              {
-                menu.map((m, i) => (
-                  <li
-                    key={`menu-${i}`}
-                    className="text-center p-1 sm:p-0 whitespace-nowrap">
-                    <Link
-                      className={`flex items-center justify-center ${location.pathname === m.path && 'font-bold text-red-600 hover:text-red-900'}`}
-                      to={m.path}>
-                      {m.icon && (<Icon className="!text-lg !leading-0">{m.icon}</Icon>)}{m.name}
-                    </Link>
-                  </li>
-                ))
-              }
-            </ul>
-
-            { location.pathname !== '/' && (
-                <div
-                  className={`mx-auto my-3 hidden sm:block ${test_ad_vertical && 'w-[140px] h-[480px] border'}`}>
-                  <DisplayAds.FixedVertical1 />
-                </div>)}
-          </div>
-        </div>
-
-        {/* CONTENT */}
-        <div
-          className="grow flex-1 py-0 px-1 overflow-x-hidden h-full border">
-          <Outlet />
-        </div>
-      </div>
-
-      { false && location.pathname !== '/' && (
-          <div
-            className={`fixed right-0 bottom-0 max-w-[50px] max-h-[50px] w-[50px] h-[50px] overflow-hidden block sm:hidden border bg-gray-100 opacity-50`}>
-            <DisplayAds.FlexibleHorizontal1 />
-          </div>)}
-
-      {/* BOTTOM */}
-      <p className="p-1.5 m-0 border-t hidden sm:block">
-        <a href="https://github.com/bjtj" target="_blank" rel="noreferrer"><img className="inline-block mr-1" src={GithubPng} width={20} height={20} alt="Github" />Github</a>
-      </p>
-
-      <ToastContainer />
-    </div>
-  )
-}
+];

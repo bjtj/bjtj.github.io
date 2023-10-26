@@ -11,7 +11,7 @@ export default function ImageInfo() {
 
   return (
     <>
-      <div className="py-3 sticky top-0 bg-white/90">
+      <div className="py-3 bg-white/90">
         <h1>Image Information</h1>
         <input
           className="bg-gray-100 p-3"
