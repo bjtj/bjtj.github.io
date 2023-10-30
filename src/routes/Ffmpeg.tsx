@@ -256,7 +256,7 @@ function MainView({ffmpeg} : MainViewProps) {
         />
         <Button className="" onClick={executeCommand}>Execute</Button>
       </div>
-      <div className="flex gap-1 shrink-0 max-h-[70%] aspect-video overflow-hidden">
+      <div className="flex gap-1 shrink-0 max-h-[70%] basis-1/2 overflow-hidden">
         <div
           ref={onImgParentRef}
           className="relative w-full bg-black/60 overflow-auto flex items-center justify-center">

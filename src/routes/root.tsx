@@ -1,6 +1,5 @@
 import { useState } from 'react';
 import { Outlet, Link, useLocation } from "react-router-dom";
-import DisplayAds from '../components/DisplayAds';
 import Icon from '../components/Icon';
 import Button from '../components/Button';
 import LogoPng from '../assets/logo.png';
@@ -21,8 +20,6 @@ type MenuItem = {
   icon?: string;
   name: string;
 };
-
-const test_ad_vertical = false;
 
 export default function Root() {
 
@@ -71,12 +68,6 @@ export default function Root() {
                   ))
                 }
               </ul>
-
-              { location.pathname !== '/' && (
-                  <div
-                    className={`mx-auto my-3 block ${test_ad_vertical && 'w-[140px] h-[480px] border'}`}>
-                    <DisplayAds.FixedVertical1 />
-                  </div>)}
             </div>
           </div>
         </div>
@@ -100,65 +91,65 @@ export default function Root() {
 
 
 const menu: MenuItem[] = [
-    {
-      path: '/',
-      name: 'Home'
-    },
-    {
-      path: '/urlencoder',
-      name: 'URL Encoder/Decoder'
-    },
-    {
-      path: '/keycode',
-      name: 'Keycode'
-    },
-    {
-      path: '/filebase64',
-      name: 'File -> Base64'
-    },
-    {
-      path: '/imageinfo',
-      name: 'Image Info'
-    },
-    {
-      path: '/webcam',
-      icon: 'videocam',
-      name: 'Webcam'
-    },
-    {
-      path: '/json',
-      name: 'Json'
-    },
-    {
-      path: '/datetime',
-      name: 'Datetime'
-    },
-    {
-      path: '/markdown',
-      name: 'Markdown'
-    },
-    {
-      path: '/fetch',
-      name: 'Fetch'
-    },
-    {
-      path: '/compare',
-      name: 'Compare'
-    },
-    {
-      path: '/ffmpeg',
-      name: 'FFMPEG'
-    },
-    {
-      path: '/ascii',
-      name: 'ASCII'
-    },
-    {
-      path: '/text',
-      name: 'Text'
-    },
-    {
-      path: '/random',
-      name: 'Random'
-    },
+  {
+    path: '/',
+    name: 'Home'
+  },
+  {
+    path: '/urlencoder',
+    name: 'URL Encoder/Decoder'
+  },
+  {
+    path: '/keycode',
+    name: 'Keycode'
+  },
+  {
+    path: '/datetime',
+    name: 'Datetime'
+  },
+  {
+    path: '/ascii',
+    name: 'ASCII'
+  },
+  {
+    path: '/text',
+    name: 'Text'
+  },
+  {
+    path: '/compare',
+    name: 'Compare'
+  },
+  {
+    path: '/random',
+    name: 'Random'
+  },
+  {
+    path: '/filebase64',
+    name: 'File -> Base64'
+  },
+  {
+    path: '/imageinfo',
+    name: 'Image Info'
+  },
+  {
+    path: '/ffmpeg',
+    name: 'FFMPEG'
+  },
+  {
+    path: '/webcam',
+    icon: 'videocam',
+    name: 'Webcam'
+  },
+  {
+    path: '/json',
+    name: 'Json'
+  },
+  {
+    path: '/markdown',
+    name: 'Markdown'
+  },
+  {
+    path: '/fetch',
+    name: 'Fetch'
+  },
 ];
