@@ -80,9 +80,15 @@ export default function Root() {
       </div>
 
       {/* BOTTOM */}
-      <p className="p-1.5 m-0 border-t hidden sm:block">
-        <a href="https://github.com/bjtj" target="_blank" rel="noreferrer"><img className="inline-block mr-1" src={GithubPng} width={20} height={20} alt="Github" />Github</a>
-      </p>
+      <div className="fixed right-1 top-1">
+        <a href="https://github.com/bjtj"
+          className="border border-gray-300 bg-gray-100 rounded-full px-1.5 py-0.5 text-sm opacity-70 hover:opacity-100 active:opacity-100"
+          target="_blank"
+          rel="noreferrer">
+          <img className="inline-block mr-1" src={GithubPng} width={16} height={16} alt="Github" />
+          Github
+        </a>
+      </div>
 
       <ToastContainer />
     </div>
