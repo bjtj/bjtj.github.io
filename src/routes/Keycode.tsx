@@ -4,6 +4,9 @@ import Input from '../components/Input';
 type KeycodeHistItem = {
   key: string;
   keyCode: number;
+  ctrlKey: boolean;
+  altKey: boolean;
+  shiftKey: boolean;
 };
 
 export default function Keycode() {
@@ -31,7 +34,10 @@ export default function Keycode() {
       <ul>
         {
           keycodeHist.map((item, i) => (
-            <li key={`hist-item-${i}`}><pre>{`${item.key} (keycode: ${item.keyCode})`}</pre></li>
+            <li
+              key={`hist-item-${i}`}>
+              <pre>{`${item.key} (keycode: ${item.keyCode})${item.ctrlKey ? ' [CTRL]' : ''}${item.altKey ? ' [ALT]' : ''}${item.shiftKey ? '[SHIFT]' : ''}`}</pre>
+            </li>
           ))
         }
       </ul>
