@@ -3,7 +3,7 @@ import ExifReader from 'exifreader';
 import Button from '../components/Button';
 import Divider from '../components/Divider';
 import Image from '../components/Image';
-import { file_to_base64 } from './FileBase64';
+import { file_to_base64 } from '../utils/base64';
 
 export default function ImageInfo() {
 

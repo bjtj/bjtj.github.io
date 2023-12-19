@@ -3,6 +3,7 @@ import Button from '../components/Button';
 import Input from '../components/Input';
 import ErrorPanel from '../components/ErrorPanel';
 import HexView from '../components/HexView';
+import { file_to_base64 } from '../utils/base64';
 
 
 export default function FileBase64() {
@@ -38,7 +39,7 @@ export default function FileBase64() {
       reader.readAsArrayBuffer(file);
     }
   }, [file]);
-  
+
   return (
     <div className="">
       <h1>File -&gt; Base64</h1>
@@ -151,19 +152,4 @@ function Tail({ arrayBuffer }: TailProps) {
         }
       </div>
   )
-}
-
-
-export const file_to_base64 = async (a_file: File) => {
-  let a_function = 
-    (file: File) => new Promise((resolve, reject) => {
-      const reader = new FileReader();
-      reader.readAsDataURL(file);
-      reader.onload = () => {
-        let base64_string = String(reader.result).split(",")[1]
-        resolve(base64_string)
-      };
-      reader.onerror = error => reject(error);
-    })
-  return (await a_function(a_file) as string)
 }

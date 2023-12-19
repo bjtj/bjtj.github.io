@@ -19,6 +19,7 @@ h2 {
     font-size: 20pt;
     font-weight: 600;
     line-height: 1.75em;
+    margin-top: .5em;
     text-overflow: ellipsis;
     white-space: nowrap;
     overflow: hidden;
@@ -26,7 +27,8 @@ h2 {
 
 h3 {
     font-size: 16pt;
-    line-height: 1.2em;
+    line-height: 1.75em;
+    margin-top: .5em;
     text-overflow: ellipsis;
     white-space: nowrap;
     overflow: hidden;

@@ -5,8 +5,10 @@ import ErrorPanel from '../components/ErrorPanel';
 import Icon from '../components/Icon';
 import TextArea from '../components/TextArea';
 import Spinner from '../components/Spinner';
+import HexView from '../components/HexView';
 
 type FetchResult = {
+  response?: Response;
   ok: boolean;
   status: number;
   start: Date;
@@ -15,6 +17,7 @@ type FetchResult = {
   error?: string;
   json?: any;
   text?: string;
+  arrayBuffer?: ArrayBuffer;
 };
 
 const METHODS = ['GET', 'POST', 'PUT', 'DELETE', 'HEAD', 'OPTIONS'];
@@ -24,19 +27,19 @@ export default function Fetch() {
   const [url, setUrl] = useState<string>(localStorage.getItem('fetch-url') ?? 'http://localhost:3000/');
   const [result, setResult] = useState<FetchResult>();
   const [method, setMethod] = useState<string>(localStorage.getItem('fetch-method') ?? 'GET');
-  const [requestHeaders, setRequestHeaders] = useState<{[key:string]:string}>(JSON.parse(localStorage.getItem('fetch-headers') ?? '{}'));
+  const [requestHeaders, setRequestHeaders] = useState<{ [key: string]: string }>(JSON.parse(localStorage.getItem('fetch-headers') ?? '{}'));
   const [requestBody, setRequestBody] = useState<string>(localStorage.getItem('fetch-body') ?? '');
 
   const doFetch = async (url: string, opts: any) => {
 
     let tick = new Date().getTime();
     let start = new Date();
-    let headers: Headers|null = null;
+    let headers: Headers | null = null;
     let ok = false;
     let status = 0;
 
     try {
-      let resp = await fetch(url, {
+      let response = await fetch(url, {
         method: 'GET',
         mode: 'cors',
         cache: 'no-cache',
@@ -45,14 +48,15 @@ export default function Fetch() {
         ...opts,
       });
 
-      ok = resp.ok;
-      status = resp.status;
+      ok = response.ok;
+      status = response.status;
 
-      headers = resp.headers;
-      let contentType = resp.headers.get("content-type");
+      headers = response.headers;
+      let contentType = response.headers.get("content-type");
       if (contentType && contentType.includes('application/json')) {
-        let json = await resp.json();
+        let json = await response.json();
         return {
+          response,
           ok,
           status,
           start,
@@ -60,15 +64,27 @@ export default function Fetch() {
           headers,
           json,
         };
-      } else {
-        let text = await resp.text();
+      } else if (contentType && contentType.startsWith('text/')) {
+        let text = await response.text();
         return {
+          response,
           ok,
           status,
           start,
           elapsed: new Date().getTime() - tick,
           headers,
           text,
+        };
+      } else {
+        let arrayBuffer = await response.arrayBuffer();
+        return {
+          response,
+          ok,
+          status,
+          start,
+          elapsed: new Date().getTime() - tick,
+          headers,
+          arrayBuffer,
         };
       }
     } catch (err) {
@@ -81,7 +97,7 @@ export default function Fetch() {
         error: `${err}`
       };
     } finally {
-      
+
     }
   };
 
@@ -100,18 +116,20 @@ export default function Fetch() {
       let opts = {
         method,
         headers: requestHeaders,
-        ...(requestBody ? {body: requestBody} : {})
+        ...(requestBody ? { body: requestBody } : {})
       };
       setResult(await doFetch(url, opts));
     } finally {
       setFetching(false);
     }
   }, [url, method, requestHeaders, requestBody]);
-  
+
   return (
     <div className="p-[1px]">
       <h1>Fetch</h1>
       <p className="italic">WARNING: It uses client side fetch() API</p>
+
+      <h2>Request</h2>
       <div className="flex items-center gap-2 p-1 overflow-auto">
         <select
           className="text-center px-3 py-1.5 rounded bg-white border border-gray-300 enabled:hover:border-gray-500 enabled:hover:bg-gray-100/50 disabled:bg-gray-500/20 disabled:text-gray-400"
@@ -123,7 +141,7 @@ export default function Fetch() {
             METHODS.map((m, i) => (<option className="" key={`method-${i}`} value={m}>{m}</option>))
           }
         </select>
-        <Input className="grow w-full" value={url} onChange={e => setUrl(e.target.value)} placeholder="URL..." disabled={fetching} onKeyPress={e => { if (e.key === 'Enter') { e.preventDefault(); onClickSend(); }}} />
+        <Input className="grow w-full" value={url} onChange={e => setUrl(e.target.value)} placeholder="URL..." disabled={fetching} onKeyPress={e => { if (e.key === 'Enter') { e.preventDefault(); onClickSend(); } }} />
         <Button className="shrink-0" onClick={onClickSend} disabled={fetching}>Send</Button>
       </div>
 
@@ -137,8 +155,8 @@ export default function Fetch() {
         <TextArea className="w-full" value={requestBody} onChange={e => setRequestBody(e.target.value)} disabled={fetching} />
       </div>
 
-      { fetching && (<div className="flex items-center justify-center gap-1 w-full text-xl my-10"><Spinner />Fetching...</div>) }
-      
+      {fetching && (<div className="flex items-center justify-center gap-1 w-full text-xl my-10"><Spinner />Fetching...</div>)}
+
       {
         !fetching && result && (<ResultView result={result} />)
       }
@@ -146,33 +164,57 @@ export default function Fetch() {
   );
 }
 
+function getLineCount(arrayBuffer: ArrayBuffer) {
+  return Math.floor(arrayBuffer.byteLength / 16) * 16;
+}
 
 type ResultViewProps = {
   result: FetchResult;
 };
 
-function ResultView({result}:ResultViewProps) {
+function ResultView({ result }: ResultViewProps) {
+
+  const [offset, setOffset] = useState<number>(0);
+
   return (
     <>
-      <p>Request Time: {result.start.toLocaleString()}</p>
-      <p>Elapsed: {result.elapsed} ms.</p>
-      <p>Status: <span className={`${result.ok ? 'text-green-500' : 'text-red-500'}`}>{result.status}</span></p>
+      <h2>Response</h2>
+      <div className="px-1.5">
+        <p>Start Time: {result.start.toLocaleString()}</p>
+        <p>Elapsed: {result.elapsed.toLocaleString()} ms.</p>
+        <p>STATUS: <span className={`${result.ok ? 'text-green-500' : 'text-red-500'}`}>{result.status}</span></p>
+      </div>
       <ErrorPanel error={result.error} label="Error:" />
-      { result.headers && (
-          <HeaderView headers={result.headers} />
-        )}
+      {result.headers && (
+        <HeaderView headers={result.headers} />
+      )}
+
       {result.json && (
         <>
-          <h2>Body: JSON</h2>
-          <pre className="overflow-auto text-sm border p-1 rounded">
+          <h3>Body: JSON</h3>
+          <pre className="overflow-auto text-sm border p-1 rounded bg-gray-100/50">
             {result.json && JSON.stringify(result.json, null, 2)}
           </pre></>)}
       {result.text && (
         <>
-          <h2>Body: Text</h2>
-          <pre className="overflow-auto text-sm border p-1 rounded">
+          <h3>Body: Text</h3>
+          <pre className="overflow-auto text-sm border p-1 rounded bg-gray-100/50">
             {result.text}
           </pre></>)}
+      {result.arrayBuffer && (
+        <>
+          <h3>Body: Bytes</h3>
+          <div className="min-h-[16rem]">
+            <div className="flex gap-1">
+              <Button variant="sm" disabled={offset === 0} onClick={() => setOffset(0)}>|&lt;&lt;</Button>
+              <Button variant="sm" disabled={offset === 0} onClick={() => setOffset(prev => Math.max(0, prev - 16))}>Prev</Button>
+              <Button variant="sm" onClick={() => setOffset(prev => Math.min(Math.max(0, getLineCount(result.arrayBuffer!)), prev + 16))}>Next</Button>
+              <Button variant="sm" disabled={offset >= Math.max(0, getLineCount(result.arrayBuffer!))} onClick={() => setOffset(Math.max(0, getLineCount(result.arrayBuffer!)))}>&gt;&gt;|</Button>
+            </div>
+            <HexView arrayBuffer={result.arrayBuffer} offset={offset} size={offset + (16 * 10)} />
+          </div>
+        </>
+      )}
     </>
   )
 }
@@ -184,8 +226,8 @@ type HeaderViewProps = {
 function HeaderView({ headers }: HeaderViewProps) {
   return (
     <div>
-      <h2>Headers</h2>
-      <ul>
+      <h3>Headers</h3>
+      <ul className="px-1.5">
         {
           Array.from(headers.keys()).map((key) => (
             <li>{key}: {headers.get(key)}</li>
@@ -205,22 +247,22 @@ type HeaderField = {
 
 
 type HeaderEditProps = {
-  defaultHeaders?: {[key:string]: string};
+  defaultHeaders?: { [key: string]: string };
   disabled?: boolean;
-  onChangeHeaders: (headers: {[key:string]: string}) => void;
+  onChangeHeaders: (headers: { [key: string]: string }) => void;
 };
 
 function HeaderEdit({ defaultHeaders, disabled, onChangeHeaders }: HeaderEditProps) {
   const idx_seed = useRef<number>(0);
-  const [headers, setHeaders] = useState<HeaderField[]>(defaultHeaders ? 
-                                                        Object.keys(defaultHeaders).map(k => ({
-                                                          idx: `${idx_seed.current++}`,
-                                                          key: k,
-                                                          value: defaultHeaders[k]
-                                                        })) : []);
+  const [headers, setHeaders] = useState<HeaderField[]>(defaultHeaders ?
+    Object.keys(defaultHeaders).map(k => ({
+      idx: `${idx_seed.current++}`,
+      key: k,
+      value: defaultHeaders[k]
+    })) : []);
   const addHeaderField = () => {
     let idx = `${idx_seed.current++}`;
-    setHeaders(prev => [...prev, {idx, key: '', value: ''}]);
+    setHeaders(prev => [...prev, { idx, key: '', value: '' }]);
   };
 
   useEffect(() => {
@@ -229,7 +271,7 @@ function HeaderEdit({ defaultHeaders, disabled, onChangeHeaders }: HeaderEditPro
       [item.key]: item.value
     }), {}));
   }, [headers, onChangeHeaders]);
-  
+
   return (
     <div className="p-3 border rounded-xl overflow-auto">
       <fieldset disabled={disabled}>
@@ -244,7 +286,7 @@ function HeaderEdit({ defaultHeaders, disabled, onChangeHeaders }: HeaderEditPro
                   defaultValue={header.value}
                   onChange={(idx, key, value) => {
                     setHeaders(prev =>
-                      prev.map(field => field.idx === idx ? {idx, key, value} : field));
+                      prev.map(field => field.idx === idx ? { idx, key, value } : field));
                   }}
                   onDelete={() => setHeaders(prev => prev.filter(h => h.idx !== header.idx))} />
               </li>
@@ -279,11 +321,11 @@ function HeaderFieldEdit({ idx, defaultKey, defaultValue, disabled, onChange, on
   useEffect(() => {
     onChange(idx, key, value);
   }, [key, value, idx, onChange]);
-  
+
   return (
     <div className="flex items-center gap-2">
-      <Input className="w-[10em] max-w-[30%]" value={key} onChange={e => setKey(e.target.value)} placeholder="Key" disabled={disabled}/>
-      <Input className="grow w-full" value={value} onChange={e => setValue(e.target.value)} placeholder="Value" disabled={disabled}/>
+      <Input className="w-[10em] max-w-[30%]" value={key} onChange={e => setKey(e.target.value)} placeholder="Key" disabled={disabled} />
+      <Input className="grow w-full" value={value} onChange={e => setValue(e.target.value)} placeholder="Value" disabled={disabled} />
       <Button onClick={onDelete}><Icon className="!text-base">remove</Icon></Button>
     </div>
   )
