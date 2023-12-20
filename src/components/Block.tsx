@@ -15,7 +15,7 @@ const variants = {
 export default function Block({ className, variant, children }: BlockProps) {
   const v = variants[variant ?? 'normal'];
   return (
-    <div className={`px-3 py-1 rounded-lg ${v} ${className ?? ''}`}>
+    <div className={`px-3 py-1 rounded shadow ${v} ${className ?? ''}`}>
       {children}
     </div>
   );

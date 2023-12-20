@@ -6,6 +6,8 @@ import Icon from '../components/Icon';
 import TextArea from '../components/TextArea';
 import Spinner from '../components/Spinner';
 import HexView from '../components/HexView';
+import Block from '../components/Block';
+import { downloadArrayBuffer } from '../utils/download';
 
 type FetchResult = {
   response?: Response;
@@ -127,7 +129,7 @@ export default function Fetch() {
   return (
     <div className="p-[1px]">
       <h1>Fetch</h1>
-      <p className="italic">WARNING: It uses client side fetch() API</p>
+      <Block variant="note">WARNING: It uses client side fetch() API</Block>
 
       <h2>Request</h2>
       <div className="flex items-center gap-2 p-1 overflow-auto">
@@ -164,8 +166,9 @@ export default function Fetch() {
   );
 }
 
-function getLineCount(arrayBuffer: ArrayBuffer) {
-  return Math.floor(arrayBuffer.byteLength / 16) * 16;
+function getLineCount(byteLength: number) {
+  let len = Math.max(0, byteLength - (byteLength % 16 === 0 ? 1 : 0));
+  return Math.floor(len / 16) * 16;
 }
 
 type ResultViewProps = {
@@ -175,13 +178,15 @@ type ResultViewProps = {
 function ResultView({ result }: ResultViewProps) {
 
   const [offset, setOffset] = useState<number>(0);
+  const [jsonPreviewPretty, setJsonPreviewPretty] = useState<boolean>(true);
+  const maxOffset = useRef<number>(Math.max(0, getLineCount(result.arrayBuffer?.byteLength ?? 0))).current;
 
   return (
     <>
+      <p>Start Time: {result.start.toLocaleString()}</p>
+      <p>Elapsed: {result.elapsed.toLocaleString()} ms.</p>
       <h2>Response</h2>
       <div className="px-1.5">
-        <p>Start Time: {result.start.toLocaleString()}</p>
-        <p>Elapsed: {result.elapsed.toLocaleString()} ms.</p>
         <p>STATUS: <span className={`${result.ok ? 'text-green-500' : 'text-red-500'}`}>{result.status}</span></p>
       </div>
       <ErrorPanel error={result.error} label="Error:" />
@@ -192,8 +197,9 @@ function ResultView({ result }: ResultViewProps) {
       {result.json && (
         <>
           <h3>Body: JSON</h3>
+          <div><input type="checkbox" checked={jsonPreviewPretty} onChange={e => setJsonPreviewPretty(e.target.checked)} /> Pretty Print</div>
           <pre className="overflow-auto text-sm border p-1 rounded bg-gray-100/50">
-            {result.json && JSON.stringify(result.json, null, 2)}
+            {result.json && jsonPreviewPretty ? JSON.stringify(result.json, null, 2) : JSON.stringify(result.json)}
           </pre></>)}
       {result.text && (
         <>
@@ -204,12 +210,18 @@ function ResultView({ result }: ResultViewProps) {
       {result.arrayBuffer && (
         <>
           <h3>Body: Bytes</h3>
+          <div>{result.arrayBuffer.byteLength.toLocaleString()} bytes</div>
+          <Button onClick={() => {
+            let filename = result.response!.url.replace(/.*\//, '');
+            let mimetype = result.response!.headers.get('content-type') ?? 'application/octet-stream';
+            downloadArrayBuffer(filename, mimetype, result.arrayBuffer!);
+          }}>Download</Button>
           <div className="min-h-[16rem]">
             <div className="flex gap-1">
               <Button variant="sm" disabled={offset === 0} onClick={() => setOffset(0)}>|&lt;&lt;</Button>
               <Button variant="sm" disabled={offset === 0} onClick={() => setOffset(prev => Math.max(0, prev - 16))}>Prev</Button>
-              <Button variant="sm" onClick={() => setOffset(prev => Math.min(Math.max(0, getLineCount(result.arrayBuffer!)), prev + 16))}>Next</Button>
-              <Button variant="sm" disabled={offset >= Math.max(0, getLineCount(result.arrayBuffer!))} onClick={() => setOffset(Math.max(0, getLineCount(result.arrayBuffer!)))}>&gt;&gt;|</Button>
+              <Button variant="sm" disabled={offset >= maxOffset} onClick={() => setOffset(prev => Math.min(maxOffset, prev + 16))}>Next</Button>
+              <Button variant="sm" disabled={offset >= maxOffset} onClick={() => setOffset(maxOffset)}>&gt;&gt;|</Button>
             </div>
             <HexView arrayBuffer={result.arrayBuffer} offset={offset} size={offset + (16 * 10)} />
           </div>
@@ -226,7 +238,7 @@ type HeaderViewProps = {
 function HeaderView({ headers }: HeaderViewProps) {
   return (
     <div>
-      <h3>Headers</h3>
+      <h3>Header Fields</h3>
       <ul className="px-1.5">
         {
           Array.from(headers.keys()).map((key) => (

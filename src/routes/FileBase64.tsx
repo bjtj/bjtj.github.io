@@ -11,7 +11,7 @@ export default function FileBase64() {
   const [base64, setBase64] = useState<string>();
   const [error, setError] = useState<string>();
   const [arrayBuffer, setArrayBuffer] = useState<ArrayBuffer>();
-  
+
   async function onFileChange(e: ChangeEvent<HTMLInputElement>) {
     if (e.target.files && e.target.files.length > 0) {
       setFile(e.target.files[0]);
