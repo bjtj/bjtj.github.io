@@ -3,14 +3,13 @@ import ErrorPanel from "../components/ErrorPanel";
 import Input from "../components/Input";
 import Button from "../components/Button";
 import Icon from "../components/Icon";
-import Table from "../components/Table";
 
 const SEC = 1000;
 const MIN = 60 * SEC;
 const HOUR = 60 * MIN;
 const DAY = 24 * HOUR;
 
-const WEEKDAY = ["Sunday","Monday","Tuesday","Wednesday","Thursday","Friday","Saturday"];
+const WEEKDAY = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
 
 export default function Datetime() {
 
@@ -101,14 +100,14 @@ export default function Datetime() {
 
       <UnitsTable />
     </div>
-)
+  )
 }
 
 type DateViewProps = {
   date: Date;
 } & HTMLAttributes<HTMLDivElement>;
 
-function DateView({ className, date} : DateViewProps) {
+function DateView({ className, date }: DateViewProps) {
 
   return (
     <span className={`${className ?? ''}`}>{date.toLocaleString()} [{WEEKDAY[date.getDay()]}]</span>
@@ -139,34 +138,36 @@ function UnitsTable() {
     { name: '12 Hours', second: UNIT_HALF_DAY },
     { name: '24 Hours', second: UNIT_DAY },
     { name: '1 Week', second: UNIT_WEEK },
-    { name: '30 Days', second: UNIT_30DAYS},
+    { name: '30 Days', second: UNIT_30DAYS },
     { name: '365 Days', second: UNIT_365DAYS },
   ]);
-  
+
   return (
     <div className="overflow-x-hidden">
       <h2>Units</h2>
-      <Table className="overflow-x-auto">
-        <thead className="bg-gray-100">
-          <tr>
-            <th className="border border-gray-300 p-1"></th>
-            <th className="border border-gray-300 p-1">Second(s)</th>
-            <th className="border border-gray-300 p-1">Millisecond(s)</th>
-          </tr>
-        </thead>
-        <tbody>
-          {
-            units.current.map((u, i) => (
-              <tr key={`unit=${i}`}>
-                <td className="border border-gray-300 p-1 whitespace-nowrap">{u.name}</td>
-                <td className="border border-gray-300 p-1">{u.second.toLocaleString()}</td>
-                <td className="border border-gray-300 p-1">{(u.second * 1000).toLocaleString()}</td>
-              </tr>
-            ))
-          }
-          
-        </tbody>
-      </Table>
+      <div className="overflow-x-auto">
+        <table className={`table-fixed border-collapse overflow-x-auto`}>
+          <thead className="bg-gray-100">
+            <tr>
+              <th className="border border-gray-300 p-1"></th>
+              <th className="border border-gray-300 p-1">Second(s)</th>
+              <th className="border border-gray-300 p-1">Millisecond(s)</th>
+            </tr>
+          </thead>
+          <tbody>
+            {
+              units.current.map((u, i) => (
+                <tr key={`unit=${i}`}>
+                  <td className="border border-gray-300 p-1 whitespace-nowrap">{u.name}</td>
+                  <td className="border border-gray-300 p-1">{u.second.toLocaleString()}</td>
+                  <td className="border border-gray-300 p-1">{(u.second * 1000).toLocaleString()}</td>
+                </tr>
+              ))
+            }
+
+          </tbody>
+        </table>
+      </div>
     </div>
   )
 }

@@ -99,19 +99,19 @@ export default function Random() {
       
       <Button className="whitespace-nowrap" onClick={genCryptoRandom}>Generate Random Values</Button>
       <RandomValue value={cryptoRandomNum && `${cryptoRandomNum}`} />
-      <div className="text-sm">Ref: <a href="https://developer.mozilla.org/en-US/docs/Web/API/Crypto/getRandomValues" target="_blank" rel="noreferrer">Crypto: getRandomValues() method</a></div>
+      <div className="text-sm">Ref: <a href="https://developer.mozilla.org/en-US/docs/Web/API/Crypto/getRandomValues" target="_blank" rel="noreferrer noopener">Crypto: getRandomValues() method</a></div>
 
       <Divider />
 
       
       <Button className="whitespace-nowrap" onClick={genCryptoRandomUuid}>Generate Random UUID</Button>
       <RandomValue value={cryptoRandomUuid} />
-      <p className="text-sm">Ref: <a href="https://developer.mozilla.org/en-US/docs/Web/API/Crypto/randomUUID" target="_blank" rel="noreferrer">Crypto: randomUUID() method</a></p>
+      <p className="text-sm">Ref: <a href="https://developer.mozilla.org/en-US/docs/Web/API/Crypto/randomUUID" target="_blank" rel="noreferrer noopener">Crypto: randomUUID() method</a></p>
 
       <Divider />
 
       <h2>History</h2>
-      <Button className="whitespace-nowrap" disabled={!history || history.length === 0} onClick={e => setHistory([])}>Clear</Button>
+      <Button className="whitespace-nowrap" disabled={!history || history.length === 0} onClick={_ => setHistory([])}>Clear</Button>
       <pre className="w-full whitespace-pre-wrap border p-3 overflow-auto">
         {history.join(' ')}
       </pre>

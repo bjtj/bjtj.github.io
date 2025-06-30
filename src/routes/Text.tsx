@@ -41,7 +41,7 @@ export default function Text() {
   };
 
   useEffect(() => {
-    setSaved(text === localStorage.getItem('text-text') ?? '');
+    setSaved(text === (localStorage.getItem('text-text') ?? ''));
   }, [text]);
 
   return (

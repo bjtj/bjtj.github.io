@@ -14,8 +14,8 @@ export default function Table({ className, head, children}: TableProps) {
             <thead className="bg-gray-100">
               <tr className="sticky top-0">
                 {
-                  head.map(h => (
-                    <th className="text-center font-bold p-3 border border-gray-300">{h}</th>))
+                  head.map((h, i) => (
+                    <th key={`th-${i}`} className="text-center font-bold p-3 border border-gray-300">{h}</th>))
                 }
               </tr>
             </thead>)}

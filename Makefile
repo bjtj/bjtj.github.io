@@ -1,7 +1,7 @@
-all: start
+all: dev
 
-start:
-	npm run start
+dev:
+	npm run dev
 
 build:
 	npm run build
@@ -9,5 +9,4 @@ build:
 deploy:
 	npm run deploy
 
-
-.PHONY: all start build deploy
+.PHONY: all dev build deploy

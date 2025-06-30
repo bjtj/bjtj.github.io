@@ -32,24 +32,19 @@ type ImageViewProps = {
 }
 
 function ImageView({ file }: ImageViewProps) {
-  const imgRef = useRef<HTMLImageElement | null>(null);
+  const imgRef = useRef<HTMLImageElement>(null);
   const [info, setInfo] = useState<{ [key: string]: string }>();
   const [tags, setTags] = useState<ExifReader.Tags>();
   const foldTable = useRef<boolean[]>([]);
   const [base64Image, setBase64Image] = useState<string>();
   const [processingBase64Image, setProcessingBase64Image] = useState<boolean>(false);
 
-  function onImgRef(ref: HTMLImageElement | null) {
+  const onImgRef = (ref : HTMLImageElement | null) => {
     if (imgRef) {
     }
-
     if (ref) {
-
     }
-
     imgRef.current = ref;
-
-    return ref;
   }
 
   useEffect(() => {
@@ -121,7 +116,7 @@ function ImageView({ file }: ImageViewProps) {
       <Divider />
       {
         tags && (<>
-          <h2>Exif <span className="text-base font-light">by <a href="https://github.com/mattiasw/ExifReader" target="_blank" rel="noreferrer">exifreader</a></span></h2>
+          <h2>Exif <span className="text-base font-light">by <a href="https://github.com/mattiasw/ExifReader" target="_blank" rel="noreferrer noopener">exifreader</a></span></h2>
           <div className="flex gap-1">
             <Button onClick={() => {
               foldTable.current = foldTable.current.map(() => true);
@@ -135,7 +130,7 @@ function ImageView({ file }: ImageViewProps) {
               <div className="flex gap-1 items-center">
                 <Button
                   variant="sm" icon={foldTable.current[i] ? 'arrow_right' : 'arrow_drop_down'}
-                  onClick={e => {
+                  onClick={_ => {
                     foldTable.current[i] = !foldTable.current[i];
                   }}
                 />

@@ -11,7 +11,7 @@ export default function WebCam() {
 
   return (
     <div>
-      <h1>Webcam <span className="text-sm font-light">by </span><a className="text-sm font-light" href={refUrl} target="_blank" rel="noreferrer">{refUrl}</a></h1>
+      <h1>Webcam <span className="text-sm font-light">by </span><a className="text-sm font-light" href={refUrl} target="_blank" rel="noreferrer noopener">{refUrl}</a></h1>
       {status && (<p>Status: {status}</p>)}
       <ErrorPanel error={error} />
       { !confirm ? (
@@ -63,7 +63,7 @@ function WebCamView({setStatus, setError}: WebCamViewProps) {
       <Webcam
         ref={webcamRef}
         className="border my-3 bg-black/50"
-        onUserMedia={(stream) => {
+        onUserMedia={(_) => {
           setStatus('OPENED');
         }}
         onUserMediaError={(e) => {

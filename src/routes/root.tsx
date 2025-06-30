@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Outlet, Link, useLocation } from "react-router-dom";
+import { Outlet, Link, useLocation } from "react-router";
 import Icon from '../components/Icon';
 import Button from '../components/Button';
 import LogoPng from '../assets/logo.png';
@@ -84,7 +84,7 @@ export default function Root() {
         <a href="https://github.com/bjtj"
           className="border border-gray-300 bg-gray-100 rounded-full px-1.5 py-0.5 text-sm opacity-70 hover:opacity-100 active:opacity-100"
           target="_blank"
-          rel="noreferrer">
+          rel="noreferrer noopener">
           <img className="inline-block mr-1" src={GithubPng} width={16} height={16} alt="Github" />
           Github
         </a>
@@ -139,7 +139,7 @@ const menu: MenuItem[] = [
   },
   {
     path: '/ffmpeg',
-    name: 'FFMPEG'
+    name: 'FFmpeg.wasm'
   },
   {
     path: '/webcam',
@@ -158,4 +158,8 @@ const menu: MenuItem[] = [
     path: '/fetch',
     name: 'Fetch'
   },
+  // {
+  //   path: '/timer',
+  //   name: 'Timer'
+  // },
 ];

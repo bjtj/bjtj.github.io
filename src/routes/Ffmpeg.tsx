@@ -5,7 +5,7 @@ import Button from '../components/Button';
 import Input from '../components/Input';
 import Icon from '../components/Icon';
 import { createPortal } from 'react-dom';
-import { getType } from 'mime';
+import Mime from 'mime';
 import { toast } from 'react-toastify';
 
 type LogEvent = {
@@ -16,27 +16,33 @@ type LogEvent = {
 type FSNode = {
   name: string;
   isDir: boolean;
-}
+};
 
 export default function Ffmpeg() {
   const [loaded, setLoaded] = useState<boolean>(false);
   const [loading, setLoading] = useState<boolean>(false);
   const ffmpegRef = useRef<FFmpeg>(new FFmpeg());
-  const [refUrl] = useState<string>('https://ffmpegwasm.netlify.app/');
+  const refUrl = 'https://ffmpegwasm.netlify.app/';
 
   const load = async () => {
     try {
       setLoading(true);
-      const baseURL = 'https://unpkg.com/@ffmpeg/core@0.12.4/dist/umd';
+      // https://cdn.jsdelivr.net/npm/@ffmpeg/core@0.12.10/dist/esm/ffmpeg-core.min.js
+      // const baseURL = 'https://unpkg.com/@ffmpeg/core@0.12.4/dist/umd';
+      /* const baseURL = 'https://unpkg.com/@ffmpeg/core@0.12.10/dist/esm'; */
+      const baseURL = window.location.origin + '/ffmpeg/0.12.10/esm';
       const ffmpeg = ffmpegRef.current;
       // toBlobURL is used to bypass CORS issue, urls with the same
       // domain can be used directly.
       await ffmpeg.load({
         coreURL: await toBlobURL(`${baseURL}/ffmpeg-core.js`, 'text/javascript'),
         wasmURL: await toBlobURL(`${baseURL}/ffmpeg-core.wasm`, 'application/wasm'),
+        workerURL: await toBlobURL(`${baseURL}/ffmpeg-core.worker.js`, 'text/javascript'),
       });
-
       setLoaded(true);
+    } catch (err) {
+      console.error(err);
+      toast.error(`Failed to load ffmpeg-core: ${err}`);
     } finally {
       setLoading(false);
     }
@@ -44,15 +50,18 @@ export default function Ffmpeg() {
 
   return (
     <div className="flex flex-col h-full">
-      <h1 className="shrink-0">FFMPEG <span className="text-sm font-light">by </span><a className="text-sm font-light" href={refUrl} target="_blank" rel="noreferrer">{refUrl}</a></h1>
+      <h1 className="shrink-0">FFmpeg.wasm
+        <span className="text-sm font-light mx-[0.25em]">by</span>
+        <a className="text-sm font-light" href={refUrl} target="_blank" rel="noreferrer noopener">{refUrl}</a>
+      </h1>
 
       <div className="flex flex-col grow justify-start items-start overflow-y-hidden px-[1px]">
-        { !loaded ?
+        {!loaded ?
           (<Button
-             onClick={load}
-             processing={loading}
-             disabled={loading}>Load ffmpeg-core (~31 MB)</Button>) :
-          (<MainView ffmpeg={ffmpegRef.current} />) }
+            onClick={load}
+            processing={loading}
+            disabled={loading}>Load ffmpeg-core (~31 MB)</Button>) :
+          (<MainView ffmpeg={ffmpegRef.current} />)}
       </div>
 
     </div>);
@@ -69,7 +78,7 @@ type Size = {
 };
 
 function ratio(size: Size) {
-  let {width: w, height: h} = size;
+  let { width: w, height: h } = size;
   if (w === 0) {
     return 0;
   }
@@ -79,7 +88,7 @@ function ratio(size: Size) {
   return w / h;
 }
 
-function MainView({ffmpeg} : MainViewProps) {
+function MainView({ ffmpeg }: MainViewProps) {
 
   const [logs, setLogs] = useState<LogEvent[]>([]);
   const [file, setFile] = useState<File>();
@@ -87,21 +96,21 @@ function MainView({ffmpeg} : MainViewProps) {
   const [videoUrl, setVideoUrl] = useState<string>();
   const lastRef = useRef<HTMLDivElement>(null);
   const [currentFilePath, setCurrentFilePath] = useState<string>();
-  const imgParentRef = useRef<HTMLDivElement|null>(null);
-  const [imgParentSize, setImgParentSize] = useState<Size>({width: 0, height: 0});
-  const [imgSize, setImgSize] = useState<Size>({width: 0, height: 0});
+  const imgParentRef = useRef<HTMLDivElement | null>(null);
+  const [imgParentSize, setImgParentSize] = useState<Size>({ width: 0, height: 0 });
+  const [imgSize, setImgSize] = useState<Size>({ width: 0, height: 0 });
   const [currentDir, setCurrentDir] = useState<string>('/');
   const [fileList, setFileList] = useState<FSNode[]>();
   const [showImage, setShowImage] = useState<boolean>(false);
   const [command, setCommand] = useState<string>(localStorage.getItem('ffmpeg-command') ?? '');
 
-  const onImgParentRef = useCallback((parent: HTMLDivElement|null) => {
+  const onImgParentRef = useCallback((parent: HTMLDivElement | null) => {
     if (imgParentRef.current) {
       /*  */
     }
 
     if (parent) {
-      const {width, height} = parent.getBoundingClientRect();
+      const { width, height } = parent.getBoundingClientRect();
       setImgParentSize({
         width, height
       });
@@ -110,13 +119,13 @@ function MainView({ffmpeg} : MainViewProps) {
     imgParentRef.current = parent;
   }, []);
 
-  function onLog(event : LogEvent) {
+  function onLog(event: LogEvent) {
     setLogs(prev => ([...prev, event]));
   }
 
   const onResize = () => {
     if (imgParentRef.current) {
-      const {width, height} = imgParentRef.current.getBoundingClientRect();
+      const { width, height } = imgParentRef.current.getBoundingClientRect();
       setImgParentSize({
         width, height
       });
@@ -133,7 +142,7 @@ function MainView({ffmpeg} : MainViewProps) {
   }, [ffmpeg]);
 
   useEffect(() => {
-    lastRef.current?.scrollIntoView({behavior: 'smooth'});
+    lastRef.current?.scrollIntoView({ behavior: 'smooth' });
   }, [logs]);
 
   const readCommand = useCallback(() => {
@@ -143,7 +152,7 @@ function MainView({ffmpeg} : MainViewProps) {
 
     const reg = /("[^"]+"|[^\s"]+)/gmi;
     let args = [];
-    let result: RegExpExecArray|null = null;
+    let result: RegExpExecArray | null = null;
     while ((result = reg.exec(command)) != null) {
       let arg = result[1];
       if (arg.startsWith('"')) {
@@ -207,9 +216,9 @@ function MainView({ffmpeg} : MainViewProps) {
 
   const loadDir = useCallback(() => {
     ffmpeg.listDir(currentDir)
-          .then(list => {
-            setFileList(list);
-          });
+      .then(list => {
+        setFileList(list);
+      });
   }, [ffmpeg, currentDir]);
 
   useEffect(() => {
@@ -229,11 +238,11 @@ function MainView({ffmpeg} : MainViewProps) {
       loadDir();
     }
   }, [file, currentDir, ffmpeg, loadDir]);
-  
+
   return (
     <div className="relative flex flex-col w-full h-full overflow-auto p-[1px]">
 
-      
+
       <div className="flex items-center gap-1 px-2 border rounded-lg bg-gray-100 mb-1">
         <input
           className="grow"
@@ -264,7 +273,7 @@ function MainView({ffmpeg} : MainViewProps) {
           {videoUrl && (
             <video src={videoUrl} autoPlay controls></video>
           )}
-          
+
           {imageUrl && (
             <>
               <img
@@ -274,7 +283,7 @@ function MainView({ffmpeg} : MainViewProps) {
                   setShowImage(!showImage);
                 }}
                 onLoad={e => {
-                  setImgSize({width: e.currentTarget.naturalWidth, height: e.currentTarget.naturalHeight });
+                  setImgSize({ width: e.currentTarget.naturalWidth, height: e.currentTarget.naturalHeight });
                 }}
                 alt="preview"
               />
@@ -294,108 +303,108 @@ function MainView({ffmpeg} : MainViewProps) {
               className="absolute left-1 top-1 bg-white/50 px-1 rounded">
               {currentFilePath}
             </div>)}
-    </div>
-    {
-      fileList && (
-        <FileList
-          className="w-full overflow-hidden"
-          currentDir={currentDir}
-          list={fileList}
-          onRefresh={() => {
-            loadDir();
-          }}
-          onParent={() => {
-            setCurrentDir(getParentDir());
-          }}
-          onChild={name => {
-            setCurrentDir(joinPathes(currentDir, name));
-          }}
-          onFile={name => {
-            let ext = name.split('.').pop();
-            if (ext) {
-              let mimetype = getType(ext);
-              if (mimetype) {
-                if (mimetype.startsWith('image')) {
-                  if (imgParentRef.current) {
-                    const {width, height} = imgParentRef.current.getBoundingClientRect();
-                    setImgParentSize({
-                      width, height
-                    });
-                  }
-                  readImage(joinPathes(currentDir, name), mimetype);
-                }
-                if (mimetype.startsWith('video')) {
-                  readVideo(joinPathes(currentDir, name), mimetype);
-                }
-              }
-            }
-          }}
-          createDirectory={name => {
-            ffmpeg.createDir(joinPathes(currentDir, name))
-                  .then(() => {
-                    loadDir();
-                  }).catch(err => {
-                    toast.error(`${err}`);
-                  });
-            
-          }}
-          removeDirectory={name => {
-            ffmpeg.deleteDir(joinPathes(currentDir, name))
-                  .then(() => {
-                    loadDir();
-                  }).catch(err => {
-                    toast.error(`${err}`);
-                  });
-          }}
-          removeFile={name => {
-            ffmpeg.deleteFile(joinPathes(currentDir, name))
-                  .then(() => {
-                    loadDir();
-                  }).catch(err => {
-                    toast.error(`${err}`);
-                  });
-          }}
-          rename={(oldName, newName) => {
-            ffmpeg.rename(joinPathes(currentDir, oldName), joinPathes(currentDir, newName))
-                  .then(() => {
-                    loadDir();
-                  }).catch(err => {
-                    toast.error(`${err}`);
-                  });
-          }}
-          download={(name) => {
-            ffmpeg.readFile(joinPathes(currentDir, name)).then(data => {
-              let ext = name.split('.').pop();
-              let mimetype = getType(ext ?? '') ?? 'application/octet-stream';
-              let url = URL.createObjectURL(new Blob([data], { type: mimetype }));
-              let link = document.createElement('a');
-              link.href = url;
-              link.download = name;
-              link.click();
-            });
-          }}
-        />
-      )
-    }
-    </div>
-
-    <div className="p-1 grow min-h-[100px] bg-gray-600 overflow-hidden relative">
-      <ul className="h-full overflow-auto">
+        </div>
         {
-          logs.map((log, i) => (<li key={`log-${i}`}>
-            <pre className={`whitespace-pre text-sm text-gray-100 ${log.type === 'stderr' ? 'text-red-500' : ''}`}>{log.message}</pre>
-          </li>))
+          fileList && (
+            <FileList
+              className="w-full overflow-hidden"
+              currentDir={currentDir}
+              list={fileList}
+              onRefresh={() => {
+                loadDir();
+              }}
+              onParent={() => {
+                setCurrentDir(getParentDir());
+              }}
+              onChild={name => {
+                setCurrentDir(joinPathes(currentDir, name));
+              }}
+              onFile={name => {
+                let ext = name.split('.').pop();
+                if (ext) {
+                  let mimetype = Mime.getType(ext);
+                  if (mimetype) {
+                    if (mimetype.startsWith('image')) {
+                      if (imgParentRef.current) {
+                        const { width, height } = imgParentRef.current.getBoundingClientRect();
+                        setImgParentSize({
+                          width, height
+                        });
+                      }
+                      readImage(joinPathes(currentDir, name), mimetype);
+                    }
+                    if (mimetype.startsWith('video')) {
+                      readVideo(joinPathes(currentDir, name), mimetype);
+                    }
+                  }
+                }
+              }}
+              createDirectory={name => {
+                ffmpeg.createDir(joinPathes(currentDir, name))
+                  .then(() => {
+                    loadDir();
+                  }).catch(err => {
+                    toast.error(`${err}`);
+                  });
+
+              }}
+              removeDirectory={name => {
+                ffmpeg.deleteDir(joinPathes(currentDir, name))
+                  .then(() => {
+                    loadDir();
+                  }).catch(err => {
+                    toast.error(`${err}`);
+                  });
+              }}
+              removeFile={name => {
+                ffmpeg.deleteFile(joinPathes(currentDir, name))
+                  .then(() => {
+                    loadDir();
+                  }).catch(err => {
+                    toast.error(`${err}`);
+                  });
+              }}
+              rename={(oldName, newName) => {
+                ffmpeg.rename(joinPathes(currentDir, oldName), joinPathes(currentDir, newName))
+                  .then(() => {
+                    loadDir();
+                  }).catch(err => {
+                    toast.error(`${err}`);
+                  });
+              }}
+              download={(name) => {
+                ffmpeg.readFile(joinPathes(currentDir, name)).then(data => {
+                  let ext = name.split('.').pop();
+                  let mimetype = Mime.getType(ext ?? '') ?? 'application/octet-stream';
+                  let url = URL.createObjectURL(new Blob([data], { type: mimetype }));
+                  let link = document.createElement('a');
+                  link.href = url;
+                  link.download = name;
+                  link.click();
+                });
+              }}
+            />
+          )
         }
-        <div ref={lastRef}></div>
-      </ul>
-      <Button
-        className="absolute right-5 bottom-5" variant="sm" onClick={clearLog}
-        icon="clear_all"
-      >
-        Clear Logs
-      </Button>
-    </div>
-    
+      </div>
+
+      <div className="p-1 grow min-h-[100px] bg-gray-600 overflow-hidden relative">
+        <ul className="h-full overflow-auto">
+          {
+            logs.map((log, i) => (<li key={`log-${i}`}>
+              <pre className={`whitespace-pre text-sm text-gray-100 ${log.type === 'stderr' ? 'text-red-500' : ''}`}>{log.message}</pre>
+            </li>))
+          }
+          <div ref={lastRef}></div>
+        </ul>
+        <Button
+          className="absolute right-5 bottom-5" variant="sm" onClick={clearLog}
+          icon="clear_all"
+        >
+          Clear Logs
+        </Button>
+      </div>
+
     </div>);
 }
 
@@ -416,15 +425,15 @@ type FileListProps = {
 }
 
 function FileList({
-  className, currentDir, list, onRefresh, onParent, onChild, onFile, createDirectory, removeFile, rename, removeDirectory, download
-  
+  className, currentDir, list, onRefresh, onParent, onChild, onFile, createDirectory, removeFile, removeDirectory, download
+
 }: FileListProps) {
 
   const [dirName, setDirName] = useState<string>();
   const [showCreateDir, setShowCreateDir] = useState<boolean>(false);
   const [showRemoveConfirm, setShowRemoveConfirm] = useState<boolean>(false);
-  const selectedNode = useRef<FSNode>();
-  
+  const selectedNode = useRef<FSNode>(null);
+
   return (
     <div className={`flex flex-col ${className ?? ''}`}>
       <h2 className="shrink-0">File List</h2>
@@ -485,31 +494,31 @@ function FileList({
       <div className="overflow-auto">
         <ul>
           {
-            list.filter(node => node.name !== '..' && node.name !== '.').map((node, i) => (
+            list.filter(node => node.name !== '..' && node.name !== '.').map((node, _) => (
               <li className="hover:bg-gray-100 px-1 flex items-center gap-1">
-                { node.isDir ? (
+                {node.isDir ? (
+                  <button
+                    className="flex items-center whitespace-nowrap grow"
+                    onClick={() => onChild(node.name)}
+                  >
+                    <Icon>folder_open</Icon>
+                    {node.name}/</button>
+                ) : (
+                  <>
                     <button
                       className="flex items-center whitespace-nowrap grow"
-                      onClick={() => onChild(node.name)}
+                      onClick={() => onFile(node.name)}
                     >
-                      <Icon>folder_open</Icon>
-                      {node.name}/</button>
-                ) : (
-                    <>
-                      <button
-                        className="flex items-center whitespace-nowrap grow"
-                        onClick={() => onFile(node.name)}
-                      >
-                        <Icon>insert_drive_file</Icon>
-                        {node.name}
-                      </button>
-                      <Button icon="download" onClick={() => {
-                        if (!node.isDir) {
-                          download(node.name);
-                        }
-                      }} />
-                    </>
-                ) }
+                      <Icon>insert_drive_file</Icon>
+                      {node.name}
+                    </button>
+                    <Button icon="download" onClick={() => {
+                      if (!node.isDir) {
+                        download(node.name);
+                      }
+                    }} />
+                  </>
+                )}
                 <Button icon="delete" onClick={() => {
                   selectedNode.current = node;
                   setShowRemoveConfirm(true);
@@ -535,7 +544,8 @@ function FileList({
                   }
                   if (selectedNode.current.isDir) {
                     removeDirectory(selectedNode.current.name);
-                  } else { removeFile(selectedNode.current.name);
+                  } else {
+                    removeFile(selectedNode.current.name);
                   }
                 }}>Yes</Button>
                 <Button onClick={() => {

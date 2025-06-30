@@ -20,7 +20,7 @@ export default function Keycode() {
       return [item, ...prev].slice(0, 100);
     });
   }
-  
+
   return (
     <div className="overflow-x-auto pl-[1px]">
       <h1>Keycode</h1>
@@ -30,6 +30,7 @@ export default function Keycode() {
           e.preventDefault();
           handleKeycode(e);
         }}
+        onChange={_ => {}}
         placeholder="Type any key..." />
       <ul>
         {

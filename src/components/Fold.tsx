@@ -6,7 +6,7 @@ type FoldProps = {
 } & HTMLAttributes<HTMLDivElement>;
 
 export default function Fold({ className, fold, onChangeFold, children }: FoldProps) {
-  const [f, setF] = useState<boolean>(fold ?? false);
+  const [f, _] = useState<boolean>(fold ?? false);
 
   useEffect(() => {
     onChangeFold?.(f);

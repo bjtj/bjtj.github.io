@@ -26,11 +26,15 @@ const METHODS = ['GET', 'POST', 'PUT', 'DELETE', 'HEAD', 'OPTIONS'];
 
 export default function Fetch() {
   const [fetching, setFetching] = useState<boolean>(false);
-  const [url, setUrl] = useState<string>(localStorage.getItem('fetch-url') ?? 'http://localhost:3000/');
+  const [url, setUrl] = useState<string>(localStorage.getItem('fetch-url') ?? window.location.origin);
   const [result, setResult] = useState<FetchResult>();
   const [method, setMethod] = useState<string>(localStorage.getItem('fetch-method') ?? 'GET');
   const [requestHeaders, setRequestHeaders] = useState<{ [key: string]: string }>(JSON.parse(localStorage.getItem('fetch-headers') ?? '{}'));
   const [requestBody, setRequestBody] = useState<string>(localStorage.getItem('fetch-body') ?? '');
+
+  const onHeaderChangedByEdit = useCallback((headers: { [key: string]: string }) => {
+    setRequestHeaders(headers);
+  }, []);
 
   const doFetch = async (url: string, opts: any) => {
 
@@ -149,7 +153,7 @@ export default function Fetch() {
 
       <HeaderEdit
         defaultHeaders={requestHeaders}
-        onChangeHeaders={headers => setRequestHeaders(headers)}
+        onChangeHeaders={onHeaderChangedByEdit}
         disabled={fetching} />
 
       <div className="p-3 border rounded my-1">
@@ -278,10 +282,20 @@ function HeaderEdit({ defaultHeaders, disabled, onChangeHeaders }: HeaderEditPro
   };
 
   useEffect(() => {
-    onChangeHeaders(headers.filter(h => h.key).reduce((obj, item) => ({
+
+    let newheaders = headers.filter(h => h.key).reduce((obj, item) => ({
       ...obj,
       [item.key]: item.value
-    }), {}));
+    }), {});
+
+    if (JSON.stringify(newheaders) !== JSON.stringify(defaultHeaders)) {
+      onChangeHeaders(newheaders);
+    }
+
+    // onChangeHeaders(headers.filter(h => h.key).reduce((obj, item) => ({
+    //   ...obj,
+    //   [item.key]: item.value
+    // }), {}));
   }, [headers, onChangeHeaders]);
 
   return (

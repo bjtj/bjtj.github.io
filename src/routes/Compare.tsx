@@ -76,7 +76,7 @@ export default function Compare() {
 
   return (
     <div className="flex flex-col items-start justify-start h-full">
-      <h1 className="shrink-0">Compare <span className="text-sm font-light">by </span><a className="text-sm font-light" href={refUrl} target="_blank" rel="noreferrer">{refUrl}</a></h1>
+      <h1 className="shrink-0">Compare <span className="text-sm font-light">by </span><a className="text-sm font-light" href={refUrl} target="_blank" rel="noreferrer noopener">{refUrl}</a></h1>
       <div className="flex items-center gap-3">
         <Button onClick={onClickDiff}>Diff</Button>
         {warning && (
