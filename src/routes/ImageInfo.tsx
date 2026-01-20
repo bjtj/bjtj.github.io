@@ -11,10 +11,10 @@ export default function ImageInfo() {
 
   return (
     <>
-      <div className="py-3 bg-white/90">
+      <div className="py-3">
         <h1>Image Information</h1>
         <input
-          className="bg-gray-100 p-3"
+          className="file-input"
           type="file" onChange={e =>
             e.target.files && e.target.files.length > 0 && setFile(e.target.files[0])
           }

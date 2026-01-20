@@ -158,7 +158,7 @@ function RandomValue({value}: RandomValueProps) {
   
   return (
     <div
-      className={`inline-block flex items-center gap-1 border px-3 py-1 bg-gray-100`}>
+      className={`inline-block flex items-center gap-1 border px-3 py-1 bg-base-300`}>
       <div className="grow">
         {value}
       </div>

@@ -49,7 +49,7 @@ export default function Ffmpeg() {
   };
 
   return (
-    <div className="flex flex-col h-full">
+    <div className="flex flex-col h-full max-h-screen">
       <h1 className="shrink-0">FFmpeg.wasm
         <span className="text-sm font-light mx-[0.25em]">by</span>
         <a className="text-sm font-light" href={refUrl} target="_blank" rel="noreferrer noopener">{refUrl}</a>
@@ -243,9 +243,9 @@ function MainView({ ffmpeg }: MainViewProps) {
     <div className="relative flex flex-col w-full h-full overflow-auto p-[1px]">
 
 
-      <div className="flex items-center gap-1 px-2 border rounded-lg bg-gray-100 mb-1">
+      <div className="flex items-center gap-1 px-2 rounded-lg mb-1">
         <input
-          className="grow"
+          className="grow file-input"
           type="file"
           onChange={e => e.target.files && setFile(e.target.files[0])}
           accept="video/mp4,video/x-m4v,video/*" />
@@ -392,7 +392,7 @@ function MainView({ ffmpeg }: MainViewProps) {
         <ul className="h-full overflow-auto">
           {
             logs.map((log, i) => (<li key={`log-${i}`}>
-              <pre className={`whitespace-pre text-sm text-gray-100 ${log.type === 'stderr' ? 'text-red-500' : ''}`}>{log.message}</pre>
+              <pre className={`whitespace-pre text-sm text-gray-100 ${log.type === 'stderr' ? 'text-red-400' : ''}`}>{log.message}</pre>
             </li>))
           }
           <div ref={lastRef}></div>
@@ -468,7 +468,7 @@ function FileList({
         showCreateDir && (
           createPortal((
             <div className="fixed inset-0 bg-black/70 flex justify-center items-center">
-              <div className="bg-white p-5 rounded-lg">
+              <div className="bg-base-100 p-5 rounded-lg">
                 <Input
                   className="w-full" placeholder="Dir Name..."
                   autoFocus
@@ -490,12 +490,12 @@ function FileList({
             </div>), document.body)
         )
       }
-      <div className="bg-gray-100">{currentDir}</div>
+      <div className="bg-base-300">{currentDir}</div>
       <div className="overflow-auto">
         <ul>
           {
             list.filter(node => node.name !== '..' && node.name !== '.').map((node, _) => (
-              <li className="hover:bg-gray-100 px-1 flex items-center gap-1">
+              <li className="hover:bg-base-200 px-1 flex items-center gap-1">
                 {node.isDir ? (
                   <button
                     className="flex items-center whitespace-nowrap grow"
@@ -531,7 +531,7 @@ function FileList({
       {
         showRemoveConfirm && selectedNode.current && createPortal((
           <div className="fixed inset-0 bg-black/70 flex justify-center items-center">
-            <div className="bg-white rounded-lg p-5">
+            <div className="bg-base-100 rounded-lg p-5">
               <div>
                 <div>Remove {selectedNode.current.isDir ? 'Directory' : 'File'}</div>
                 <div>Name: {selectedNode.current.name}</div>

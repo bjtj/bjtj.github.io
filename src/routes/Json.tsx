@@ -45,7 +45,7 @@ export default function Json() {
         onClick={copy}
         disabled={!jsonPretty || copyDone}
       >Copy</Button>
-      <pre className="border p-3 text-sm bg-gray-100">{jsonPretty}</pre>
+      <pre className="border p-3 text-sm bg-base-300">{jsonPretty}</pre>
       <ErrorPanel error={error} label="Error:" />
     </div>
   )

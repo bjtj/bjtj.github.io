@@ -147,7 +147,7 @@ function UnitsTable() {
       <h2>Units</h2>
       <div className="overflow-x-auto">
         <table className={`table-fixed border-collapse overflow-x-auto`}>
-          <thead className="bg-gray-100">
+          <thead className="bg-base-300">
             <tr>
               <th className="border border-gray-300 p-1"></th>
               <th className="border border-gray-300 p-1">Second(s)</th>

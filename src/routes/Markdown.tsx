@@ -71,7 +71,7 @@ export default function Markdown() {
 
   return (
     <div className="inline-flex flex-col items-start w-full h-full">
-      <h1>Markdown <span className="text-sm font-light">by </span><a className="text-sm font-light" href={refUrl} target="_blank" rel="noreferrer noopener">{refUrl}</a></h1>
+      <h1 className="max-w-screen">Markdown <span className="text-sm font-light">by </span><a className="text-sm font-light" href={refUrl} target="_blank" rel="noreferrer noopener">{refUrl}</a></h1>
       <div className="w-full flex gap-1 grow overflow-hidden relative">
         <div className="w-full flex flex-col pl-[1px]">
           <TextArea

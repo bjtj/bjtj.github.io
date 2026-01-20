@@ -11,7 +11,7 @@ export default function Table({ className, head, children}: TableProps) {
     <div className="overflow-x-auto">
       <table className={`table-fixed border-collapse ${className ?? ''}`}>
         { head && (
-            <thead className="bg-gray-100">
+            <thead className="bg-base-300">
               <tr className="sticky top-0">
                 {
                   head.map((h, i) => (

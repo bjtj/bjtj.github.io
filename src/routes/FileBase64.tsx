@@ -44,7 +44,7 @@ export default function FileBase64() {
     <div className="">
       <h1>File -&gt; Base64</h1>
       <div className="my-3">
-        <input type="file" className="bg-gray-100 px-3 py-2 border rounded-lg" onChange={onFileChange} />
+        <input type="file" className="file-input" onChange={onFileChange} />
       </div>
       <ErrorPanel error={error} label={'Error:'} />
       {

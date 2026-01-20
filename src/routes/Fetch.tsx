@@ -138,7 +138,7 @@ export default function Fetch() {
       <h2>Request</h2>
       <div className="flex items-center gap-2 p-1 overflow-auto">
         <select
-          className="text-center px-3 py-1.5 rounded bg-white border border-gray-300 enabled:hover:border-gray-500 enabled:hover:bg-gray-100/50 disabled:bg-gray-500/20 disabled:text-gray-400"
+          className="select"
           name="method"
           value={method}
           onChange={e => setMethod(e.target.value)}
@@ -147,9 +147,17 @@ export default function Fetch() {
             METHODS.map((m, i) => (<option className="" key={`method-${i}`} value={m}>{m}</option>))
           }
         </select>
-        <Input className="grow w-full" value={url} onChange={e => setUrl(e.target.value)} placeholder="URL..." disabled={fetching} onKeyPress={e => { if (e.key === 'Enter') { e.preventDefault(); onClickSend(); } }} />
+        <Input
+          className="grow w-full"
+          value={url}
+          onChange={e => setUrl(e.target.value)}
+          placeholder="URL..."
+          disabled={fetching}
+          onKeyPress={e => { if (e.key === 'Enter') { e.preventDefault(); onClickSend(); } }} />
         <Button className="shrink-0" onClick={onClickSend} disabled={fetching}>Send</Button>
       </div>
+
+      <p className="text-xs text-right mb-1">* <code onClick={() => setUrl('https://httpbin.org')}>https://httpbin.org</code></p>
 
       <HeaderEdit
         defaultHeaders={requestHeaders}
@@ -202,13 +210,13 @@ function ResultView({ result }: ResultViewProps) {
         <>
           <h3>Body: JSON</h3>
           <div><input type="checkbox" checked={jsonPreviewPretty} onChange={e => setJsonPreviewPretty(e.target.checked)} /> Pretty Print</div>
-          <pre className="overflow-auto text-sm border p-1 rounded bg-gray-100/50">
+          <pre className="overflow-auto text-sm border p-1 rounded bg-base-300">
             {result.json && jsonPreviewPretty ? JSON.stringify(result.json, null, 2) : JSON.stringify(result.json)}
           </pre></>)}
       {result.text && (
         <>
           <h3>Body: Text</h3>
-          <pre className="overflow-auto text-sm border p-1 rounded bg-gray-100/50">
+          <pre className="overflow-auto text-sm border p-1 rounded bg-base-300">
             {result.text}
           </pre></>)}
       {result.arrayBuffer && (
@@ -276,26 +284,20 @@ function HeaderEdit({ defaultHeaders, disabled, onChangeHeaders }: HeaderEditPro
       key: k,
       value: defaultHeaders[k]
     })) : []);
+
   const addHeaderField = () => {
     let idx = `${idx_seed.current++}`;
     setHeaders(prev => [...prev, { idx, key: '', value: '' }]);
   };
 
   useEffect(() => {
-
     let newheaders = headers.filter(h => h.key).reduce((obj, item) => ({
       ...obj,
       [item.key]: item.value
     }), {});
-
     if (JSON.stringify(newheaders) !== JSON.stringify(defaultHeaders)) {
       onChangeHeaders(newheaders);
     }
-
-    // onChangeHeaders(headers.filter(h => h.key).reduce((obj, item) => ({
-    //   ...obj,
-    //   [item.key]: item.value
-    // }), {}));
   }, [headers, onChangeHeaders]);
 
   return (
@@ -304,8 +306,8 @@ function HeaderEdit({ defaultHeaders, disabled, onChangeHeaders }: HeaderEditPro
         <h3 className="my-3">Headers</h3>
         <ul className="space-y-1">
           {
-            headers.map(header => (
-              <li>
+            headers.map((header, i) => (
+              <li key={`header-edit-${i}`}>
                 <HeaderFieldEdit
                   idx={header.idx}
                   defaultKey={header.key}
@@ -346,7 +348,7 @@ function HeaderFieldEdit({ idx, defaultKey, defaultValue, disabled, onChange, on
 
   useEffect(() => {
     onChange(idx, key, value);
-  }, [key, value, idx, onChange]);
+  }, [key, value, idx]);
 
   return (
     <div className="flex items-center gap-2">

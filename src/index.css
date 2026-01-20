@@ -1,11 +1,12 @@
 @import "tailwindcss";
-
-/* @tailwind base;
-@tailwind components;
-@tailwind utilities; */
-
-body {
-    font-family: 'Pretendard', verdana;
+@custom-variant dark (&:where(.dark, .dark *));
+@plugin "daisyui" {
+    themes: light --default, dark --prefersdark;
+    /* root: ":root"; */
+    /* include: ; */
+    /* exclude: ; */
+    /* prefix: ; */
+    /* logs: false; */
 }
 
 h1 {
@@ -34,48 +35,4 @@ h3 {
     text-overflow: ellipsis;
     white-space: nowrap;
     overflow: hidden;
-}
-
-a {
-    color: blue;
-    text-decoration: no-underline;
-}
-
-a:hover {
-    color: darkblue;
-    text-decoration: underline;
-}
-
-pre {
-    font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
-}
-
-code {
-    font-size: 0.9em;
-    background-color: #f8f8f8;
-    border: 1px solid #dfdfdf;
-    color: #404040;
-    border-radius: 0.25em;
-    padding: 0.15em 0.25em;
-}
-
-
-
-@media only screen and (max-width: 640px) {
-    h1 {
-        line-height: 1.25em;
-    }
-
-    h2 {
-        line-height: 1.25em;
-    }
-
-    h3 {
-        line-height: 1em;
-    }
-
-    a {
-        border: solid 1px rgba(0, 0, 255, 0.1);
-        background-color: rgba(0, 0, 255, 0.02)
-    }
 }

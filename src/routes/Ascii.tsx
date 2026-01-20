@@ -28,7 +28,7 @@ export default function Ascii() {
   return (
     <div className="overflow-x-hidden">
       <h1>ASCII</h1>
-      <Block variant="note">Reference: <a href="https://en.wikipedia.org/wiki/ASCII" target="_blank" rel="noreferrer noopener">ASCII (wiki)</a></Block>
+      <Block variant="note">Reference: <a className="link link-hover" href="https://en.wikipedia.org/wiki/ASCII" target="_blank" rel="noreferrer noopener">ASCII (wiki)</a></Block>
 
       <LiveCharCode />
 
@@ -150,12 +150,12 @@ function PrintFile() {
   return (
     <div>
       <h2>Print File</h2>
-      <input className="border p-3 bg-gray-100 rounded"
+      <input className="file-input"
         type="file" onChange={e => e.target.files && setFile(e.target.files[0])} />
       { file && (
           <>
             <p><strong>Filename:</strong> {file.name} ({file.size.toLocaleString()} bytes)</p>
-            <div className="grid grid-cols-16 max-h-[500px] max-w-[600px] overflow-auto border p-1 bg-gray-100">
+            <div className="grid grid-cols-16 max-h-[500px] max-w-[600px] overflow-auto border p-1 bg-base-300">
               {
                 array && array.map((a, i) => (
                   <code

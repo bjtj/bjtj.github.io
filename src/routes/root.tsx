@@ -1,9 +1,11 @@
-import { useState } from 'react';
+import { useState } from "react";
 import { Outlet, Link, useLocation } from "react-router";
 import Icon from '../components/Icon';
-import Button from '../components/Button';
 import LogoPng from '../assets/logo.png';
+import LogoWhitePng from '../assets/logo_white.png';
 import GithubPng from '../assets/github.png';
+import GithubDarkmode from '../assets/github-darkmode.svg';
+import { useTheme } from '../ThemeProvider';
 import { ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 
@@ -21,76 +23,103 @@ type MenuItem = {
   name: string;
 };
 
-export default function Root() {
+type SideBarProps = {
+  closeSideBar: () => void;
+} & React.HTMLAttributes<HTMLDivElement>;
+
+function SideBar({closeSideBar} : SideBarProps) {
 
   const location = useLocation();
-  const [showMenu, setShowMenu] = useState<boolean>(false);
 
   return (
-    <div className="h-screen w-screen max-h-screen max-w-screen inline-flex flex-col">
+    <div className="drawer-side">
+      <div aria-label="close sidebar" className="drawer-overlay" onClick={closeSideBar}></div>
 
-      <Button
-        className="fixed bottom-0 left-1 z-50 sm:hidden opacity-50 hover:opacity-100 active:opacity-100"
-        icon="menu"
-        onClick={() => setShowMenu(!showMenu)}
-      />
-      
-      <div
-        className={`inline-flex flex-row grow overflow-auto`}>
+      <div className="bg-base-200 w-60 max-w-[90%] min-h-full text-center">
+        <Link
+          className="inline-block select-none max-w-[50%] flex justify-center items-center"
+          to="/"
+          onClick={closeSideBar}>
+          <img
+            className="min-w-[30px] w-[60px] sm:w-[120px] block dark:hidden"
+            src={LogoPng}
+            alt="HandTools" />
+          <img
+            className="min-w-[30px] w-[60px] sm:w-[120px] hidden dark:block"
+            src={LogoWhitePng}
+            alt="HandTools" />
+        </Link>
 
-        {/* MENU */}
-        <div
-          className={`z-50 fixed inset-0 bg-black/50 sm:static sm:w-[200px] ${showMenu ? '' : 'hidden sm:block'}`}
-          onClick={() => setShowMenu(false)}
-        >
-          <div
-            className={`flex items-center flex-col bg-gray-100 py-1 w-[200px] max-w-[90%] sm:max-w-full h-full text-center border-r border-r-1 border-r-gray-200 overflow-y-auto overflow-x-hidden ${showMenu ? '' : 'hidden sm:flex'}`}>
-            <Link
-              className="inline-block select-none max-w-[50%] flex justify-center items-center" to="/">
-              <img
-                className=" min-w-[30px] w-[60px] sm:w-[120px]" src={LogoPng} alt="HandTools" />
-            </Link>
-            <div
-              className="overflow-x-hidden overflow-y-auto h-full w-full">
-              <ul
-                className="m-0 p-0 block flex-nowrap">
-                {
-                  menu.map((m, i) => (
-                    <li
-                      key={`menu-${i}`}
-                      className="text-center p-0 whitespace-nowrap">
-                      <Link
-                        className={`flex items-cente justify-start px-1 ${location.pathname === m.path && 'font-bold text-red-600 hover:text-red-900'}`}
-                        to={m.path}>
-                        {m.icon && (<Icon className="!text-lg !leading-0">{m.icon}</Icon>)}{m.name}
-                      </Link>
-                    </li>
-                  ))
-                }
-              </ul>
-            </div>
-          </div>
-        </div>
+        <ul
+          className="menu">
+          {
+            menu.map((m, i) => (
+              <li
+                key={`menu-${i}`}
+                className="text-center p-0 whitespace-nowrap">
+                <Link
+                  className={`flex items-cente justify-start px-1 ${location.pathname === m.path && 'font-bold text-red-600 hover:text-red-900'}`}
+                  to={m.path}
+                  onClick={closeSideBar}>
+                  {m.icon && (<Icon className="!text-lg !leading-0">{m.icon}</Icon>)}{m.name}
+                </Link>
+              </li>
+            ))
+          }
+        </ul>
+      </div>
+    </div>);
+}
 
-        {/* CONTENT */}
-        <div
-          className={`grow flex-1 py-0 px-1 pb-7 sm:pb-0 overflow-x-hidden w-full h-full`}>
+export default function Root() {
+
+  const [openSide, setOpenSide] = useState(false);
+  const { theme, toggleTheme } = useTheme();
+
+  return (
+    <div>
+      <div className="drawer sm:drawer-open">
+
+        <input id="my-drawer-3" type="checkbox" className="drawer-toggle"
+          checked={openSide}
+          onChange={e => setOpenSide(e.target.checked)}
+        />
+        
+        <div className={`drawer-content min-h-screen`}>
+          {/* Content */}
           <Outlet />
+          <label
+            htmlFor="my-drawer-3"
+            className="btn btn-circle btn-sm drawer-button fixed left-1 top-1 opacity-80">
+            <Icon>menu</Icon>
+          </label>
+          
         </div>
+
+        <SideBar closeSideBar={() => setOpenSide(false)} />
+        
       </div>
 
-      {/* BOTTOM */}
-      <div className="fixed right-1 top-1">
+      {/* top right */}
+      <div className="fixed right-1 top-1 flex items-center gap-1 opacity-80">
+
+        <label className={`swap swap-flip btn btn-soft btn-xs btn-circle`}>
+          <input type="checkbox" value={theme} onChange={toggleTheme} />
+          <Icon className="swap-off dark:hidden !text-lg !leading-0">light_mode</Icon>
+          <Icon className="swap-on dark:block !text-lg !leading-0">dark_mode</Icon>
+        </label>
+        
         <a href="https://github.com/bjtj"
-          className="border border-gray-300 bg-gray-100 rounded-full px-1.5 py-0.5 text-sm opacity-70 hover:opacity-100 active:opacity-100"
+          className="btn btn-soft btn-xs btn-circle"
           target="_blank"
           rel="noreferrer noopener">
-          <img className="inline-block mr-1" src={GithubPng} width={16} height={16} alt="Github" />
-          Github
+          <img className="block dark:hidden" src={GithubPng} width={16} height={16} alt="Github" />
+          <img className="hidden dark:block" src={GithubDarkmode} width={16} height={16} alt="Github" />
         </a>
       </div>
 
       <ToastContainer />
+      
     </div>
   )
 }

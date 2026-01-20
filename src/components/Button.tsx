@@ -32,11 +32,11 @@ export default function Button({ icon, className, variant, processing, children,
   return (
     <button
       className={`my-1 ring-0 outline-none
-border border-1 border-black border-r-2 border-b-2 rounded-md
-focus:ring focus:ring-2
-enabled:bg-white/90
-enabled:hover:bg-gray-100/90 enabled:hover:shadow-md enabled:hover:ring-1 enabled:hover:ring-black
-enabled:active:bg-gray-300/75 enabled:active:translate-y-[1px] enabled:active:shadow-none
+border border-1 border-black dark:border-white/70 border-r-3 border-b-3 rounded-md
+focus:ring focus:ring-2 dark:ring-white
+enabled:bg-white/90 dark:enabled:bg-base-300/90
+enabled:hover:bg-gray-100/90 dark:enabled:hover:bg-base-300/90 enabled:hover:shadow-md enabled:hover:ring-1 enabled:hover:ring-black dark:enabled:hover:ring-white
+enabled:active:bg-gray-300/75 dark:enabled:active:bg-base-100/75 enabled:active:translate-y-[1px] enabled:active:shadow-none
 disabled:bg-gray-500/20 disabled:text-gray-400 disabled:border-gray-500
 flex gap-1 items-center justify-center ${vr} ${className}`}
       {...others}>

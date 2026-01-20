@@ -75,7 +75,7 @@ export default function Compare() {
   }, [text1, text2]);
 
   return (
-    <div className="flex flex-col items-start justify-start h-full">
+    <div className="flex flex-col items-start justify-start h-full max-h-screen">
       <h1 className="shrink-0">Compare <span className="text-sm font-light">by </span><a className="text-sm font-light" href={refUrl} target="_blank" rel="noreferrer noopener">{refUrl}</a></h1>
       <div className="flex items-center gap-3">
         <Button onClick={onClickDiff}>Diff</Button>
@@ -103,7 +103,7 @@ export default function Compare() {
         <div
           className="relative flex flex-col w-full whitespace-pre-wrap overflow-x-auto overflow-y-hidden">
           <div>{processing && <Spinner size="sm" />} Diff result:</div>
-          <div className="p-1 bg-gray-200 grow overflow-y-auto">
+          <div className="p-1 bg-base-300 grow overflow-y-auto">
             {
               diffChanges.map((change, i) => (
                 <span
@@ -185,7 +185,7 @@ type InfoBoxProps = {
 
 function InfoBox({ className, children }: InfoBoxProps) {
   return (
-    <div className={`absolute right-5 bottom-1 border p-1 rounded text-sm overflow-hidden bg-white/80 ${className ?? ''}`}>
+    <div className={`absolute right-5 bottom-1 border p-1 rounded text-sm overflow-hidden bg-base-100 ${className ?? ''}`}>
       {children}
     </div>
   )

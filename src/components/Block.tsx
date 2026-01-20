@@ -8,8 +8,8 @@ type BlockProps = {
 } & HTMLAttributes<HTMLDivElement>;
 
 const variants = {
-  'normal': 'bg-gray-200 border border-gray-300 text-gray-900',
-  'note': 'bg-orange-100 border border-orange-300',
+  'normal': 'bg-gray-200 border border-gray-300',
+  'note': 'bg-orange-100 border border-orange-300 dark:bg-orange-400 dark:border-orange-500',
 };
 
 export default function Block({ className, variant, children }: BlockProps) {
