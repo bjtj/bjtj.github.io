@@ -2,12 +2,13 @@ import { useEffect, useState, useCallback, useRef } from 'react';
 import TextArea from '../components/TextArea';
 import Button from '../components/Button';
 import ErrorPanel from '../components/ErrorPanel';
-import * as Marked from 'marked';
-import {markedHighlight} from "marked-highlight";
+import * as marked from 'marked';
+import { markedHighlight } from "marked-highlight";
 import hljs from 'highlight.js';
 import markedKatex from "marked-katex-extension";
+import { markedMermaid } from '../mermaid/MermaidExtension';
 
-Marked.use(markedHighlight({
+marked.use(markedHighlight({
   langPrefix: 'hljs language-',
   highlight(code, lang) {
     const language = hljs.getLanguage(lang) ? lang : 'plaintext';
@@ -15,24 +16,30 @@ Marked.use(markedHighlight({
   }
 }));
 
-Marked.use(markedKatex({ throwOnError: false }));
+marked.use(markedKatex({ throwOnError: false }));
+
+marked.use(markedMermaid({
+  theme: 'default',             // default | dark | forest | neutral
+  securityLevel: 'loose',       // svg foreignObject 허용
+  fontFamily: 'sans-serif',
+}));
 
 export default function Markdown() {
 
   const [mdText, setMdText] = useState<string>(localStorage.getItem('markdown-text') ?? '');
   const [htmlText, setHtmlText] = useState<string>();
   const [showCode, setShowCode] = useState<boolean>(false);
-  const iframeRef = useRef<HTMLIFrameElement|null>(null);
+  const iframeRef = useRef<HTMLIFrameElement | null>(null);
   const [error, setError] = useState<string>();
   const [copyDone, setCopyDone] = useState<boolean>(false);
   const [saved, setSaved] = useState<boolean>(true);
   const [refUrl] = useState<string>('https://github.com/markedjs/marked');
-  
+
 
   const convert = useCallback(() => {
     try {
       if (mdText) {
-        setHtmlText(Marked.parse(mdText, {async: false}));
+        setHtmlText(marked.parse(mdText, { async: false }));
       } else {
         setHtmlText('');
       }
@@ -61,12 +68,12 @@ export default function Markdown() {
 
   const wrapHtml = useCallback((text: string) => {
     return `<html>
-<head>
-<link rel="stylesheet" as="style" href="md.css" />
-<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/katex.min.css" integrity="sha384-GvrOXuhMATgEsSwCs4smul74iXGOixntILdUW9XmUC6+HX0sLNAK3q71HotJqlAn" crossorigin="anonymous">
-</head>
-<body>${text}</body>
-</html>`;
+    <head>
+    <link rel="stylesheet" as="style" href="md.css" />
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.8/dist/katex.min.css" integrity="sha384-GvrOXuhMATgEsSwCs4smul74iXGOixntILdUW9XmUC6+HX0sLNAK3q71HotJqlAn" crossorigin="anonymous">
+    </head>
+    <body>${text}</body>
+    </html>`;
   }, []);
 
   return (
@@ -111,7 +118,7 @@ export default function Markdown() {
           </div>
         </div>
       </div>
-      
+
       <ErrorPanel error={error} label="Error:" />
     </div>
   );
