@@ -191,4 +191,8 @@ const menu: MenuItem[] = [
   //   path: '/timer',
   //   name: 'Timer'
   // },
+  {
+    path: '/hiccup',
+    name: 'Hiccup'
+  },
 ];

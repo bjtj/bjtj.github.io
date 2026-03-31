@@ -26,6 +26,7 @@ import Ffmpeg from './routes/Ffmpeg';
 import Ascii from './routes/Ascii';
 import Text from './routes/Text';
 import Random from './routes/Random';
+import Hiccup from './routes/Hiccup';
 
 const router = createHashRouter(
   createRoutesFromElements(
@@ -53,6 +54,7 @@ const router = createHashRouter(
         <Route path="ascii" element={<Ascii />} />
         <Route path="text" element={<Text />} />
         <Route path="random" element={<Random />} />
+        <Route path="hiccup" element={<Hiccup />} />
 
       </Route>
     </Route>
