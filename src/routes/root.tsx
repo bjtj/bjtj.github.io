@@ -35,7 +35,7 @@ function SideBar({closeSideBar} : SideBarProps) {
     <div className="drawer-side">
       <div aria-label="close sidebar" className="drawer-overlay" onClick={closeSideBar}></div>
 
-      <div className="bg-base-200 w-60 max-w-[90%] min-h-full text-center">
+      <div className="bg-base-200 w-60 max-w-[95%] min-h-full text-center">
         <Link
           className="inline-block select-none max-w-[50%] flex justify-center items-center"
           to="/"
@@ -79,7 +79,6 @@ export default function Root() {
   return (
     <div>
       <div className="drawer sm:drawer-open">
-
         <input id="my-drawer-3" type="checkbox" className="drawer-toggle"
           checked={openSide}
           onChange={e => setOpenSide(e.target.checked)}
@@ -90,19 +89,15 @@ export default function Root() {
           <Outlet />
           <label
             htmlFor="my-drawer-3"
-            className="btn btn-circle btn-sm drawer-button fixed left-1 top-1 opacity-80">
+            className="btn btn-xs drawer-button fixed left-0.5 top-0.5 opacity-90">
             <Icon>menu</Icon>
           </label>
-          
         </div>
-
         <SideBar closeSideBar={() => setOpenSide(false)} />
-        
       </div>
 
       {/* top right */}
       <div className="fixed right-1 top-1 flex items-center gap-1 opacity-80">
-
         <label className={`swap swap-flip btn btn-soft btn-xs btn-circle`}>
           <input type="checkbox" value={theme} onChange={toggleTheme} />
           <Icon className="swap-off dark:hidden !text-lg !leading-0">light_mode</Icon>
@@ -119,7 +114,6 @@ export default function Root() {
       </div>
 
       <ToastContainer />
-      
     </div>
   )
 }

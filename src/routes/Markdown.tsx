@@ -35,7 +35,6 @@ export default function Markdown() {
   const [saved, setSaved] = useState<boolean>(true);
   const [refUrl] = useState<string>('https://github.com/markedjs/marked');
 
-
   const convert = useCallback(() => {
     try {
       if (mdText) {
