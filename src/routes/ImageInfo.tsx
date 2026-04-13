@@ -47,11 +47,18 @@ function ImageView({ file }: ImageViewProps) {
     imgRef.current = ref;
   }
 
+  function handleTags(tags: ExifReader.Tags) {
+    foldTable.current = [...new Array(Object.keys(tags).length)].map(() => true);
+    setTags(tags);
+  }
+
   useEffect(() => {
-    ExifReader.load(file).then(tags => {
-      foldTable.current = [...new Array(Object.keys(tags).length)].map(() => true);
-      setTags(tags);
-    });
+    let tags = ExifReader.load(file);
+    if (tags instanceof Promise) {
+      tags.then(tags => handleTags(tags));
+    } else {
+      handleTags(tags);
+    }
   }, [file]);
 
   function onLoad(e: SyntheticEvent<HTMLImageElement, Event>) {

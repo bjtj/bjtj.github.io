@@ -27,6 +27,7 @@ import Ascii from './routes/Ascii';
 import Text from './routes/Text';
 import Random from './routes/Random';
 import Hiccup from './routes/Hiccup';
+import YouTube from './routes/YouTube'
 
 const router = createHashRouter(
   createRoutesFromElements(
@@ -55,7 +56,7 @@ const router = createHashRouter(
         <Route path="text" element={<Text />} />
         <Route path="random" element={<Random />} />
         <Route path="hiccup" element={<Hiccup />} />
-
+        <Route path="youtube" element={<YouTube />} />
       </Route>
     </Route>
   )

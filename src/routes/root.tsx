@@ -189,4 +189,8 @@ const menu: MenuItem[] = [
     path: '/hiccup',
     name: 'Hiccup'
   },
+  {
+    path: '/youtube',
+    name: 'YouTube'
+  },
 ];
