@@ -3,6 +3,62 @@ import * as hp from "@thi.ng/hiccup-html-parse";
 import TextArea from "../components/TextArea";
 import Button from "../components/Button";
 
+type JSONValue =
+  | string
+  | number
+  | boolean
+  | null
+  | JSONValue[]
+  | { [key: string]: JSONValue };
+
+function stringifyHiccup(value: JSONValue, indent = 2, level = 0): string|null {
+  const nextSpace = " ".repeat(indent * (level + 1));
+
+  // array
+  if (Array.isArray(value)) {
+    if (value.length === 0) {
+      return "[]";
+    }
+    const [first, ...rest] = value as JSONValue[];
+    if (typeof first !== 'string') {
+      const items = value
+        .map(
+          (v) => stringifyHiccup(v, indent, level + 1)
+        ).filter(
+          v => v !== null
+        );
+      return `[${items.join("\n" + nextSpace)}]`;
+    } else {
+      const items = rest
+        .map(
+          (v) => stringifyHiccup(v, indent, level + 1)
+        ).filter(
+          v => v !== null
+        );
+      return `[:${first}${items.length === 0 ? "" : ("\n" + nextSpace)}${items.join("\n" + nextSpace)}]`;
+    }
+  }
+
+  // object
+  if (value && typeof value === 'object') {
+    const keys = Object.keys(value);
+    if (keys.length === 0) {
+      return null;
+    }
+
+    const items = keys.map(
+      (k) => `:${k} ${stringifyHiccup((value as Record<string, JSONValue>)[k], indent, level + 1)}`
+    ).filter(
+      v => v !== null
+    );
+
+    return `{${items.join("\n" + nextSpace)}}`;
+  }
+
+  // primitive
+  return JSON.stringify(value);
+}
+
 type HtmlToHiccupProps = {}
 
 function HtmlToHiccup(_: HtmlToHiccupProps) {
@@ -17,10 +73,16 @@ function HtmlToHiccup(_: HtmlToHiccupProps) {
   }
 
   useEffect(() => {
-    let parseResult = hp.parseHtml(html);
+    let parseResult = hp.parseHtml(html,
+      {
+        whitespace: false,
+        collapse: true,
+        comments: true,
+        doctype: false
+      });
     setErr(parseResult.err);
     if (!parseResult.err && parseResult.result) {
-      setHiccup(JSON.stringify(parseResult.result, null, 2));
+      setHiccup(stringifyHiccup(parseResult.result) ?? "");
     }
   }, [html]);
   
@@ -53,7 +115,7 @@ function HtmlToHiccup(_: HtmlToHiccupProps) {
         </div>
         <div className="flex flex-col flex-1">
           <TextArea
-            className="w-full grow"
+            className="w-full grow bg-base-300"
             value={hiccup ?? ''} onChange={e => setHiccup(e.target.value)}
             readOnly={true}></TextArea>
         </div>
