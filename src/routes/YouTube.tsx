@@ -51,7 +51,7 @@ export default function YouTube() {
     }
     if (div) {
       // mount
-      let _ = new YT.Player(div, {
+      new YT.Player(div, {
         videoId: lastVideoId,
         width: '100%',
         height: '100%',
