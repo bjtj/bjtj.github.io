@@ -10,7 +10,8 @@ declare global {
   console.log('ready!');
 }
 
-const KEY_LAST_VIDEO_ID = 'youtube-last-video-id'
+const KEY_LAST_VIDEO_ID = 'youtube-last-video-id';
+const KEY_REPEAT = 'youtube-repeat';
 
 export default function YouTube() {
   const divRef = useRef<HTMLDivElement>(null);
@@ -21,15 +22,28 @@ export default function YouTube() {
   const [videoData, setVideoData] = useState<YT.VideoData>();
   const [currentTime, setCurrentTime] = useState<number>(-1);
   const [duration, setDuration] = useState<number>(-1);
+  const [repeat, setRepeat] = useState<boolean>(localStorage.getItem(KEY_REPEAT) === 'true');
   const timerRef = useRef<number>(null);
   useEffect(() => {
     if (videoData) {
       console.log('save last video id: ' + videoData.video_id);
       localStorage.setItem(KEY_LAST_VIDEO_ID, videoData.video_id)
-      // console.log(JSON.stringify(videoData));
       setDuration(playerRef.current?.getDuration() ?? 0);
     }
   }, [videoData]);
+
+  const removeInterval = () => {
+    if (timerRef.current) {
+      clearInterval(timerRef.current);
+      timerRef.current = null;
+    }
+  };
+
+  const updateVideoData = (player: YT.Player) => {
+    let it = player.getVideoData();
+    if (it) { setVideoData(it); }
+  }
+  
   const cb = useCallback((div: HTMLDivElement) => {
     if (playerRef.current) {
       playerRef.current.destroy();
@@ -37,7 +51,7 @@ export default function YouTube() {
     }
     if (div) {
       // mount
-      let player = new YT.Player(div, {
+      let _ = new YT.Player(div, {
         videoId: lastVideoId,
         width: '100%',
         height: '100%',
@@ -47,27 +61,12 @@ export default function YouTube() {
         events: {
           onReady: (event: YT.PlayerEvent) => {
             event.target.playVideo();
-            let it = event.target.getVideoData();
-            if (it) { setVideoData(it); }
+            updateVideoData(event.target);
+            playerRef.current = event.target;
           },
           onStateChange: (event: YT.OnStateChangeEvent) => {
-            console.log(`state changed: ${event.data}`);
             setPlayerState(event.data)
-            if (event.data === YT.PlayerState.UNSTARTED || event.data === YT.PlayerState.CUED) {
-              let it = event.target.getVideoData();
-              if (it) { setVideoData(it); }
-            }
-
-            if (event.data === YT.PlayerState.PLAYING) {
-              if (timerRef.current) { clearInterval(timerRef.current); timerRef.current = null; }
-              timerRef.current = setInterval(() => {
-                setCurrentTime(event.target.getCurrentTime());
-              }, 100);
-              let it = event.target.getVideoData();
-              if (it) { setVideoData(it); }
-            } else {
-              if (timerRef.current) { clearInterval(timerRef.current); timerRef.current = null; }
-            }
+            
           },
           onPlaybackQualityChange: (_) => {
           },
@@ -83,10 +82,38 @@ export default function YouTube() {
           }
         }
       });
-      playerRef.current = player;
     }
     divRef.current = div;
   }, []);
+
+  useEffect(() => {
+    console.log(`state changed: ${playerState}`);
+    let player = playerRef.current;
+    if (player != null) {
+      if (playerState === YT.PlayerState.UNSTARTED || playerState === YT.PlayerState.CUED) {
+        updateVideoData(player);
+      }
+
+      if (playerState === YT.PlayerState.PLAYING) {
+        removeInterval();
+
+        timerRef.current = setInterval(() => {
+          if (player !== null) {
+            setCurrentTime(player.getCurrentTime());
+          }
+        }, 100);
+
+        updateVideoData(player);
+      } else {
+        setCurrentTime(player.getCurrentTime());
+        removeInterval();
+      }
+
+      if (playerState === YT.PlayerState.ENDED && repeat) {
+        player.playVideo();
+      }
+    }
+  }, [playerState]);
 
   const cbLoadVideo = useCallback(() => {
     playerRef.current?.loadVideoById(inputVideoId)
@@ -118,10 +145,17 @@ export default function YouTube() {
             onClick={() => playerRef.current?.pauseVideo()}>Pause</button>
           <button className="btn"
             onClick={() => playerRef.current?.stopVideo()}>Stop</button>
-          {/*<button className="btn"
-            onClick={() => playerRef.current?.setLoop(true)}>Set Loop</button>
-          <button className="btn"
-            onClick={() => playerRef.current?.setLoop(false)}>Unset Loop</button>*/}
+          <label>
+            <input
+              type="checkbox"
+              checked={repeat}
+              onChange={(e) => {
+              let c = e.target.checked;
+              localStorage.setItem(KEY_REPEAT, c.toString());
+              setRepeat(c);
+            }} />
+            <span>Repeat</span>
+          </label>
         </Box>
 
         <Box className="flex items-center">
@@ -171,6 +205,9 @@ export default function YouTube() {
               <li>video id: {videoData.video_id}</li>
               <li>title: {videoData.title}</li>
               <li>author: {videoData.author}</li>
+              <pre className="pre text-sm">
+                {JSON.stringify(videoData, null, 2)}
+              </pre>
             </ul>
           </Box>) : null
         }
