@@ -34,6 +34,7 @@
     "mime-types": "^3.0.1",
     "react": "^19.0.0",
     "react-dom": "^19.0.0",
+    "react-ga4": "^3.0.1",
     "react-howler": "^5.2.0",
     "react-router": "^7.4.1",
     "react-toastify": "^11.0.5",

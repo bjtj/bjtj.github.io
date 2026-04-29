@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Outlet, Link, useLocation } from "react-router";
+import { Outlet, Link, useLocation, type LoaderFunctionArgs } from "react-router";
 import Icon from '../components/Icon';
 import LogoPng from '../assets/logo.png';
 import LogoWhitePng from '../assets/logo_white.png';
@@ -8,8 +8,9 @@ import GithubDarkmode from '../assets/github-darkmode.svg';
 import { useTheme } from '../ThemeProvider';
 import { ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
+import GaTracker from '@/GaTracker';
 
-export async function loader() {
+export async function loader({ }: LoaderFunctionArgs) {
   return {};
 }
 
@@ -78,6 +79,7 @@ export default function Root() {
 
   return (
     <div>
+      <GaTracker />
       <div className="drawer sm:drawer-open">
         <input id="my-drawer-3" type="checkbox" className="drawer-toggle"
           checked={openSide}

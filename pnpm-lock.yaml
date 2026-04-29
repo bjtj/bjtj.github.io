@@ -25,7 +25,7 @@ dependencies:
     version: 0.3.114
   bjtj.github.io:
     specifier: 'file:'
-    version: file:(daisyui@5.5.14)(katex@0.16.43)(vite@6.2.4)
+    version: file:(katex@0.16.43)(vite@6.2.4)
   crypto-js:
     specifier: ^4.2.0
     version: 4.2.0
@@ -74,6 +74,9 @@ dependencies:
   react-dom:
     specifier: ^19.0.0
     version: 19.1.0(react@19.1.0)
+  react-ga4:
+    specifier: ^3.0.1
+    version: 3.0.1
   react-howler:
     specifier: ^5.2.0
     version: 5.2.0
@@ -2030,6 +2033,7 @@ packages:
 
   /daisyui@5.5.14:
     resolution: {integrity: sha512-L47rvw7I7hK68TA97VB8Ee0woHew+/ohR6Lx6Ah/krfISOqcG4My7poNpX5Mo5/ytMxiR40fEaz6njzDi7cuSg==}
+    dev: true
 
   /dayjs@1.11.20:
     resolution: {integrity: sha512-YbwwqR/uYpeoP4pu043q+LTDLFBLApUP6VxRihdfNTqu4ubqMlGDLd6ErXhEgsyvY0K6nCs7nggYumAN+9uEuQ==}
@@ -3051,20 +3055,6 @@ packages:
   /queue-microtask@1.2.3:
     resolution: {integrity: sha512-NuaNSa6flKT5JaSYQzJok04JzTL1CA6aGhv5rfLW3PgqA+M2ChpZQnAC8h8i4ZFkBS8X5RqkDBHA7r4hej3K9A==}
 
-  /react-daisyui@5.0.5(daisyui@5.5.14)(react-dom@19.1.0)(react@19.1.0)(tailwindcss@4.1.1):
-    resolution: {integrity: sha512-bh2XjayCeCmV855GqdhvCwIGDsrHxDfbczuVSMze4B71Ou6VwIesMTaHu8LQ6qYFi7tN59mBF073b0EUh2khFA==}
-    peerDependencies:
-      daisyui: ^4.12.10
-      react: '>=16'
-      react-dom: '>=16'
-      tailwindcss: '>=3.2.7'
-    dependencies:
-      daisyui: 5.5.14
-      react: 19.1.0
-      react-dom: 19.1.0(react@19.1.0)
-      tailwindcss: 4.1.1
-    dev: false
-
   /react-dom@19.1.0(react@19.1.0):
     resolution: {integrity: sha512-Xs1hdnE+DyKgeHJeJznQmYMIBG3TKIHJJT95Q58nHLSrElKlGQqDTR2HQ9fx5CN/Gk6Vh/kupBTDLU11/nDk/g==}
     peerDependencies:
@@ -3072,6 +3062,10 @@ packages:
     dependencies:
       react: 19.1.0
       scheduler: 0.26.0
+    dev: false
+
+  /react-ga4@3.0.1:
+    resolution: {integrity: sha512-GyCc01bSheWXjzGDyHsXMOqk/SP5Cf/JrcJTg4hcpKx4eeSwaJKpJUc+ipF4ffLTZkmabmf3ZGBv4OKHTXNXyA==}
     dev: false
 
   /react-howler@5.2.0:
@@ -3478,7 +3472,7 @@ packages:
     engines: {node: '>=10'}
     dev: true
 
-  file:(daisyui@5.5.14)(katex@0.16.43)(vite@6.2.4):
+  file:(katex@0.16.43)(vite@6.2.4):
     resolution: {directory: '', type: directory}
     id: 'file:'
     name: bjtj.github.io
@@ -3505,7 +3499,6 @@ packages:
       mime: 4.0.6
       mime-types: 3.0.1
       react: 19.1.0
-      react-daisyui: 5.0.5(daisyui@5.5.14)(react-dom@19.1.0)(react@19.1.0)(tailwindcss@4.1.1)
       react-dom: 19.1.0(react@19.1.0)
       react-howler: 5.2.0
       react-router: 7.4.1(react-dom@19.1.0)(react@19.1.0)
@@ -3514,7 +3507,6 @@ packages:
       sort-by: 1.2.0
       tailwindcss: 4.1.1
     transitivePeerDependencies:
-      - daisyui
       - katex
       - vite
     dev: false
