@@ -25,7 +25,7 @@ dependencies:
     version: 0.3.114
   bjtj.github.io:
     specifier: 'file:'
-    version: file:(katex@0.16.43)(vite@6.2.4)
+    version: file:(daisyui@5.5.14)(katex@0.16.43)(vite@6.2.4)
   crypto-js:
     specifier: ^4.2.0
     version: 4.2.0
@@ -1384,6 +1384,7 @@ packages:
 
   /@types/youtube@0.2.0:
     resolution: {integrity: sha512-Y+y6RKuqhurm5yWfUt3eT2QdHZNl09+OT86I2yOKGfJzTZCaR5eSf6m7zIGnlUHiUuYm4i/hUTDJ++E53OVh0g==}
+    dev: true
 
   /@typescript-eslint/eslint-plugin@8.29.0(@typescript-eslint/parser@8.29.0)(eslint@9.23.0)(typescript@5.7.3):
     resolution: {integrity: sha512-PAIpk/U7NIS6H7TEtN45SPGLQaHNgB7wSjsQV/8+KYokAb2T/gloOA/Bee2yd4/yKVhPKe5LlaUGhAZk5zmSaQ==}
@@ -2029,7 +2030,6 @@ packages:
 
   /daisyui@5.5.14:
     resolution: {integrity: sha512-L47rvw7I7hK68TA97VB8Ee0woHew+/ohR6Lx6Ah/krfISOqcG4My7poNpX5Mo5/ytMxiR40fEaz6njzDi7cuSg==}
-    dev: true
 
   /dayjs@1.11.20:
     resolution: {integrity: sha512-YbwwqR/uYpeoP4pu043q+LTDLFBLApUP6VxRihdfNTqu4ubqMlGDLd6ErXhEgsyvY0K6nCs7nggYumAN+9uEuQ==}
@@ -2452,10 +2452,6 @@ packages:
   /highlight.js@11.11.1:
     resolution: {integrity: sha512-Xwwo44whKBVCYoliBQwaPvtd/2tYFkRQtXDWj1nackaV2JPXx3L0+Jvd8/qCJ2p+ML0/XVkJ2q+Mr+UVdpJK5w==}
     engines: {node: '>=12.0.0'}
-    dev: false
-
-  /himalaya@1.1.1:
-    resolution: {integrity: sha512-mJLY5tErGWtsw8hO2fJ2vK4IpG6S1AIgVkduRo4FqFJhgI2H3XLzgemRemk45zcnFyxNNpOfrIDle2KcnJM0lA==}
     dev: false
 
   /howler@2.2.4:
@@ -3055,6 +3051,20 @@ packages:
   /queue-microtask@1.2.3:
     resolution: {integrity: sha512-NuaNSa6flKT5JaSYQzJok04JzTL1CA6aGhv5rfLW3PgqA+M2ChpZQnAC8h8i4ZFkBS8X5RqkDBHA7r4hej3K9A==}
 
+  /react-daisyui@5.0.5(daisyui@5.5.14)(react-dom@19.1.0)(react@19.1.0)(tailwindcss@4.1.1):
+    resolution: {integrity: sha512-bh2XjayCeCmV855GqdhvCwIGDsrHxDfbczuVSMze4B71Ou6VwIesMTaHu8LQ6qYFi7tN59mBF073b0EUh2khFA==}
+    peerDependencies:
+      daisyui: ^4.12.10
+      react: '>=16'
+      react-dom: '>=16'
+      tailwindcss: '>=3.2.7'
+    dependencies:
+      daisyui: 5.5.14
+      react: 19.1.0
+      react-dom: 19.1.0(react@19.1.0)
+      tailwindcss: 4.1.1
+    dev: false
+
   /react-dom@19.1.0(react@19.1.0):
     resolution: {integrity: sha512-Xs1hdnE+DyKgeHJeJznQmYMIBG3TKIHJJT95Q58nHLSrElKlGQqDTR2HQ9fx5CN/Gk6Vh/kupBTDLU11/nDk/g==}
     peerDependencies:
@@ -3468,7 +3478,7 @@ packages:
     engines: {node: '>=10'}
     dev: true
 
-  file:(katex@0.16.43)(vite@6.2.4):
+  file:(daisyui@5.5.14)(katex@0.16.43)(vite@6.2.4):
     resolution: {directory: '', type: directory}
     id: 'file:'
     name: bjtj.github.io
@@ -3480,13 +3490,11 @@ packages:
       '@tailwindcss/vite': 4.1.1(vite@6.2.4)
       '@thi.ng/hiccup': 5.4.1
       '@thi.ng/hiccup-html-parse': 0.3.114
-      '@types/youtube': 0.2.0
       crypto-js: 4.2.0
       exifreader: 4.38.1
       fast-diff: 1.3.0
       gh-pages: 6.3.0
       highlight.js: 11.11.1
-      himalaya: 1.1.1
       localforage: 1.10.0
       marked: 17.0.5
       marked-highlight: 2.2.3(marked@17.0.5)
@@ -3497,6 +3505,7 @@ packages:
       mime: 4.0.6
       mime-types: 3.0.1
       react: 19.1.0
+      react-daisyui: 5.0.5(daisyui@5.5.14)(react-dom@19.1.0)(react@19.1.0)(tailwindcss@4.1.1)
       react-dom: 19.1.0(react@19.1.0)
       react-howler: 5.2.0
       react-router: 7.4.1(react-dom@19.1.0)(react@19.1.0)
@@ -3505,6 +3514,7 @@ packages:
       sort-by: 1.2.0
       tailwindcss: 4.1.1
     transitivePeerDependencies:
+      - daisyui
       - katex
       - vite
     dev: false

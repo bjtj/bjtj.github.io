@@ -7,5 +7,10 @@ export default defineConfig({
   plugins: [react(), tailwindcss()],
   optimizeDeps: {
     exclude: ["@ffmpeg/ffmpeg", "@ffmpeg/util"],
+  },
+  resolve: {
+    alias: {
+      "@": "/src",
+    },
   }
 })
