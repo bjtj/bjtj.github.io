@@ -14,6 +14,7 @@ declare global {
 const KEY_LAST_VIDEO_ID = 'youtube-last-video-id';
 const KEY_LAST_URL = 'youtube-last-url';
 const KEY_REPEAT = 'youtube-repeat';
+const KEY_AUTOPLAY = 'youtube-autoplay';
 
 type ParseYouTubeUrlResult = {
   videoId: string;
@@ -68,25 +69,59 @@ function silent<T>(fn: () => T): T | null {
   }
 }
 
+function restoreLastVideoId() {
+  return localStorage.getItem(KEY_LAST_VIDEO_ID) ?? 'jNQXAC9IVRw'
+}
+
+function saveLastVideoId(vid: string) {
+  localStorage.setItem(KEY_LAST_VIDEO_ID, vid);
+}
+
+function restoreAutoplay(defval: boolean) {
+  let item = localStorage.getItem(KEY_AUTOPLAY);
+  if (item === null || item === undefined) {
+    return defval;
+  }
+  return item === 'true';
+}
+
+function saveAutoplay(val: boolean) {
+  localStorage.setItem(KEY_AUTOPLAY, val ? 'true' : 'false');
+}
+
+function restoreLastUrl() {
+  return localStorage.getItem(KEY_LAST_URL) ?? '';
+}
+
+function restoreRepeat() {
+  return localStorage.getItem(KEY_REPEAT) === 'true';
+}
+
+function saveRepeat(v: boolean) {
+  localStorage.setItem(KEY_REPEAT, v.toString());
+}
+
 export default function YouTube() {
 
   const divRef = useRef<HTMLDivElement>(null);
   const playerRef = useRef<YT.Player|null>(null);
   const dlgRef = useRef<HTMLDialogElement>(null);
-  const [lastVideoId] = useState<string>(localStorage.getItem(KEY_LAST_VIDEO_ID) ?? 'jNQXAC9IVRw');
+  const [autoplay, setAutoplay] = useState<boolean>(restoreAutoplay(false));
+  const [lastVideoId] = useState<string>(restoreLastVideoId());
   const [playerState, setPlayerState] = useState<YT.PlayerState>(YT.PlayerState.UNSTARTED);
   const [inputVideoId, setInputVideoId] = useState<string>(lastVideoId);
-  const [inputUrl, setInputUrl] = useState<string>(localStorage.getItem(KEY_LAST_URL) ?? '');
+  const [inputUrl, setInputUrl] = useState<string>(restoreLastUrl());
   const [parseResult, setParseResult] = useState<ParseYouTubeUrlResult|null>(null);
   const [videoData, setVideoData] = useState<YT.VideoData>();
   const [currentTime, setCurrentTime] = useState<number>(-1);
   const [duration, setDuration] = useState<number>(-1);
-  const [repeat, setRepeat] = useState<boolean>(localStorage.getItem(KEY_REPEAT) === 'true');
+  const [repeat, setRepeat] = useState<boolean>(restoreRepeat());
   const timerRef = useRef<number>(null);
   useEffect(() => {
     if (videoData) {
-      console.log('save last video id: ' + videoData.video_id);
-      localStorage.setItem(KEY_LAST_VIDEO_ID, videoData.video_id)
+      let vid = videoData.video_id;
+      console.log('save last video id: ' + vid);
+      saveLastVideoId(vid);
       setDuration(playerRef.current?.getDuration() ?? 0);
     }
   }, [videoData]);
@@ -111,19 +146,20 @@ export default function YouTube() {
     }
     
     if (div) {
-      
       // mount
       new YT.Player(div, {
         videoId: lastVideoId,
         width: '100%',
         height: '100%',
         playerVars: {
-          autoplay: 1,
+          autoplay: (autoplay ? 1 : 0),
         },
         events: {
           onReady: (event: YT.PlayerEvent) => {
             let player = event.target;
-            player.playVideo();
+            if (autoplay) {
+              player.playVideo();
+            }
             updateVideoData(player);
             playerRef.current = player;
           },
@@ -199,50 +235,69 @@ export default function YouTube() {
       <div className="h-1"></div>
 
       <div className="space-y-2">
-        <div className="aspect-video rounded-lg overflow-clip">
-          <div ref={cb}></div>
+        <div>
+          <div className="aspect-video rounded-lg overflow-clip">
+            <div ref={cb}></div>
+          </div>
+          <div className="flex flex-wrap gap-2 items-center justify-center my-1">{
+            Object.keys(YT.PlayerState).map(k => {
+              let v = YT.PlayerState[k as keyof typeof YT.PlayerState];
+              return (
+                <div
+                  key={`state-${v}`}
+                  className={`badge badge-xs ${(v == playerState) ? '' : 'badge-outline'} badge-info`}
+                >
+                  {k}: {v}
+                </div>
+              );
+            })
+          }</div>
+          <p className="text-xs space-x-1">
+            <span>CUR: {currentTime?.toFixed(3)} sec.</span>
+            <span>/</span>
+            <span>DUR: {duration?.toFixed(3)} sec.</span>
+            <span>[{ Math.floor(((currentTime ?? 0) / (duration ?? 0)) * 100) }%]</span>
+          </p>
         </div>
 
         { videoData && (
           <Box className="flex gap-1">
             <div className="shrink-0">
               <img
-                className="w-20 h-20 aspect-video object-cover rounded bg-black"
+                className="w-20 aspect-video object-cover rounded bg-black"
                 src={`https://i.ytimg.com/vi/${videoData.video_id}/hqdefault.jpg`} />
             </div>
-            <div className="text-sm p-1">
-              {videoData.title}
-            </div>
+            <div className="text-sm p-1">{videoData.title}</div>
           </Box>
         ) }
         
         <Box className="flex gap-1 items-center">
           <input
-            className="input"
+            className="input input-sm"
             type="text"
             value={inputVideoId}
             placeholder="Video ID"
             onChange={e => setInputVideoId(e.target.value)} />
-          <button className="btn" type="button" onClick={cbLoadVideo}>Load</button>
+          <button className="btn btn-sm" type="button" onClick={cbLoadVideo}>Load</button>
         </Box>
 
         <Box>
           <input
-            className="input w-full"
+            className="input input-sm w-full"
             type="text"
             value={inputUrl}
             placeholder="parse url"
             onChange={e => setInputUrl(e.target.value)} />
 
           <div>
-          { parseResult && 
-            (<ul className="text-sm p-2">
-              <li>Video ID:
-                <span
-                  className="cursor-pointer"
-                  onClick={() => { setInputVideoId(parseResult.videoId) }}>{parseResult.videoId}</span></li>
-               <li>Start Time: {parseResult.startTime}</li>
-             </ul>)}
+            { parseResult && 
+              (<ul className="text-sm p-1 flex items-center gap-3">
+                 <li>Video ID:
+                   <span
+                     className="cursor-pointer"
+                     onClick={() => { setInputVideoId(parseResult.videoId) }}>{parseResult.videoId}</span></li>
+                 <li>Start Time: {parseResult.startTime}</li>
+               </ul>)}
           </div>
 
           <button
@@ -271,77 +326,92 @@ export default function YouTube() {
         </Box>
 
         <Box className="flex gap-1 items-center">
-          <button className="btn"
+          <button className="btn btn-sm"
             onClick={() => playerRef.current?.playVideo()}>Play</button>
-          <button className="btn"
+          <button className="btn btn-sm"
             onClick={() => playerRef.current?.pauseVideo()}>Pause</button>
-          <button className="btn"
+          <button className="btn btn-sm"
             onClick={() => playerRef.current?.stopVideo()}>Stop</button>
           <label className="space-x-1">
             <input
               type="checkbox"
               checked={repeat}
               onChange={(e) => {
-              let c = e.target.checked;
-              localStorage.setItem(KEY_REPEAT, c.toString());
-              setRepeat(c);
-            }} />
+                let c = e.target.checked;
+                saveRepeat(c);
+                setRepeat(c);
+              }} />
             <span>Repeat</span>
+          </label>
+          <label className="space-x-1">
+            <input
+              type="checkbox"
+              checked={autoplay}
+              onChange={(e) => {
+                let c = e.target.checked;
+                saveAutoplay(c);
+                setAutoplay(c);
+              }} />
+            <span>Autoplay</span>
           </label>
         </Box>
 
-        <Box className="flex items-center gap-1">
-          <span>Volume:</span>
-          <button className="btn" onClick={() => {
-            let p = playerRef.current;
-            if (p) {
-              p.setVolume(Math.min(100, p.getVolume() + 10));
-            }
-          }}>+10</button>
-          <button className="btn" onClick={() => {
-            let p = playerRef.current;
-            if (p) {
-              p.setVolume(Math.max(0, p.getVolume() - 10));
-            }
-          }}>-10</button>
-          <button className="btn" onClick={() => {
-            playerRef.current?.mute();
-          }}>Mute</button>
-          <button className="btn" onClick={() => {
-            playerRef.current?.unMute();
-          }}>Unmute</button>
+        <Box label="Volume">
+          <div className="flex items-center gap-1">
+            {[0, 10, 20, 30, 40, 50, 60, 70, 80, 90, 100].map(v => (
+              <button key={`vol-${v}`} className="btn btn-sm" onClick={() => {
+                playerRef.current?.setVolume(v);
+              }}>{v}</button>
+            ))}
+          </div>
+          <div className="flex items-center gap-1">
+            <button className="btn btn-sm" onClick={() => {
+              let p = playerRef.current;
+              if (p) {
+                p.setVolume(Math.min(100, p.getVolume() + 10));
+              }
+            }}>+10</button>
+            <button className="btn btn-sm" onClick={() => {
+              let p = playerRef.current;
+              if (p) {
+                p.setVolume(Math.max(0, p.getVolume() - 10));
+              }
+            }}>-10</button>
+            <button className="btn btn-sm" onClick={() => {
+              playerRef.current?.mute();
+            }}>Mute</button>
+            <button className="btn btn-sm" onClick={() => {
+              playerRef.current?.unMute();
+            }}>Unmute</button>
+          </div>
         </Box>
 
-        <Box>
-          <div>Time: <span>{currentTime?.toFixed(3)} / {duration}</span></div>
+        <Box label="Time">
+          <div className="flex items-center gap-1">
+            {[0, 1, 2, 3, 4, 5, 6, 7, 8, 9].map(t => (
+              <button key={`time-${t}`} className="btn btn-sm" onClick={() => {
+                let per = t * 0.1;
+                let seconds = (duration ?? 0) * per;
+                playerRef.current?.seekTo(seconds, true);
+              }}>{t}</button>
+            ))}
+            <button key={`time-end`} className="btn btn-sm" onClick={() => {
+              playerRef.current?.seekTo(duration ?? 0, true);
+            }}>end</button>
+          </div>
         </Box>
-
-        <Box>
-          <div>State: {playerState}</div>
-          <div className="flex flex-wrap gap-2">{
-            Object.keys(YT.PlayerState).map(k => {
-              let v = YT.PlayerState[k as keyof typeof YT.PlayerState];
-              return (
-                <div className={`badge badge-sm ${(v == playerState) ? '' : 'badge-outline'} badge-info`}>
-                  {k}: {v}
-                </div>
-              );
-            })
-          }</div>
-        </Box>
-
         {
           videoData ? (<Box>
-            <h2>Video Data</h2>
-            <ul>
-              <li>video id: {videoData.video_id}</li>
-              <li>title: {videoData.title}</li>
-              <li>author: {videoData.author}</li>
-              <pre className="pre whitespace-pre-wrap text-sm rounded bg-base-100 p-1">
-                {JSON.stringify(videoData, null, 2)}
-              </pre>
-            </ul>
-          </Box>) : null
+                         <h2>Video Data</h2>
+                         <ul>
+                           <li>video id: {videoData.video_id}</li>
+                           <li>title: {videoData.title}</li>
+                           <li>author: {videoData.author}</li>
+                           <pre className="pre whitespace-pre-wrap text-sm rounded bg-base-100 p-1">
+                             {JSON.stringify(videoData, null, 2)}
+                           </pre>
+                         </ul>
+                       </Box>) : null
         }
       </div>
     </div>
@@ -351,11 +421,28 @@ export default function YouTube() {
 type BoxProps = {
   children?: ReactNode;
   className?: string;
+  label?: string;
 }
 
-const Box: React.FC<BoxProps> = ({className, children}) => {
+const Box: React.FC<BoxProps> = ({className, children, label}) => {
+  let spacing = label ? 'mt-6 pt-5' : '';
   return (
-    <div className={`bg-base-300 rounded p-2 ${className ?? ''}`}>
+    <div className={`relative bg-base-300 rounded p-2 ${spacing} ${className ?? ''}`}>
+      {label && (<BoxLabel>{label}</BoxLabel>)}
+      {children}
+    </div>
+  )
+}
+
+
+type BoxLabelProps = {
+  children?: ReactNode;
+  className?: string;
+}
+
+const BoxLabel: React.FC<BoxLabelProps> = ({className, children}) => {
+  return (
+    <div className={`badge badge-sm badge-soft absolute left-2 -top-2 ${className ?? ''}`}>
       {children}
     </div>
   )
