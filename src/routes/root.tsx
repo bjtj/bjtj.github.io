@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Outlet, Link, useLocation, type LoaderFunctionArgs } from "react-router";
 import Icon from '../components/Icon';
 import LogoPng from '../assets/logo.png';
@@ -59,7 +59,9 @@ function SideBar({closeSideBar} : SideBarProps) {
                 key={`menu-${i}`}
                 className="text-center p-0 whitespace-nowrap">
                 <Link
-                  className={`flex items-cente justify-start px-1 ${location.pathname === m.path && 'font-bold text-red-600 hover:text-red-900'}`}
+                  className={`flex items-cente justify-start px-1 ${
+                    location.pathname === m.path && 'font-bold text-red-600 hover:text-red-900'
+                  }`}
                   to={m.path}
                   onClick={closeSideBar}>
                   {m.icon && (<Icon className="!text-lg !leading-0">{m.icon}</Icon>)}{m.name}
@@ -76,6 +78,16 @@ export default function Root() {
 
   const [openSide, setOpenSide] = useState(false);
   const { theme, toggleTheme } = useTheme();
+  const location = useLocation();
+
+  useEffect(() => {
+    let name = menu.find(m => m.path === location.pathname)?.name;
+    if (name) {
+      document.title = `${name} - Hand Tools`;
+    } else {
+      document.title = 'Hand Tools';
+    }
+  }, [location]);
 
   return (
     <div>
