@@ -93,7 +93,10 @@ function saveLastVideoIdList(vids: string) {
 }
 
 function restoreLoadType(defValue: LoadType) {
-  return localStorage.getItem(KEY_LOAD_TYPE) ?? defValue;
+  const value = localStorage.getItem(KEY_LOAD_TYPE);
+  return value && Object.values(LoadType).includes(value as LoadType)
+    ? (value as LoadType)
+    :defValue;
 }
 
 function saveLoadType(loadType: LoadType) {
