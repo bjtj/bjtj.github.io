@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState, useCallback, ReactNode } from 'react';
 import { toast } from 'react-toastify';
-import { ArrowTopRightOnSquareIcon } from '@heroicons/react/24/outline';
+import { ArrowTopRightOnSquareIcon, ArrowLeftIcon, ArrowRightIcon } from '@heroicons/react/24/outline';
 import Modal from '@/components/Modal';
 
 declare global {
@@ -12,9 +12,16 @@ declare global {
 }
 
 const KEY_LAST_VIDEO_ID = 'youtube-last-video-id';
+const KEY_LAST_VIDEO_ID_LIST = 'youtube-last-video-id-list';
 const KEY_LAST_URL = 'youtube-last-url';
 const KEY_REPEAT = 'youtube-repeat';
 const KEY_AUTOPLAY = 'youtube-autoplay';
+const KEY_LOAD_TYPE = 'youtube-load-type';
+
+enum LoadType {
+  VideoId = 'videoId',
+  PlayList = 'playList',
+}
 
 type ParseYouTubeUrlResult = {
   videoId: string;
@@ -70,11 +77,27 @@ function silent<T>(fn: () => T): T | null {
 }
 
 function restoreLastVideoId() {
-  return localStorage.getItem(KEY_LAST_VIDEO_ID) ?? 'jNQXAC9IVRw'
+  return localStorage.getItem(KEY_LAST_VIDEO_ID) ?? 'jNQXAC9IVRw';
+}
+
+function restoreLastVideoIdList() {
+  return localStorage.getItem(KEY_LAST_VIDEO_ID_LIST) ?? '';
 }
 
 function saveLastVideoId(vid: string) {
   localStorage.setItem(KEY_LAST_VIDEO_ID, vid);
+}
+
+function saveLastVideoIdList(vids: string) {
+  localStorage.setItem(KEY_LAST_VIDEO_ID_LIST, vids);
+}
+
+function restoreLoadType(defValue: LoadType) {
+  return localStorage.getItem(KEY_LOAD_TYPE) ?? defValue;
+}
+
+function saveLoadType(loadType: LoadType) {
+  localStorage.setItem(KEY_LOAD_TYPE, loadType)
 }
 
 function restoreAutoplay(defval: boolean) {
@@ -108,14 +131,20 @@ export default function YouTube() {
   const dlgRef = useRef<HTMLDialogElement>(null);
   const [autoplay, setAutoplay] = useState<boolean>(restoreAutoplay(false));
   const [lastVideoId] = useState<string>(restoreLastVideoId());
+  const [lastVideoIdList] = useState<string>(restoreLastVideoIdList());
   const [playerState, setPlayerState] = useState<YT.PlayerState>(YT.PlayerState.UNSTARTED);
   const [inputVideoId, setInputVideoId] = useState<string>(lastVideoId);
+  const [inputVideoIdList, setInputVideoIdList] = useState<string>(lastVideoIdList);
   const [inputUrl, setInputUrl] = useState<string>(restoreLastUrl());
+  const [inputIndex, setInputIndex] = useState<number>(0);
+  const [inputSeekPercent, setInputSeekPercent] = useState<number>(0);
+  const [inputVolumePercent, setInputVolumePercent] = useState<number>(0);
   const [parseResult, setParseResult] = useState<ParseYouTubeUrlResult|null>(null);
   const [videoData, setVideoData] = useState<YT.VideoData>();
   const [currentTime, setCurrentTime] = useState<number>(-1);
   const [duration, setDuration] = useState<number>(-1);
   const [repeat, setRepeat] = useState<boolean>(restoreRepeat());
+  const loadTypeRef = useRef<LoadType>(restoreLoadType(LoadType.VideoId));
   const timerRef = useRef<number>(null);
   useEffect(() => {
     if (videoData) {
@@ -157,6 +186,10 @@ export default function YouTube() {
         events: {
           onReady: (event: YT.PlayerEvent) => {
             let player = event.target;
+            if (loadTypeRef.current === LoadType.PlayList) {
+              let list = lastVideoIdList.split(/\s*,\s*/).filter(s => s.length > 0);
+              player.loadPlaylist(list);
+            }
             if (autoplay) {
               player.playVideo();
             }
@@ -214,8 +247,42 @@ export default function YouTube() {
   }, [playerState]);
 
   const cbLoadVideo = useCallback(() => {
-    playerRef.current?.loadVideoById(inputVideoId)
+    playerRef.current?.loadVideoById(inputVideoId);
+    saveLoadType(LoadType.VideoId);
   }, [inputVideoId]);
+
+  const cbLoadVideoList = useCallback(() => {
+    let list = inputVideoIdList.split(/\s*,\s*/).filter(s => s.length > 0);
+    playerRef.current?.loadPlaylist(list);
+    saveLastVideoIdList(inputVideoIdList);
+    saveLoadType(LoadType.PlayList);
+  }, [inputVideoIdList]);
+
+  const cbPreviousVideo = useCallback(() => {
+    playerRef.current?.previousVideo();
+  }, []);
+
+  const cbNextVideo = useCallback(() => {
+    playerRef.current?.nextVideo();
+  }, []);
+
+  const cbSetIndex = useCallback(() => {
+    playerRef.current?.playVideoAt(inputIndex);
+  }, [inputIndex]);
+
+  const cbSeekPercent = useCallback(() => {
+    if (playerRef.current) {
+      let duration = playerRef.current.getDuration();
+      let percent = inputSeekPercent * 0.01;
+      playerRef.current?.seekTo(duration * percent, true);
+    }
+  }, [inputSeekPercent]);
+
+  const cbSetVolumePercent = useCallback(() => {
+    if (playerRef.current) {
+      playerRef.current?.setVolume(inputVolumePercent);
+    }
+  }, [inputVolumePercent]);
 
   useEffect(() => {
     if (inputUrl !== null && inputUrl !== undefined) {
@@ -271,7 +338,7 @@ export default function YouTube() {
           </Box>
         ) }
         
-        <Box className="flex gap-1 items-center">
+        <Box className="flex gap-1 items-center" label="Set Video">
           <input
             className="input input-sm"
             type="text"
@@ -281,12 +348,41 @@ export default function YouTube() {
           <button className="btn btn-sm" type="button" onClick={cbLoadVideo}>Load</button>
         </Box>
 
-        <Box>
+        <Box label="Set Video List">
+          <div className="flex gap-1 items-center">
+            <input
+              className="input input-sm"
+              type="text"
+              value={inputVideoIdList}
+              placeholder="Video ID List (comma separated)"
+              onChange={e => setInputVideoIdList(e.target.value)} />
+            <button className="btn btn-sm" type="button" onClick={cbLoadVideoList}>Load</button>
+          </div>
+
+          <div className="h-1"></div>
+
+          <div className="flex gap-1 items-center">
+            <button className="btn btn-sm" type="button" onClick={cbPreviousVideo}>
+              <ArrowLeftIcon className="size-6" />
+            </button>
+            <button className="btn btn-sm" type="button" onClick={cbNextVideo}>
+              <ArrowRightIcon className="size-6" />
+            </button>
+            <input
+              className="input input-sm w-20"
+              type="number"
+              value={inputIndex}
+              onChange={e => setInputIndex(parseInt(e.target.value))} />
+            <button className="btn btn-sm" onClick={cbSetIndex}>Set</button>
+          </div>
+        </Box>
+
+        <Box label="Parse Url">
           <input
             className="input input-sm w-full"
             type="text"
             value={inputUrl}
-            placeholder="parse url"
+            placeholder="video url"
             onChange={e => setInputUrl(e.target.value)} />
 
           <div>
@@ -357,13 +453,16 @@ export default function YouTube() {
         </Box>
 
         <Box label="Volume">
+          <p className="text-sm">{inputVolumePercent}%</p>
+          <div className="h-2"></div>
           <div className="flex items-center gap-1">
-            {[0, 10, 20, 30, 40, 50, 60, 70, 80, 90, 100].map(v => (
-              <button key={`vol-${v}`} className="btn btn-sm" onClick={() => {
-                playerRef.current?.setVolume(v);
-              }}>{v}</button>
-            ))}
+            <input
+              className="range" type="range" min={0} max={100}
+              value={inputVolumePercent}
+              onInput={e => setInputVolumePercent(parseInt(e.currentTarget.value))} />
+            <button className="btn btn-sm" type="button" onClick={cbSetVolumePercent}>Set</button>
           </div>
+          <div className="h-2"></div>
           <div className="flex items-center gap-1">
             <button className="btn btn-sm" onClick={() => {
               let p = playerRef.current;
@@ -386,32 +485,32 @@ export default function YouTube() {
           </div>
         </Box>
 
-        <Box label="Time">
+        <Box label="Seek">
+          <p className="text-sm">{inputSeekPercent}%</p>
+          <div className="h-2"></div>
           <div className="flex items-center gap-1">
-            {[0, 1, 2, 3, 4, 5, 6, 7, 8, 9].map(t => (
-              <button key={`time-${t}`} className="btn btn-sm" onClick={() => {
-                let per = t * 0.1;
-                let seconds = (duration ?? 0) * per;
-                playerRef.current?.seekTo(seconds, true);
-              }}>{t}</button>
-            ))}
-            <button key={`time-end`} className="btn btn-sm" onClick={() => {
-              playerRef.current?.seekTo(duration ?? 0, true);
-            }}>end</button>
+            <input
+              className="range" type="range" min={0} max={100}
+              value={inputSeekPercent}
+              onInput={e => setInputSeekPercent(parseInt(e.currentTarget.value))} />
+            <button className="btn btn-sm" type="button" onClick={cbSeekPercent}>Set</button>
           </div>
         </Box>
+
         {
-          videoData ? (<Box>
-                         <h2>Video Data</h2>
-                         <ul>
-                           <li>video id: {videoData.video_id}</li>
-                           <li>title: {videoData.title}</li>
-                           <li>author: {videoData.author}</li>
-                           <pre className="pre whitespace-pre-wrap text-sm rounded bg-base-100 p-1">
-                             {JSON.stringify(videoData, null, 2)}
-                           </pre>
-                         </ul>
-                       </Box>) : null
+          videoData ? (<Box label="Video Data">
+            <ul>
+              <li>video id: {videoData.video_id}</li>
+              <li>title: {videoData.title}</li>
+              <li>author: {videoData.author}</li>
+              <li>
+                    Video Data:
+                <pre className="pre whitespace-pre-wrap text-sm rounded bg-base-100 p-1">
+                  {JSON.stringify(videoData, null, 2)}
+                </pre>
+              </li>
+            </ul>
+          </Box>) : null
         }
       </div>
     </div>
