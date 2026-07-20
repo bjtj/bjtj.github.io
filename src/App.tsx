@@ -25,6 +25,7 @@ import Compare from './routes/Compare';
 import Ffmpeg from './routes/Ffmpeg';
 import Ascii from './routes/Ascii';
 import Text from './routes/Text';
+import Colors from './routes/Colors';
 import Random from './routes/Random';
 import Hiccup from './routes/Hiccup';
 import YouTube from './routes/YouTube'
@@ -54,6 +55,7 @@ const router = createHashRouter(
         <Route path="ffmpeg" element={<Ffmpeg />} />
         <Route path="ascii" element={<Ascii />} />
         <Route path="text" element={<Text />} />
+        <Route path="colors" element={<Colors />} />
         <Route path="random" element={<Random />} />
         <Route path="hiccup" element={<Hiccup />} />
         <Route path="youtube" element={<YouTube />} />

@@ -159,6 +159,10 @@ const menu: MenuItem[] = [
     name: 'Text'
   },
   {
+    path: '/colors',
+    name: 'Colors'
+  },
+  {
     path: '/compare',
     name: 'Compare'
   },
