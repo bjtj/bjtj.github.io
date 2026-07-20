@@ -28,6 +28,14 @@ type ParseYouTubeUrlResult = {
   startTime: number;
 };
 
+type Option = {
+  [key: string]: any
+}
+
+type Options = {
+  [key: string]: Option[]
+}
+
 function parseYouTubeUrl(url: string): ParseYouTubeUrlResult|null {
   const u = new URL(url);
   let videoId = null;
@@ -132,6 +140,7 @@ export default function YouTube() {
   const divRef = useRef<HTMLDivElement>(null);
   const playerRef = useRef<YT.Player|null>(null);
   const dlgRef = useRef<HTMLDialogElement>(null);
+  const optionsDlgRef = useRef<HTMLDialogElement>(null);
   const [autoplay, setAutoplay] = useState<boolean>(restoreAutoplay(false));
   const [lastVideoId] = useState<string>(restoreLastVideoId());
   const [lastVideoIdList] = useState<string>(restoreLastVideoIdList());
@@ -147,6 +156,7 @@ export default function YouTube() {
   const [currentTime, setCurrentTime] = useState<number>(-1);
   const [duration, setDuration] = useState<number>(-1);
   const [repeat, setRepeat] = useState<boolean>(restoreRepeat());
+  const [options, setOptions] = useState<Options>({});
   const loadTypeRef = useRef<LoadType>(restoreLoadType(LoadType.VideoId));
   const timerRef = useRef<number>(null);
   useEffect(() => {
@@ -167,7 +177,7 @@ export default function YouTube() {
 
   const updateVideoData = (player: YT.Player) => {
     let it = player.getVideoData();
-    if (it) { setVideoData(it); }
+    if (it != null) { setVideoData(it); }
   }
   
   const cb = useCallback((div: HTMLDivElement) => {
@@ -209,7 +219,12 @@ export default function YouTube() {
           onError: (event) => {
             toast.error(`Error: ${event}`, { position: 'top-center' });
           },
-          onApiChange: (_) => {
+          onApiChange: ({ target }) => {
+            let player = target as any;
+            let topOptions = player.getOptions();
+            setOptions(Object.assign({}, ...topOptions.map((opt: string) =>
+              ({[opt]: Object.assign({}, ...player.getOptions(opt).map((k: string) =>
+                ({[k]: player.getOption(opt, k) ?? ''})))}))));
           },
           onAutoplayBlocked: (_: YT.PlayerEvent) => {
             toast.error('auto playback is blocked', { position: 'top-center' });
@@ -330,6 +345,14 @@ export default function YouTube() {
           </p>
         </div>
 
+        <div>
+          <button
+            className="btn btn-sm btn-secondary"
+            onClick={() => {
+              optionsDlgRef.current?.showModal();
+            }}>options</button>
+        </div>
+
         { videoData && (
           <Box className="flex gap-1">
             <div className="shrink-0">
@@ -348,7 +371,10 @@ export default function YouTube() {
             value={inputVideoId}
             placeholder="Video ID"
             onChange={e => setInputVideoId(e.target.value)} />
-          <button className="btn btn-sm" type="button" onClick={cbLoadVideo}>Load</button>
+          <button
+            className="btn btn-sm btn-secondary"
+            type="button"
+            onClick={cbLoadVideo}>Load</button>
         </Box>
 
         <Box label="Set Video List">
@@ -359,7 +385,10 @@ export default function YouTube() {
               value={inputVideoIdList}
               placeholder="Video ID List (comma separated)"
               onChange={e => setInputVideoIdList(e.target.value)} />
-            <button className="btn btn-sm" type="button" onClick={cbLoadVideoList}>Load</button>
+            <button
+              className="btn btn-sm btn-secondary"
+              type="button"
+              onClick={cbLoadVideoList}>Load</button>
           </div>
 
           <div className="h-1"></div>
@@ -376,7 +405,9 @@ export default function YouTube() {
               type="number"
               value={inputIndex}
               onChange={e => setInputIndex(parseInt(e.target.value))} />
-            <button className="btn btn-sm" onClick={cbSetIndex}>Set</button>
+            <button
+              className="btn btn-sm btn-secondary"
+              onClick={cbSetIndex}>Set</button>
           </div>
         </Box>
 
@@ -391,10 +422,15 @@ export default function YouTube() {
           <div>
             { parseResult && 
               (<ul className="text-sm p-1 flex items-center gap-3">
-                 <li>Video ID:
-                   <span
-                     className="cursor-pointer"
-                     onClick={() => { setInputVideoId(parseResult.videoId) }}>{parseResult.videoId}</span></li>
+                 <li className="flex items-center gap-1">
+                   <span>Video ID:</span>
+                   <code>{parseResult.videoId}</code>
+                   <button
+                     className="btn btn-xs btn-secondary"
+                     onClick={() => { setInputVideoId(parseResult.videoId) }}>
+                     Set
+                   </button>
+                 </li>
                  <li>Start Time: {parseResult.startTime}</li>
                </ul>)}
           </div>
@@ -425,11 +461,14 @@ export default function YouTube() {
         </Box>
 
         <Box className="flex gap-1 items-center">
-          <button className="btn btn-sm"
+          <button
+            className="btn btn-sm btn-primary"
             onClick={() => playerRef.current?.playVideo()}>Play</button>
-          <button className="btn btn-sm"
+          <button
+            className="btn btn-sm btn-primary"
             onClick={() => playerRef.current?.pauseVideo()}>Pause</button>
-          <button className="btn btn-sm"
+          <button
+            className="btn btn-sm btn-primary"
             onClick={() => playerRef.current?.stopVideo()}>Stop</button>
           <label className="space-x-1">
             <input
@@ -463,7 +502,10 @@ export default function YouTube() {
               className="range" type="range" min={0} max={100}
               value={inputVolumePercent}
               onInput={e => setInputVolumePercent(parseInt(e.currentTarget.value))} />
-            <button className="btn btn-sm" type="button" onClick={cbSetVolumePercent}>Set</button>
+            <button
+              className="btn btn-sm btn-secondary"
+              type="button"
+              onClick={cbSetVolumePercent}>Set</button>
           </div>
           <div className="h-2"></div>
           <div className="flex items-center gap-1">
@@ -473,18 +515,24 @@ export default function YouTube() {
                 p.setVolume(Math.min(100, p.getVolume() + 10));
               }
             }}>+10</button>
-            <button className="btn btn-sm" onClick={() => {
-              let p = playerRef.current;
-              if (p) {
-                p.setVolume(Math.max(0, p.getVolume() - 10));
-              }
-            }}>-10</button>
-            <button className="btn btn-sm" onClick={() => {
-              playerRef.current?.mute();
-            }}>Mute</button>
-            <button className="btn btn-sm" onClick={() => {
-              playerRef.current?.unMute();
-            }}>Unmute</button>
+            <button
+              className="btn btn-sm"
+              onClick={() => {
+                let p = playerRef.current;
+                if (p) {
+                  p.setVolume(Math.max(0, p.getVolume() - 10));
+                }
+              }}>-10</button>
+            <button
+              className="btn btn-sm"
+              onClick={() => {
+                playerRef.current?.mute();
+              }}>Mute</button>
+            <button
+              className="btn btn-sm"
+              onClick={() => {
+                playerRef.current?.unMute();
+              }}>Unmute</button>
           </div>
         </Box>
 
@@ -496,7 +544,10 @@ export default function YouTube() {
               className="range" type="range" min={0} max={100}
               value={inputSeekPercent}
               onInput={e => setInputSeekPercent(parseInt(e.currentTarget.value))} />
-            <button className="btn btn-sm" type="button" onClick={cbSeekPercent}>Set</button>
+            <button
+              className="btn btn-sm btn-secondary"
+              type="button"
+              onClick={cbSeekPercent}>Set</button>
           </div>
         </Box>
 
@@ -515,6 +566,13 @@ export default function YouTube() {
             </ul>
           </Box>) : null
         }
+
+        <Modal ref={optionsDlgRef} backdrop={true} title={"Options"}>
+          <pre className="pre whitespace-pre-wrap text-sm">
+            {JSON.stringify(options, null, 2)}
+          </pre>
+        </Modal>
+        
       </div>
     </div>
   )

@@ -110,8 +110,8 @@ devDependencies:
     specifier: ^5.2.3
     version: 5.2.3
   '@types/youtube':
-    specifier: ^0.2.0
-    version: 0.2.0
+    specifier: ^0.3.0
+    version: 0.3.0
   '@vitejs/plugin-react':
     specifier: ^4.3.4
     version: 4.3.4(vite@6.2.4)
@@ -1385,8 +1385,8 @@ packages:
     dev: false
     optional: true
 
-  /@types/youtube@0.2.0:
-    resolution: {integrity: sha512-Y+y6RKuqhurm5yWfUt3eT2QdHZNl09+OT86I2yOKGfJzTZCaR5eSf6m7zIGnlUHiUuYm4i/hUTDJ++E53OVh0g==}
+  /@types/youtube@0.3.0:
+    resolution: {integrity: sha512-a+JnwvmYfCShUv2fPs9JL/rUr9JGx5BPjSn7sp3V5UEyyj2AIVkSCRlVoe4CjFBrkBIv9jMpOPakfitMq7tegA==}
     dev: true
 
   /@typescript-eslint/eslint-plugin@8.29.0(@typescript-eslint/parser@8.29.0)(eslint@9.23.0)(typescript@5.7.3):
@@ -3500,6 +3500,7 @@ packages:
       mime-types: 3.0.1
       react: 19.1.0
       react-dom: 19.1.0(react@19.1.0)
+      react-ga4: 3.0.1
       react-howler: 5.2.0
       react-router: 7.4.1(react-dom@19.1.0)(react@19.1.0)
       react-toastify: 11.0.5(react-dom@19.1.0)(react@19.1.0)
