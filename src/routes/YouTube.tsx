@@ -13,6 +13,7 @@ declare global {
 
 const KEY_LAST_VIDEO_ID = 'youtube-last-video-id';
 const KEY_LAST_VIDEO_ID_LIST = 'youtube-last-video-id-list';
+const KEY_LAST_PLAY_LIST_INDEX = 'youtube-last-play-list-index';
 const KEY_LAST_URL = 'youtube-last-url';
 const KEY_REPEAT = 'youtube-repeat';
 const KEY_AUTOPLAY = 'youtube-autoplay';
@@ -84,20 +85,32 @@ function silent<T>(fn: () => T): T | null {
   }
 }
 
-function restoreLastVideoId() {
-  return localStorage.getItem(KEY_LAST_VIDEO_ID) ?? 'jNQXAC9IVRw';
+function saveLastVideoId(vid: string) {
+  localStorage.setItem(KEY_LAST_VIDEO_ID, vid);
+}
+
+function restoreLastVideoId(defvid: string) {
+  return localStorage.getItem(KEY_LAST_VIDEO_ID) ?? defvid;
+}
+
+function saveLastVideoIdList(vids: string) {
+  localStorage.setItem(KEY_LAST_VIDEO_ID_LIST, vids);
 }
 
 function restoreLastVideoIdList() {
   return localStorage.getItem(KEY_LAST_VIDEO_ID_LIST) ?? '';
 }
 
-function saveLastVideoId(vid: string) {
-  localStorage.setItem(KEY_LAST_VIDEO_ID, vid);
+function saveLastPlaylistIndex(index: number) {
+  localStorage.setItem(KEY_LAST_PLAY_LIST_INDEX, index.toString());
 }
 
-function saveLastVideoIdList(vids: string) {
-  localStorage.setItem(KEY_LAST_VIDEO_ID_LIST, vids);
+function restoreLastPlaylistIndex() {
+  return parseInt(localStorage.getItem(KEY_LAST_PLAY_LIST_INDEX) ?? "-1");
+}
+
+function saveLoadType(loadType: LoadType) {
+  localStorage.setItem(KEY_LOAD_TYPE, loadType)
 }
 
 function restoreLoadType(defValue: LoadType) {
@@ -107,8 +120,8 @@ function restoreLoadType(defValue: LoadType) {
     :defValue;
 }
 
-function saveLoadType(loadType: LoadType) {
-  localStorage.setItem(KEY_LOAD_TYPE, loadType)
+function saveAutoplay(val: boolean) {
+  localStorage.setItem(KEY_AUTOPLAY, val ? 'true' : 'false');
 }
 
 function restoreAutoplay(defval: boolean) {
@@ -119,21 +132,19 @@ function restoreAutoplay(defval: boolean) {
   return item === 'true';
 }
 
-function saveAutoplay(val: boolean) {
-  localStorage.setItem(KEY_AUTOPLAY, val ? 'true' : 'false');
-}
-
 function restoreLastUrl() {
   return localStorage.getItem(KEY_LAST_URL) ?? '';
+}
+
+function saveRepeat(v: boolean) {
+  localStorage.setItem(KEY_REPEAT, v.toString());
 }
 
 function restoreRepeat() {
   return localStorage.getItem(KEY_REPEAT) === 'true';
 }
 
-function saveRepeat(v: boolean) {
-  localStorage.setItem(KEY_REPEAT, v.toString());
-}
+
 
 export default function YouTube() {
 
@@ -142,9 +153,10 @@ export default function YouTube() {
   const dlgRef = useRef<HTMLDialogElement>(null);
   const optionsDlgRef = useRef<HTMLDialogElement>(null);
   const [autoplay, setAutoplay] = useState<boolean>(restoreAutoplay(false));
-  const [lastVideoId] = useState<string>(restoreLastVideoId());
+  const [lastVideoId] = useState<string>(restoreLastVideoId('jNQXAC9IVRw'));
   const [lastVideoIdList] = useState<string>(restoreLastVideoIdList());
-  const [playerState, setPlayerState] = useState<YT.PlayerState>(YT.PlayerState.UNSTARTED);
+  const [lastPlayListIndex] = useState<number>(restoreLastPlaylistIndex());
+  const [playerState, setPlayerState] = useState<YT.PlayerState>();
   const [inputVideoId, setInputVideoId] = useState<string>(lastVideoId);
   const [inputVideoIdList, setInputVideoIdList] = useState<string>(lastVideoIdList);
   const [inputUrl, setInputUrl] = useState<string>(restoreLastUrl());
@@ -154,16 +166,16 @@ export default function YouTube() {
   const [parseResult, setParseResult] = useState<ParseYouTubeUrlResult|null>(null);
   const [videoData, setVideoData] = useState<YT.VideoData>();
   const [currentTime, setCurrentTime] = useState<number>(-1);
+  const [currentPlaylist, setCurrentPlaylist] = useState<string[]>();
+  const [currentPlaylistIndex, setCurrentPlaylistIndex] = useState<number>();
   const [duration, setDuration] = useState<number>(-1);
   const [repeat, setRepeat] = useState<boolean>(restoreRepeat());
   const [options, setOptions] = useState<Options>({});
   const loadTypeRef = useRef<LoadType>(restoreLoadType(LoadType.VideoId));
   const timerRef = useRef<number>(null);
+
   useEffect(() => {
     if (videoData) {
-      let vid = videoData.video_id;
-      console.log('save last video id: ' + vid);
-      saveLastVideoId(vid);
       setDuration(playerRef.current?.getDuration() ?? 0);
     }
   }, [videoData]);
@@ -174,6 +186,23 @@ export default function YouTube() {
       timerRef.current = null;
     }
   };
+
+  const saveLastPlayState = (player: YT.Player) => {
+    let videoData = player.getVideoData();
+    let videoId = videoData?.video_id;
+    let playList = player.getPlaylist();
+    let playListIndex = player.getPlaylistIndex();
+    if (playList?.length > 0) {
+      console.log('save last playstate / PLAYLIST');
+      saveLastVideoIdList(playList.join(","));
+      saveLastPlaylistIndex(playListIndex);
+      saveLoadType(LoadType.PlayList);
+    } else {
+      console.log('save last playstate / VIDEOID');
+      saveLastVideoId(videoId);
+      saveLoadType(LoadType.VideoId);
+    }
+  }
 
   const updateVideoData = (player: YT.Player) => {
     let it = player.getVideoData();
@@ -188,6 +217,10 @@ export default function YouTube() {
     }
     
     if (div) {
+
+      let extraPlayerVars = ((loadTypeRef.current === LoadType.PlayList) ? {'playlist': lastVideoIdList} : {})
+      console.log(`loadTypeRef.current: ${loadTypeRef.current}, extraPlayerVars: ${JSON.stringify(extraPlayerVars, null, 2)}`);
+      
       // mount
       new YT.Player(div, {
         videoId: lastVideoId,
@@ -195,19 +228,20 @@ export default function YouTube() {
         height: '100%',
         playerVars: {
           autoplay: (autoplay ? 1 : 0),
+          ...((loadTypeRef.current === LoadType.PlayList) ? {'playlist': lastVideoIdList} : {})
         },
         events: {
           onReady: (event: YT.PlayerEvent) => {
             let player = event.target;
-            if (loadTypeRef.current === LoadType.PlayList) {
-              let list = lastVideoIdList.split(/\s*,\s*/).filter(s => s.length > 0);
-              player.loadPlaylist(list);
+            playerRef.current = player;
+            if (loadTypeRef.current === LoadType.PlayList && lastPlayListIndex >= 0) {
+              player.playVideoAt(lastPlayListIndex)
             }
             if (autoplay) {
+              console.log('play video! (auto play)');
               player.playVideo();
             }
             updateVideoData(player);
-            playerRef.current = player;
           },
           onStateChange: (event: YT.OnStateChangeEvent) => {
             setPlayerState(event.data)
@@ -236,9 +270,16 @@ export default function YouTube() {
   }, []);
 
   useEffect(() => {
-    console.log(`State Changed: ${playerState}`);
+    console.log(`State Changed: ${playerState} (${Object.keys(YT.PlayerState).find(k => YT.PlayerState[k as keyof typeof YT.PlayerState] === playerState)})`);
     let player = playerRef.current;
     if (player != null) {
+
+      if (playerState === YT.PlayerState.UNSTARTED) {
+        saveLastPlayState(player);
+        setCurrentPlaylist(player.getPlaylist());
+        setCurrentPlaylistIndex(player.getPlaylistIndex());
+      }
+      
       if (playerState === YT.PlayerState.UNSTARTED || playerState === YT.PlayerState.CUED) {
         updateVideoData(player);
       }
@@ -251,7 +292,6 @@ export default function YouTube() {
             setCurrentTime(player.getCurrentTime());
           }
         }, 100);
-
         updateVideoData(player);
       } else {
         setCurrentTime(player.getCurrentTime());
@@ -266,14 +306,20 @@ export default function YouTube() {
 
   const cbLoadVideo = useCallback(() => {
     playerRef.current?.loadVideoById(inputVideoId);
-    saveLoadType(LoadType.VideoId);
+  }, [inputVideoId]);
+
+  const cbCueVideo = useCallback(() => {
+    playerRef.current?.cueVideoById(inputVideoId);
   }, [inputVideoId]);
 
   const cbLoadVideoList = useCallback(() => {
     let list = inputVideoIdList.split(/\s*,\s*/).filter(s => s.length > 0);
     playerRef.current?.loadPlaylist(list);
-    saveLastVideoIdList(inputVideoIdList);
-    saveLoadType(LoadType.PlayList);
+  }, [inputVideoIdList]);
+
+  const cbCueVideoList = useCallback(() => {
+    let list = inputVideoIdList.split(/\s*,\s*/).filter(s => s.length > 0);
+    playerRef.current?.cuePlaylist(list);
   }, [inputVideoIdList]);
 
   const cbPreviousVideo = useCallback(() => {
@@ -375,6 +421,10 @@ export default function YouTube() {
             className="btn btn-sm btn-secondary"
             type="button"
             onClick={cbLoadVideo}>Load</button>
+          <button
+            className="btn btn-sm btn-secondary"
+            type="button"
+            onClick={cbCueVideo}>Cue</button>
         </Box>
 
         <Box label="Set Video List">
@@ -389,6 +439,10 @@ export default function YouTube() {
               className="btn btn-sm btn-secondary"
               type="button"
               onClick={cbLoadVideoList}>Load</button>
+            <button
+              className="btn btn-sm btn-secondary"
+              type="button"
+              onClick={cbCueVideoList}>Cue</button>
           </div>
 
           <div className="h-1"></div>
@@ -408,6 +462,13 @@ export default function YouTube() {
             <button
               className="btn btn-sm btn-secondary"
               onClick={cbSetIndex}>Set</button>
+          </div>
+          
+          <div>
+            <h3>Play List</h3>
+            <div className="flex-wrap gap-1">{currentPlaylist?.map(vid =>
+              <span className="badge badge-sm">{vid}</span>)}</div>
+            <div className="text-sm">Index: {currentPlaylistIndex}</div>
           </div>
         </Box>
 
