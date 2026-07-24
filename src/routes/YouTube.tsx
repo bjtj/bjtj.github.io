@@ -2,6 +2,7 @@ import { useEffect, useRef, useState, useCallback, ReactNode } from 'react';
 import { toast } from 'react-toastify';
 import { ArrowTopRightOnSquareIcon, ArrowLeftIcon, ArrowRightIcon } from '@heroicons/react/24/outline';
 import Modal from '@/components/Modal';
+import { useLocalStorageState } from '@/utils/localStorageState';
 
 declare global {
   interface YT {}
@@ -14,10 +15,14 @@ declare global {
 const KEY_LAST_VIDEO_ID = 'youtube-last-video-id';
 const KEY_LAST_VIDEO_ID_LIST = 'youtube-last-video-id-list';
 const KEY_LAST_PLAY_LIST_INDEX = 'youtube-last-play-list-index';
-const KEY_LAST_URL = 'youtube-last-url';
 const KEY_REPEAT = 'youtube-repeat';
 const KEY_AUTOPLAY = 'youtube-autoplay';
 const KEY_LOAD_TYPE = 'youtube-load-type';
+const KEY_INPUT_VIDEO_ID = "input-video-id";
+const KEY_INPUT_VIDEO_ID_LIST = "input-video-id-list";
+const KEY_INPUT_PARSE_URL = "input-parse-url";
+const KEY_INPUT_PLAY_LIST_ID = "input-play-list-id";
+
 
 enum LoadType {
   VideoId = 'videoId',
@@ -132,10 +137,6 @@ function restoreAutoplay(defval: boolean) {
   return item === 'true';
 }
 
-function restoreLastUrl() {
-  return localStorage.getItem(KEY_LAST_URL) ?? '';
-}
-
 function saveRepeat(v: boolean) {
   localStorage.setItem(KEY_REPEAT, v.toString());
 }
@@ -145,9 +146,7 @@ function restoreRepeat() {
 }
 
 
-
 export default function YouTube() {
-
   const divRef = useRef<HTMLDivElement>(null);
   const playerRef = useRef<YT.Player|null>(null);
   const dlgRef = useRef<HTMLDialogElement>(null);
@@ -157,12 +156,13 @@ export default function YouTube() {
   const [lastVideoIdList] = useState<string>(restoreLastVideoIdList());
   const [lastPlayListIndex] = useState<number>(restoreLastPlaylistIndex());
   const [playerState, setPlayerState] = useState<YT.PlayerState>();
-  const [inputVideoId, setInputVideoId] = useState<string>(lastVideoId);
-  const [inputVideoIdList, setInputVideoIdList] = useState<string>(lastVideoIdList);
-  const [inputUrl, setInputUrl] = useState<string>(restoreLastUrl());
+  const [inputVideoId, setInputVideoId] = useLocalStorageState<string>(KEY_INPUT_VIDEO_ID, lastVideoId);
+  const [inputVideoIdList, setInputVideoIdList] = useLocalStorageState<string>(KEY_INPUT_VIDEO_ID_LIST, lastVideoIdList);
+  const [inputParseUrl, setInputParseUrl] = useLocalStorageState<string>(KEY_INPUT_PARSE_URL, "");
   const [inputIndex, setInputIndex] = useState<number>(0);
   const [inputSeekPercent, setInputSeekPercent] = useState<number>(0);
   const [inputVolumePercent, setInputVolumePercent] = useState<number>(0);
+  const [inputPlayListId, setInputPlayListId] = useLocalStorageState<string>(KEY_INPUT_PLAY_LIST_ID, "OLAK5uy_nQFHiVXIsV7njWTASL1EXd28Kn-2Yq1n0");
   const [parseResult, setParseResult] = useState<ParseYouTubeUrlResult|null>(null);
   const [videoData, setVideoData] = useState<YT.VideoData>();
   const [currentTime, setCurrentTime] = useState<number>(-1);
@@ -299,6 +299,7 @@ export default function YouTube() {
       }
 
       if (playerState === YT.PlayerState.ENDED && repeat) {
+        player.playVideoAt(0);
         player.playVideo();
       }
     }
@@ -313,14 +314,26 @@ export default function YouTube() {
   }, [inputVideoId]);
 
   const cbLoadVideoList = useCallback(() => {
+    console.log(`cbLoadVideoList / inputVideoIdList ${inputVideoIdList}`);
     let list = inputVideoIdList.split(/\s*,\s*/).filter(s => s.length > 0);
     playerRef.current?.loadPlaylist(list);
   }, [inputVideoIdList]);
 
   const cbCueVideoList = useCallback(() => {
+    console.log(`cbCueVideoList / inputVideoIdList ${inputVideoIdList}`);
     let list = inputVideoIdList.split(/\s*,\s*/).filter(s => s.length > 0);
     playerRef.current?.cuePlaylist(list);
   }, [inputVideoIdList]);
+
+  const cbLoadPlayListId = useCallback(() => {
+    console.log(`cbLoadPlayListId / inputPlayListId: ${inputPlayListId}`);
+    playerRef.current?.loadPlaylist({list: inputPlayListId});
+  }, [inputPlayListId]);
+
+  const cbCuePlayListId = useCallback(() => {
+    console.log(`cbCuePlayListId / inputPlayListId: ${inputPlayListId}`);
+    playerRef.current?.cuePlaylist({list: inputPlayListId});
+  }, [inputPlayListId]);
 
   const cbPreviousVideo = useCallback(() => {
     playerRef.current?.previousVideo();
@@ -333,6 +346,10 @@ export default function YouTube() {
   const cbSetIndex = useCallback(() => {
     playerRef.current?.playVideoAt(inputIndex);
   }, [inputIndex]);
+
+  const cbPlayVideodAt = useCallback((idx: number) => {
+    playerRef.current?.playVideoAt(idx);
+  }, []);
 
   const cbSeekPercent = useCallback(() => {
     if (playerRef.current) {
@@ -349,10 +366,10 @@ export default function YouTube() {
   }, [inputVolumePercent]);
 
   useEffect(() => {
-    if (inputUrl !== null && inputUrl !== undefined) {
-      setParseResult(silent(() => parseYouTubeUrl(inputUrl)));
+    if (inputParseUrl !== null && inputParseUrl !== undefined) {
+      setParseResult(silent(() => parseYouTubeUrl(inputParseUrl)));
     }
-  }, [inputUrl]);
+  }, [inputParseUrl]);
 
   return (
     <div className="max-w-lg">
@@ -409,6 +426,40 @@ export default function YouTube() {
             <div className="text-sm p-1">{videoData.title}</div>
           </Box>
         ) }
+
+        <Box className="flex gap-1 items-center">
+          <button
+            className="btn btn-sm btn-primary"
+            onClick={() => playerRef.current?.playVideo()}>Play</button>
+          <button
+            className="btn btn-sm btn-primary"
+            onClick={() => playerRef.current?.pauseVideo()}>Pause</button>
+          <button
+            className="btn btn-sm btn-primary"
+            onClick={() => playerRef.current?.stopVideo()}>Stop</button>
+          <label className="space-x-1 text-sm">
+            <input
+              type="checkbox"
+              checked={repeat}
+              onChange={(e) => {
+                let c = e.target.checked;
+                saveRepeat(c);
+                setRepeat(c);
+              }} />
+            <span>Repeat</span>
+          </label>
+          <label className="space-x-1 text-sm">
+            <input
+              type="checkbox"
+              checked={autoplay}
+              onChange={(e) => {
+                let c = e.target.checked;
+                saveAutoplay(c);
+                setAutoplay(c);
+              }} />
+            <span>Autoplay</span>
+          </label>
+        </Box>
         
         <Box className="flex gap-1 items-center" label="Set Video">
           <input
@@ -416,7 +467,7 @@ export default function YouTube() {
             type="text"
             value={inputVideoId}
             placeholder="Video ID"
-            onChange={e => setInputVideoId(e.target.value)} />
+            onInput={e => setInputVideoId(e.currentTarget.value)} />
           <button
             className="btn btn-sm btn-secondary"
             type="button"
@@ -434,7 +485,7 @@ export default function YouTube() {
               type="text"
               value={inputVideoIdList}
               placeholder="Video ID List (comma separated)"
-              onChange={e => setInputVideoIdList(e.target.value)} />
+              onInput={e => setInputVideoIdList(e.currentTarget.value)} />
             <button
               className="btn btn-sm btn-secondary"
               type="button"
@@ -443,6 +494,23 @@ export default function YouTube() {
               className="btn btn-sm btn-secondary"
               type="button"
               onClick={cbCueVideoList}>Cue</button>
+          </div>
+          <div className="h-1"></div>
+          <div className="flex gap-1 items-center">
+            <input
+              className="input input-sm"
+              type="text"
+              value={inputPlayListId}
+              placeholder="PlayList ID"
+              onInput={e => setInputPlayListId(e.currentTarget.value)} />
+            <button
+              className="btn btn-sm btn-secondary"
+              type="button"
+              onClick={cbLoadPlayListId}>Load</button>
+            <button
+              className="btn btn-sm btn-secondary"
+              type="button"
+              onClick={cbCuePlayListId}>Cue</button>
           </div>
 
           <div className="h-1"></div>
@@ -458,16 +526,22 @@ export default function YouTube() {
               className="input input-sm w-20"
               type="number"
               value={inputIndex}
-              onChange={e => setInputIndex(parseInt(e.target.value))} />
+              onInput={e => setInputIndex(parseInt(e.currentTarget.value))} />
             <button
               className="btn btn-sm btn-secondary"
               onClick={cbSetIndex}>Set</button>
           </div>
           
           <div>
-            <h3>Play List</h3>
-            <div className="flex-wrap gap-1">{currentPlaylist?.map(vid =>
-              <span className="badge badge-sm">{vid}</span>)}</div>
+            <h4>Play List</h4>
+            <div className="flex-wrap gap-1">{currentPlaylist?.map((vid, index) =>
+              <button
+                key={`playlist-item-${index}`}
+                className="badge badge-sm cursor-pointer"
+                onClick={() => cbPlayVideodAt(index)}
+                title={`index: ${index}`}>
+                {vid}
+              </button>)}</div>
             <div className="text-sm">Index: {currentPlaylistIndex}</div>
           </div>
         </Box>
@@ -476,9 +550,9 @@ export default function YouTube() {
           <input
             className="input input-sm w-full"
             type="text"
-            value={inputUrl}
+            value={inputParseUrl}
             placeholder="video url"
-            onChange={e => setInputUrl(e.target.value)} />
+            onInput={e => setInputParseUrl(e.currentTarget.value)} />
 
           <div>
             { parseResult && 
@@ -513,46 +587,12 @@ export default function YouTube() {
                 'https://www.youtube.com/shorts/mURLgMXy3Mk'
               ].map((url, i) => (
                 <li key={`url-${i}`} className="cursor-pointer" onClick={() => {
-                  setInputUrl(url);
+                  setInputParseUrl(url);
                   dlgRef.current?.close();
                 }}>{url}</li>
               ))}
             </ul>
           </Modal>
-        </Box>
-
-        <Box className="flex gap-1 items-center">
-          <button
-            className="btn btn-sm btn-primary"
-            onClick={() => playerRef.current?.playVideo()}>Play</button>
-          <button
-            className="btn btn-sm btn-primary"
-            onClick={() => playerRef.current?.pauseVideo()}>Pause</button>
-          <button
-            className="btn btn-sm btn-primary"
-            onClick={() => playerRef.current?.stopVideo()}>Stop</button>
-          <label className="space-x-1">
-            <input
-              type="checkbox"
-              checked={repeat}
-              onChange={(e) => {
-                let c = e.target.checked;
-                saveRepeat(c);
-                setRepeat(c);
-              }} />
-            <span>Repeat</span>
-          </label>
-          <label className="space-x-1">
-            <input
-              type="checkbox"
-              checked={autoplay}
-              onChange={(e) => {
-                let c = e.target.checked;
-                saveAutoplay(c);
-                setAutoplay(c);
-              }} />
-            <span>Autoplay</span>
-          </label>
         </Box>
 
         <Box label="Volume">
