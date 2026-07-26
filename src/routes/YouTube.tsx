@@ -32,6 +32,7 @@ enum LoadType {
 type ParseYouTubeUrlResult = {
   videoId: string;
   startTime: number;
+  listId?: string | null;
 };
 
 type Option = {
@@ -79,7 +80,9 @@ function parseYouTubeUrl(url: string): ParseYouTubeUrlResult|null {
     }
   }
 
-  return { videoId, startTime: time };
+  const listId = u.searchParams.get('list');
+
+  return { videoId, startTime: time , listId};
 }
 
 function silent<T>(fn: () => T): T | null {
@@ -180,6 +183,12 @@ export default function YouTube() {
     }
   }, [videoData]);
 
+  useEffect(() => {
+    if (currentPlaylist) {
+      console.log(`${currentPlaylist.join(',')}`);
+    }
+  }, [currentPlaylist]);
+
   const removeInterval = () => {
     if (timerRef.current) {
       clearInterval(timerRef.current);
@@ -208,6 +217,16 @@ export default function YouTube() {
     let it = player.getVideoData();
     if (it != null) { setVideoData(it); }
   }
+
+  const updateOptions = (player: any) => {
+    let topOptions = player.getOptions();
+    console.log(`updateOptions: ${topOptions}`);
+    setOptions(Object.assign({}, ...topOptions.map((opt: string) =>
+    ({
+      [opt]: Object.assign({}, ...player.getOptions(opt).map((k: string) =>
+        ({ [k]: player.getOption(opt, k) ?? '' })))
+    }))));
+  }
   
   const cb = useCallback((div: HTMLDivElement) => {
     if (!div && playerRef.current) {
@@ -227,18 +246,19 @@ export default function YouTube() {
         width: '100%',
         height: '100%',
         playerVars: {
-          autoplay: (autoplay ? 1 : 0),
+          autoplay: 0,
           ...((loadTypeRef.current === LoadType.PlayList) ? {'playlist': lastVideoIdList} : {})
         },
         events: {
           onReady: (event: YT.PlayerEvent) => {
+            console.log('READY!');
             let player = event.target;
             playerRef.current = player;
             if (loadTypeRef.current === LoadType.PlayList && lastPlayListIndex >= 0) {
               player.playVideoAt(lastPlayListIndex)
             }
             if (autoplay) {
-              console.log('play video! (auto play)');
+              toast('Auto Play');
               player.playVideo();
             }
             updateVideoData(player);
@@ -251,14 +271,11 @@ export default function YouTube() {
           onPlaybackRateChange: (_) => {
           },
           onError: (event) => {
-            toast.error(`Error: ${event}`, { position: 'top-center' });
+            toast.error(`Error: ${JSON.stringify(event)}`, { position: 'top-center' });
           },
           onApiChange: ({ target }) => {
-            let player = target as any;
-            let topOptions = player.getOptions();
-            setOptions(Object.assign({}, ...topOptions.map((opt: string) =>
-              ({[opt]: Object.assign({}, ...player.getOptions(opt).map((k: string) =>
-                ({[k]: player.getOption(opt, k) ?? ''})))}))));
+            console.log('onApiChange');
+            updateOptions(target);
           },
           onAutoplayBlocked: (_: YT.PlayerEvent) => {
             toast.error('auto playback is blocked', { position: 'top-center' });
@@ -273,7 +290,6 @@ export default function YouTube() {
     console.log(`State Changed: ${playerState} (${Object.keys(YT.PlayerState).find(k => YT.PlayerState[k as keyof typeof YT.PlayerState] === playerState)})`);
     let player = playerRef.current;
     if (player != null) {
-
       if (playerState === YT.PlayerState.UNSTARTED) {
         saveLastPlayState(player);
         setCurrentPlaylist(player.getPlaylist());
@@ -286,7 +302,6 @@ export default function YouTube() {
 
       if (playerState === YT.PlayerState.PLAYING) {
         removeInterval();
-
         timerRef.current = setInterval(() => {
           if (player !== null) {
             setCurrentTime(player.getCurrentTime());
@@ -316,23 +331,23 @@ export default function YouTube() {
   const cbLoadVideoList = useCallback(() => {
     console.log(`cbLoadVideoList / inputVideoIdList ${inputVideoIdList}`);
     let list = inputVideoIdList.split(/\s*,\s*/).filter(s => s.length > 0);
-    playerRef.current?.loadPlaylist(list);
+    playerRef.current?.loadPlaylist(list, 0, 0);
   }, [inputVideoIdList]);
 
   const cbCueVideoList = useCallback(() => {
     console.log(`cbCueVideoList / inputVideoIdList ${inputVideoIdList}`);
     let list = inputVideoIdList.split(/\s*,\s*/).filter(s => s.length > 0);
-    playerRef.current?.cuePlaylist(list);
+    playerRef.current?.cuePlaylist(list, 0, 0);
   }, [inputVideoIdList]);
 
   const cbLoadPlayListId = useCallback(() => {
     console.log(`cbLoadPlayListId / inputPlayListId: ${inputPlayListId}`);
-    playerRef.current?.loadPlaylist({list: inputPlayListId});
+    playerRef.current?.loadPlaylist({list: inputPlayListId, listType: 'playlist', index: 0, startSeconds: 0});
   }, [inputPlayListId]);
 
   const cbCuePlayListId = useCallback(() => {
     console.log(`cbCuePlayListId / inputPlayListId: ${inputPlayListId}`);
-    playerRef.current?.cuePlaylist({list: inputPlayListId});
+    playerRef.current?.cuePlaylist({list: inputPlayListId, listType: 'playlist', index: 0, startSeconds: 0});
   }, [inputPlayListId]);
 
   const cbPreviousVideo = useCallback(() => {
@@ -400,74 +415,83 @@ export default function YouTube() {
               );
             })
           }</div>
-          <p className="text-xs space-x-1">
-            <span>CUR: {currentTime?.toFixed(3)} sec.</span>
-            <span>/</span>
-            <span>DUR: {duration?.toFixed(3)} sec.</span>
-            <span>[{ Math.floor(((currentTime ?? 0) / (duration ?? 0)) * 100) }%]</span>
-          </p>
-        </div>
-
-        <div>
-          <button
-            className="btn btn-sm btn-secondary"
-            onClick={() => {
-              optionsDlgRef.current?.showModal();
-            }}>options</button>
         </div>
 
         { videoData && (
-          <Box className="flex gap-1">
+          <Box className="flex items-center gap-1">
             <div className="shrink-0">
               <img
                 className="w-20 aspect-video object-cover rounded bg-black"
                 src={`https://i.ytimg.com/vi/${videoData.video_id}/hqdefault.jpg`} />
             </div>
-            <div className="text-sm p-1">{videoData.title}</div>
+            <div className="text-sm p-1 flex-1">
+              <div>{videoData.title}</div>
+              <div className="font-bold">{videoData.author}</div>
+            </div>
+            <div>
+              <button
+                className="btn btn-xs btn-secondary"
+                onClick={() => {
+                  optionsDlgRef.current?.showModal();
+                }}>options</button>
+            </div>
           </Box>
         ) }
 
-        <Box className="flex gap-1 items-center">
-          <button
-            className="btn btn-sm btn-primary"
-            onClick={() => playerRef.current?.playVideo()}>Play</button>
-          <button
-            className="btn btn-sm btn-primary"
-            onClick={() => playerRef.current?.pauseVideo()}>Pause</button>
-          <button
-            className="btn btn-sm btn-primary"
-            onClick={() => playerRef.current?.stopVideo()}>Stop</button>
-          <label className="space-x-1 text-sm">
-            <input
-              type="checkbox"
-              checked={repeat}
-              onChange={(e) => {
-                let c = e.target.checked;
-                saveRepeat(c);
-                setRepeat(c);
-              }} />
-            <span>Repeat</span>
-          </label>
-          <label className="space-x-1 text-sm">
-            <input
-              type="checkbox"
-              checked={autoplay}
-              onChange={(e) => {
-                let c = e.target.checked;
-                saveAutoplay(c);
-                setAutoplay(c);
-              }} />
-            <span>Autoplay</span>
-          </label>
+        <Box className="space-y-1">
+
+          <p className="text-xs space-x-1">
+            <span>Time: {currentTime?.toFixed(3)} sec.</span>
+            <span>/</span>
+            <span>duration: {duration?.toFixed(3)} sec.</span>
+            <span>(progress: {Math.floor(((currentTime ?? 0) / (duration ?? 0)) * 100)}%)</span>
+          </p>
+
+          <div className="flex gap-1 items-center">
+            <button
+              className="btn btn-sm btn-primary"
+              onClick={() => playerRef.current?.playVideo()}>Play</button>
+            <button
+              className="btn btn-sm btn-primary"
+              onClick={() => playerRef.current?.pauseVideo()}>Pause</button>
+            <button
+              className="btn btn-sm btn-primary"
+              onClick={() => playerRef.current?.stopVideo()}>Stop</button>
+            <label className="space-x-1 text-sm">
+              <input
+                type="checkbox"
+                checked={repeat}
+                onChange={(e) => {
+                  let c = e.target.checked;
+                  saveRepeat(c);
+                  setRepeat(c);
+                }} />
+              <span>Repeat</span>
+            </label>
+            <label className="space-x-1 text-sm">
+              <input
+                type="checkbox"
+                checked={autoplay}
+                onChange={(e) => {
+                  let c = e.target.checked;
+                  saveAutoplay(c);
+                  setAutoplay(c);
+                }} />
+              <span>Autoplay</span>
+            </label>
+          </div>
         </Box>
         
         <Box className="flex gap-1 items-center" label="Set Video">
-          <input
-            className="input input-sm"
-            type="text"
-            value={inputVideoId}
-            placeholder="Video ID"
-            onInput={e => setInputVideoId(e.currentTarget.value)} />
+          <label className="input input-sm flex-1">
+            <span className="font-bold text-gray-500">Video ID</span>
+            <input
+              className="grow"
+              type="text"
+              value={inputVideoId}
+              placeholder="Video ID"
+              onInput={e => setInputVideoId(e.currentTarget.value)} />
+          </label>
           <button
             className="btn btn-sm btn-secondary"
             type="button"
@@ -480,12 +504,15 @@ export default function YouTube() {
 
         <Box label="Set Video List">
           <div className="flex gap-1 items-center">
-            <input
-              className="input input-sm"
-              type="text"
-              value={inputVideoIdList}
-              placeholder="Video ID List (comma separated)"
-              onInput={e => setInputVideoIdList(e.currentTarget.value)} />
+            <label className="input input-sm flex-1">
+              <span className="font-bold text-gray-500">Video List</span>
+              <input
+                className="grow"
+                type="text"
+                value={inputVideoIdList}
+                placeholder="Video ID List (comma separated)"
+                onInput={e => setInputVideoIdList(e.currentTarget.value)} />
+            </label>
             <button
               className="btn btn-sm btn-secondary"
               type="button"
@@ -497,12 +524,15 @@ export default function YouTube() {
           </div>
           <div className="h-1"></div>
           <div className="flex gap-1 items-center">
-            <input
-              className="input input-sm"
-              type="text"
-              value={inputPlayListId}
-              placeholder="PlayList ID"
-              onInput={e => setInputPlayListId(e.currentTarget.value)} />
+            <label className="input input-sm flex-1">
+              <span className="font-bold text-gray-500">PlayList ID</span>
+              <input
+                className="grow"
+                type="text"
+                value={inputPlayListId}
+                placeholder="PlayList ID"
+                onInput={e => setInputPlayListId(e.currentTarget.value)} />
+            </label>
             <button
               className="btn btn-sm btn-secondary"
               type="button"
@@ -517,16 +547,22 @@ export default function YouTube() {
 
           <div className="flex gap-1 items-center">
             <button className="btn btn-sm" type="button" onClick={cbPreviousVideo}>
-              <ArrowLeftIcon className="size-6" />
+              <ArrowLeftIcon className="size-4" />
+              <span>prev</span>
             </button>
             <button className="btn btn-sm" type="button" onClick={cbNextVideo}>
-              <ArrowRightIcon className="size-6" />
+              <ArrowRightIcon className="size-4" />
+              <span>next</span>
             </button>
-            <input
-              className="input input-sm w-20"
-              type="number"
-              value={inputIndex}
-              onInput={e => setInputIndex(parseInt(e.currentTarget.value))} />
+            <label className="input input-sm w-fit">
+              <span className="font-bold text-gray-500">Index</span>
+              <input
+                className="w-12"
+                type="number"
+                min={0}
+                value={inputIndex}
+                onInput={e => setInputIndex(parseInt(e.currentTarget.value))} />
+            </label>
             <button
               className="btn btn-sm btn-secondary"
               onClick={cbSetIndex}>Set</button>
@@ -547,16 +583,19 @@ export default function YouTube() {
         </Box>
 
         <Box label="Parse Url">
-          <input
-            className="input input-sm w-full"
-            type="text"
-            value={inputParseUrl}
-            placeholder="video url"
-            onInput={e => setInputParseUrl(e.currentTarget.value)} />
+          <label className="input input-sm w-full">
+            <span className="font-bold text-gray-500">YouTube URL</span>
+            <input
+              className="grow"
+              type="text"
+              value={inputParseUrl}
+              placeholder="video url"
+              onInput={e => setInputParseUrl(e.currentTarget.value)} />
+          </label>
 
           <div>
             { parseResult && 
-              (<ul className="text-sm p-1 flex items-center gap-3">
+              (<ul className="text-sm p-1">
                  <li className="flex items-center gap-1">
                    <span>Video ID:</span>
                    <code>{parseResult.videoId}</code>
@@ -567,6 +606,17 @@ export default function YouTube() {
                    </button>
                  </li>
                  <li>Start Time: {parseResult.startTime}</li>
+              {parseResult.listId &&
+                (<li className="flex items-center gap-1">
+                  <span>PlayList ID: </span>
+                  <code>{parseResult.listId}</code>
+                  <button
+                    className="btn btn-xs btn-secondary"
+                    onClick={() => { setInputPlayListId(parseResult.listId!) }}>
+                    Set
+                  </button>
+                </li>)
+              }
                </ul>)}
           </div>
 
@@ -600,7 +650,7 @@ export default function YouTube() {
           <div className="h-2"></div>
           <div className="flex items-center gap-1">
             <input
-              className="range" type="range" min={0} max={100}
+              className="range flex-1" type="range" min={0} max={100}
               value={inputVolumePercent}
               onInput={e => setInputVolumePercent(parseInt(e.currentTarget.value))} />
             <button
@@ -642,7 +692,7 @@ export default function YouTube() {
           <div className="h-2"></div>
           <div className="flex items-center gap-1">
             <input
-              className="range" type="range" min={0} max={100}
+              className="range flex-1" type="range" min={0} max={100}
               value={inputSeekPercent}
               onInput={e => setInputSeekPercent(parseInt(e.currentTarget.value))} />
             <button
@@ -659,7 +709,6 @@ export default function YouTube() {
               <li>title: {videoData.title}</li>
               <li>author: {videoData.author}</li>
               <li>
-                    Video Data:
                 <pre className="pre whitespace-pre-wrap text-sm rounded bg-base-100 p-1">
                   {JSON.stringify(videoData, null, 2)}
                 </pre>
