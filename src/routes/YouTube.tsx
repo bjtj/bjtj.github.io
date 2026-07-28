@@ -9,24 +9,31 @@ declare global {
 }
 
 (window as any).onYouTubeIframeAPIReady = () => {
-  console.log('ready!');
+  console.log('YouTubeIframeAPIReady');
 }
 
-const KEY_LAST_VIDEO_ID = 'youtube-last-video-id';
-const KEY_LAST_VIDEO_ID_LIST = 'youtube-last-video-id-list';
-const KEY_LAST_PLAY_LIST_INDEX = 'youtube-last-play-list-index';
+const KEY_LAST_PLAY_STATE = 'last-play-state';
 const KEY_REPEAT = 'youtube-repeat';
 const KEY_AUTOPLAY = 'youtube-autoplay';
-const KEY_LOAD_TYPE = 'youtube-load-type';
 const KEY_INPUT_VIDEO_ID = "input-video-id";
 const KEY_INPUT_VIDEO_ID_LIST = "input-video-id-list";
 const KEY_INPUT_PARSE_URL = "input-parse-url";
 const KEY_INPUT_PLAY_LIST_ID = "input-play-list-id";
-
+const KEY_INPUT_SEEK_PERCENT = "input-seek-percent";
+const KEY_INPUT_VOLUME_PERCENT = "input-volume-percent";
 
 enum LoadType {
   VideoId = 'videoId',
   PlayList = 'playList',
+  PlayListId = 'playListId',
+};
+
+type SavedPlayState = {
+  loadType: LoadType,
+  videoId?: string|null,
+  videoIdList?: string[]|null,
+  playlistIndex?: number|null,
+  playlistId?: string|null,
 }
 
 type ParseYouTubeUrlResult = {
@@ -37,11 +44,22 @@ type ParseYouTubeUrlResult = {
 
 type Option = {
   [key: string]: any
-}
+};
 
 type Options = {
   [key: string]: Option[]
-}
+};
+
+type PlaylistState = {
+  originList?: string[]|null,
+  currentList?: string[]|null,
+  currentIndex?: number|null,
+  currentVideoId?: string|null,
+};
+
+const createInitialPlaylistState = () => ({
+  originList: null, currentList: null, currentIndex: null, currentVideoId: null
+});
 
 function parseYouTubeUrl(url: string): ParseYouTubeUrlResult|null {
   const u = new URL(url);
@@ -93,41 +111,6 @@ function silent<T>(fn: () => T): T | null {
   }
 }
 
-function saveLastVideoId(vid: string) {
-  localStorage.setItem(KEY_LAST_VIDEO_ID, vid);
-}
-
-function restoreLastVideoId(defvid: string) {
-  return localStorage.getItem(KEY_LAST_VIDEO_ID) ?? defvid;
-}
-
-function saveLastVideoIdList(vids: string) {
-  localStorage.setItem(KEY_LAST_VIDEO_ID_LIST, vids);
-}
-
-function restoreLastVideoIdList() {
-  return localStorage.getItem(KEY_LAST_VIDEO_ID_LIST) ?? '';
-}
-
-function saveLastPlaylistIndex(index: number) {
-  localStorage.setItem(KEY_LAST_PLAY_LIST_INDEX, index.toString());
-}
-
-function restoreLastPlaylistIndex() {
-  return parseInt(localStorage.getItem(KEY_LAST_PLAY_LIST_INDEX) ?? "-1");
-}
-
-function saveLoadType(loadType: LoadType) {
-  localStorage.setItem(KEY_LOAD_TYPE, loadType)
-}
-
-function restoreLoadType(defValue: LoadType) {
-  const value = localStorage.getItem(KEY_LOAD_TYPE);
-  return value && Object.values(LoadType).includes(value as LoadType)
-    ? (value as LoadType)
-    :defValue;
-}
-
 function saveAutoplay(val: boolean) {
   localStorage.setItem(KEY_AUTOPLAY, val ? 'true' : 'false');
 }
@@ -148,6 +131,25 @@ function restoreRepeat() {
   return localStorage.getItem(KEY_REPEAT) === 'true';
 }
 
+function getCurrentVideoId(player: YT.Player) {
+  let video_id = player.getVideoData().video_id;
+  if (video_id != null) {
+    return video_id;
+  }
+
+  let result = parseYouTubeUrl(player.getVideoUrl());
+  return result?.videoId;
+}
+
+function isNullOrEmptyArray<T>(arr: Array<T>|null|undefined) {
+  return (arr == null || arr.length === 0);
+}
+
+function playerStateToString(playerState: YT.PlayerState) {
+  return Object.keys(YT.PlayerState)
+    .find(k =>
+      YT.PlayerState[k as keyof typeof YT.PlayerState] === playerState);
+}
 
 export default function YouTube() {
   const divRef = useRef<HTMLDivElement>(null);
@@ -155,27 +157,26 @@ export default function YouTube() {
   const dlgRef = useRef<HTMLDialogElement>(null);
   const optionsDlgRef = useRef<HTMLDialogElement>(null);
   const [autoplay, setAutoplay] = useState<boolean>(restoreAutoplay(false));
-  const [lastVideoId] = useState<string>(restoreLastVideoId('jNQXAC9IVRw'));
-  const [lastVideoIdList] = useState<string>(restoreLastVideoIdList());
-  const [lastPlayListIndex] = useState<number>(restoreLastPlaylistIndex());
+  const [savedLastPlayState, setSavedLastPlayState] = useLocalStorageState<SavedPlayState>(KEY_LAST_PLAY_STATE, {loadType: LoadType.VideoId, videoId: 'jNQXAC9IVRw'});
   const [playerState, setPlayerState] = useState<YT.PlayerState>();
-  const [inputVideoId, setInputVideoId] = useLocalStorageState<string>(KEY_INPUT_VIDEO_ID, lastVideoId);
-  const [inputVideoIdList, setInputVideoIdList] = useLocalStorageState<string>(KEY_INPUT_VIDEO_ID_LIST, lastVideoIdList);
-  const [inputParseUrl, setInputParseUrl] = useLocalStorageState<string>(KEY_INPUT_PARSE_URL, "");
+  const [inputVideoId, setInputVideoId] = useLocalStorageState<string>(KEY_INPUT_VIDEO_ID, savedLastPlayState.videoId ?? '');
+  const [inputVideoIdList, setInputVideoIdList] = useLocalStorageState<string>(KEY_INPUT_VIDEO_ID_LIST, savedLastPlayState.videoIdList?.join(',') ?? '');
+  const [inputParseUrl, setInputParseUrl] = useLocalStorageState<string>(KEY_INPUT_PARSE_URL, '');
   const [inputIndex, setInputIndex] = useState<number>(0);
-  const [inputSeekPercent, setInputSeekPercent] = useState<number>(0);
-  const [inputVolumePercent, setInputVolumePercent] = useState<number>(0);
+  const [inputSeekPercent, setInputSeekPercent] = useLocalStorageState<number>(KEY_INPUT_SEEK_PERCENT, 0);
+  const [inputVolumePercent, setInputVolumePercent] = useLocalStorageState<number>(KEY_INPUT_VOLUME_PERCENT, 0);
   const [inputPlayListId, setInputPlayListId] = useLocalStorageState<string>(KEY_INPUT_PLAY_LIST_ID, "OLAK5uy_nQFHiVXIsV7njWTASL1EXd28Kn-2Yq1n0");
   const [parseResult, setParseResult] = useState<ParseYouTubeUrlResult|null>(null);
   const [videoData, setVideoData] = useState<YT.VideoData>();
   const [currentTime, setCurrentTime] = useState<number>(-1);
-  const [currentPlaylist, setCurrentPlaylist] = useState<string[]>();
-  const [currentPlaylistIndex, setCurrentPlaylistIndex] = useState<number>();
+  const [playlistState, setPlaylistState] = useState<PlaylistState>(createInitialPlaylistState);
+  const [selectedVideoIdInPlaylist, setSelectedVideoIdInPlaylist] = useState<string>();
+  const [shuffled, setShuffled] = useState<boolean>(false);
   const [duration, setDuration] = useState<number>(-1);
   const [repeat, setRepeat] = useState<boolean>(restoreRepeat());
   const [options, setOptions] = useState<Options>({});
-  const loadTypeRef = useRef<LoadType>(restoreLoadType(LoadType.VideoId));
   const timerRef = useRef<number>(null);
+  const needResetRef = useRef<boolean>(false);
 
   useEffect(() => {
     if (videoData) {
@@ -184,10 +185,20 @@ export default function YouTube() {
   }, [videoData]);
 
   useEffect(() => {
-    if (currentPlaylist) {
-      console.log(`${currentPlaylist.join(',')}`);
+    let playlist= playerRef.current?.getPlaylist();
+    if (playlist != null) {
+      let idx = playlist.findIndex(vid => vid === selectedVideoIdInPlaylist);
+      if (idx != null && idx >= 0) {
+        playerRef.current?.playVideoAt(idx);
+      }
     }
-  }, [currentPlaylist]);
+  }, [selectedVideoIdInPlaylist]);
+
+  function resetPlaylist() {
+    setShuffled(false);
+    needResetRef.current = true;
+    setPlaylistState(createInitialPlaylistState());
+  }
 
   const removeInterval = () => {
     if (timerRef.current) {
@@ -198,18 +209,28 @@ export default function YouTube() {
 
   const saveLastPlayState = (player: YT.Player) => {
     let videoData = player.getVideoData();
-    let videoId = videoData?.video_id;
-    let playList = player.getPlaylist();
+    let playListId = (videoData as any).list
+    let videoId = videoData.video_id;
+    let playlist = player.getPlaylist();
     let playListIndex = player.getPlaylistIndex();
-    if (playList?.length > 0) {
-      console.log('save last playstate / PLAYLIST');
-      saveLastVideoIdList(playList.join(","));
-      saveLastPlaylistIndex(playListIndex);
-      saveLoadType(LoadType.PlayList);
+    if (playListId != null) {
+      setSavedLastPlayState({
+        loadType: LoadType.PlayListId,
+        videoIdList: playlist,
+        playlistIndex: playListIndex,
+        playlistId: playListId
+      });
+    } else if (playlist?.length > 0) {
+      setSavedLastPlayState({
+        loadType: LoadType.PlayList,
+        videoIdList: playlist,
+        playlistIndex: playListIndex,
+      });
     } else {
-      console.log('save last playstate / VIDEOID');
-      saveLastVideoId(videoId);
-      saveLoadType(LoadType.VideoId);
+      setSavedLastPlayState({
+        loadType: LoadType.PlayListId,
+        videoId: videoId,
+      });
     }
   }
 
@@ -228,7 +249,67 @@ export default function YouTube() {
     }))));
   }
   
-  const cb = useCallback((div: HTMLDivElement) => {
+  const onPlayerStateChanged = (state: YT.PlayerState) => {
+    console.log(`State Changed: ${state} (${playerStateToString(state)})`);
+    let player = playerRef.current;
+    if (player != null) {
+      if (state === YT.PlayerState.UNSTARTED) {
+        saveLastPlayState(player);
+        let update = {
+          ...(needResetRef.current ? { originList: player.getPlaylist() } : {}),
+          currentList: player.getPlaylist(),
+          currentIndex: player.getPlaylistIndex(),
+          currentVideoId: player.getPlaylist()[player.getPlaylistIndex()]
+        };
+        setPlaylistState(prev => {
+          let newState = {
+            ...prev,
+            ...(isNullOrEmptyArray(prev.originList) ? {
+              originList: update.currentList
+            } : {}),
+            ...update,
+          };
+          return newState;
+        });
+      }
+
+      if (state === YT.PlayerState.UNSTARTED || state === YT.PlayerState.CUED) {
+        updateVideoData(player);
+        let videoId = getCurrentVideoId(player);
+        let playlist = player.getPlaylist()
+        if (selectedVideoIdInPlaylist != null && videoId != null && videoId !== selectedVideoIdInPlaylist) {
+          let idx = playlist.findIndex(vid => vid === selectedVideoIdInPlaylist);
+          if (idx != null && idx >= 0) {
+            player.playVideoAt(idx);
+            setSelectedVideoIdInPlaylist(undefined);
+          }
+        } else {
+          setSelectedVideoIdInPlaylist(undefined);
+        }
+      }
+
+      if (state === YT.PlayerState.PLAYING) {
+        removeInterval();
+        timerRef.current = setInterval(() => {
+          if (player !== null) {
+            setCurrentTime(player.getCurrentTime());
+          }
+        }, 100);
+        updateVideoData(player);
+        needResetRef.current = false;
+      } else {
+        setCurrentTime(player.getCurrentTime());
+        removeInterval();
+      }
+
+      if (state === YT.PlayerState.ENDED && repeat) {
+        player.playVideoAt(0);
+        player.playVideo();
+      }
+    }
+  }
+
+  const cbOnRef = useCallback((div: HTMLDivElement) => {
     if (!div && playerRef.current) {
       console.log('destory youtube player');
       playerRef.current.destroy();
@@ -236,35 +317,55 @@ export default function YouTube() {
     }
     
     if (div) {
-
-      let extraPlayerVars = ((loadTypeRef.current === LoadType.PlayList) ? {'playlist': lastVideoIdList} : {})
-      console.log(`loadTypeRef.current: ${loadTypeRef.current}, extraPlayerVars: ${JSON.stringify(extraPlayerVars, null, 2)}`);
-      
       // mount
+      let extraVars = {
+        ...((savedLastPlayState.loadType === LoadType.PlayList) ? {
+          'playlist': savedLastPlayState.videoIdList?.join(',')
+        } : {}),
+        ...((savedLastPlayState.loadType === LoadType.PlayListId) ? {
+          'list': savedLastPlayState.playlistId
+        } : {}),
+      };
+
+      console.log(`extra vars: ${JSON.stringify(extraVars)}`);
+
       new YT.Player(div, {
-        videoId: lastVideoId,
+        videoId: savedLastPlayState.videoId ?? '',
         width: '100%',
         height: '100%',
         playerVars: {
           autoplay: 0,
-          ...((loadTypeRef.current === LoadType.PlayList) ? {'playlist': lastVideoIdList} : {})
+          ...extraVars
         },
         events: {
           onReady: (event: YT.PlayerEvent) => {
             console.log('READY!');
             let player = event.target;
             playerRef.current = player;
-            if (loadTypeRef.current === LoadType.PlayList && lastPlayListIndex >= 0) {
-              player.playVideoAt(lastPlayListIndex)
+            let loadType = savedLastPlayState.loadType;
+            let playlistIndex = savedLastPlayState.playlistIndex ?? -1;
+            if ((loadType === LoadType.PlayList || loadType === LoadType.PlayListId) && playlistIndex >= 0) {
+              player.playVideoAt(playlistIndex);
             }
             if (autoplay) {
               toast('Auto Play');
               player.playVideo();
             }
             updateVideoData(player);
+            let newState = {
+              originList: player.getPlaylist(),
+              currentList: player.getPlaylist(),
+              currentIndex: player.getPlaylistIndex(),
+              currentVideoId: player.getPlaylist()[player.getPlaylistIndex()],
+            };
+            setPlaylistState(() => {
+              return newState;
+            });
           },
           onStateChange: (event: YT.OnStateChangeEvent) => {
-            setPlayerState(event.data)
+            let state = event.data;
+            setPlayerState(state)
+            onPlayerStateChanged(state);
           },
           onPlaybackQualityChange: (_) => {
           },
@@ -286,99 +387,76 @@ export default function YouTube() {
     divRef.current = div;
   }, []);
 
-  useEffect(() => {
-    console.log(`State Changed: ${playerState} (${Object.keys(YT.PlayerState).find(k => YT.PlayerState[k as keyof typeof YT.PlayerState] === playerState)})`);
-    let player = playerRef.current;
-    if (player != null) {
-      if (playerState === YT.PlayerState.UNSTARTED) {
-        saveLastPlayState(player);
-        setCurrentPlaylist(player.getPlaylist());
-        setCurrentPlaylistIndex(player.getPlaylistIndex());
-      }
-      
-      if (playerState === YT.PlayerState.UNSTARTED || playerState === YT.PlayerState.CUED) {
-        updateVideoData(player);
-      }
-
-      if (playerState === YT.PlayerState.PLAYING) {
-        removeInterval();
-        timerRef.current = setInterval(() => {
-          if (player !== null) {
-            setCurrentTime(player.getCurrentTime());
-          }
-        }, 100);
-        updateVideoData(player);
-      } else {
-        setCurrentTime(player.getCurrentTime());
-        removeInterval();
-      }
-
-      if (playerState === YT.PlayerState.ENDED && repeat) {
-        player.playVideoAt(0);
-        player.playVideo();
-      }
-    }
-  }, [playerState]);
-
-  const cbLoadVideo = useCallback(() => {
+  const cbLoadVideo = () => {
+    resetPlaylist();
     playerRef.current?.loadVideoById(inputVideoId);
-  }, [inputVideoId]);
+  };
 
-  const cbCueVideo = useCallback(() => {
+  const cbCueVideo = () => {
+    resetPlaylist();
     playerRef.current?.cueVideoById(inputVideoId);
-  }, [inputVideoId]);
+  };
 
-  const cbLoadVideoList = useCallback(() => {
-    console.log(`cbLoadVideoList / inputVideoIdList ${inputVideoIdList}`);
+  const cbLoadVideoList = () => {
+    resetPlaylist();
     let list = inputVideoIdList.split(/\s*,\s*/).filter(s => s.length > 0);
+    playerRef.current?.stopVideo();
     playerRef.current?.loadPlaylist(list, 0, 0);
-  }, [inputVideoIdList]);
+  };
 
-  const cbCueVideoList = useCallback(() => {
-    console.log(`cbCueVideoList / inputVideoIdList ${inputVideoIdList}`);
+  const cbCueVideoList = () => {
+    resetPlaylist();
     let list = inputVideoIdList.split(/\s*,\s*/).filter(s => s.length > 0);
+    playerRef.current?.stopVideo();
     playerRef.current?.cuePlaylist(list, 0, 0);
-  }, [inputVideoIdList]);
+  };
 
-  const cbLoadPlayListId = useCallback(() => {
-    console.log(`cbLoadPlayListId / inputPlayListId: ${inputPlayListId}`);
+  const cbLoadPlayListId = () => {
+    resetPlaylist();
+    playerRef.current?.stopVideo();
     playerRef.current?.loadPlaylist({list: inputPlayListId, listType: 'playlist', index: 0, startSeconds: 0});
-  }, [inputPlayListId]);
+  };
 
-  const cbCuePlayListId = useCallback(() => {
-    console.log(`cbCuePlayListId / inputPlayListId: ${inputPlayListId}`);
+  const cbCuePlayListId = () => {
+    resetPlaylist();
+    playerRef.current?.stopVideo();
     playerRef.current?.cuePlaylist({list: inputPlayListId, listType: 'playlist', index: 0, startSeconds: 0});
-  }, [inputPlayListId]);
+  };
 
-  const cbPreviousVideo = useCallback(() => {
+  const cbSetShuffle = (shuffle: boolean) => {
+    playerRef.current?.setShuffle(shuffle);
+    setShuffled(shuffle);
+  };
+
+  const cbPreviousVideo = () => {
     playerRef.current?.previousVideo();
-  }, []);
+  };
 
-  const cbNextVideo = useCallback(() => {
+  const cbNextVideo = () => {
     playerRef.current?.nextVideo();
-  }, []);
+  };
 
-  const cbSetIndex = useCallback(() => {
+  const cbSetIndex = () => {
     playerRef.current?.playVideoAt(inputIndex);
-  }, [inputIndex]);
+  };
 
-  const cbPlayVideodAt = useCallback((idx: number) => {
+  const cbPlayVideodAt = (idx: number) => {
     playerRef.current?.playVideoAt(idx);
-  }, []);
+  };
 
-  const cbSeekPercent = useCallback(() => {
+  const cbSeekPercent = () => {
     if (playerRef.current) {
       let duration = playerRef.current.getDuration();
       let percent = inputSeekPercent * 0.01;
       playerRef.current?.seekTo(duration * percent, true);
     }
-  }, [inputSeekPercent]);
+  };
 
-  const cbSetVolumePercent = useCallback(() => {
+  const cbSetVolumePercent = () => {
     if (playerRef.current) {
       playerRef.current?.setVolume(inputVolumePercent);
     }
-  }, [inputVolumePercent]);
+  };
 
   useEffect(() => {
     if (inputParseUrl !== null && inputParseUrl !== undefined) {
@@ -400,7 +478,7 @@ export default function YouTube() {
       <div className="space-y-2">
         <div>
           <div className="aspect-video rounded-lg overflow-clip">
-            <div ref={cb}></div>
+            <div ref={cbOnRef}></div>
           </div>
           <div className="flex flex-wrap gap-2 items-center justify-center my-1">{
             Object.keys(YT.PlayerState).map(k => {
@@ -566,19 +644,51 @@ export default function YouTube() {
             <button
               className="btn btn-sm btn-secondary"
               onClick={cbSetIndex}>Set</button>
+            
           </div>
           
-          <div>
-            <h4>Play List</h4>
-            <div className="flex-wrap gap-1">{currentPlaylist?.map((vid, index) =>
-              <button
-                key={`playlist-item-${index}`}
-                className="badge badge-sm cursor-pointer"
-                onClick={() => cbPlayVideodAt(index)}
-                title={`index: ${index}`}>
-                {vid}
-              </button>)}</div>
-            <div className="text-sm">Index: {currentPlaylistIndex}</div>
+          <div className="p-1">
+            <div className="flex gap-2 items-center justify-between">
+              <h3>Play List</h3>
+              <input
+                className="btn btn-xs"
+                type="checkbox"
+                checked={shuffled}
+                onChange={e => cbSetShuffle(e.target.checked)}
+                aria-label="Shuffle"
+              />
+            </div>
+            <div>
+              <div className="flex-wrap gap-1">
+                {playlistState.originList && (
+                  <pre className="pre whitespace-pre-wrap text-xs">
+                    {playlistState.originList.join(', ')}
+                  </pre>)}
+                {playlistState.originList?.map((vid, index) =>
+                  <button
+                    key={`playlist-item-${index}`}
+                    className={`badge badge-sm cursor-pointer ${playlistState.currentVideoId === vid ? 'badge-warning' : ''}`}
+                    onClick={() => setSelectedVideoIdInPlaylist(vid)}
+                    title={`index: ${index}`}>
+                    {vid}
+                  </button>)}
+              </div>
+
+              <div className="hidden">
+                <h5>Current</h5>
+                <div className="flex-wrap gap-1">
+                {playlistState.currentList?.map((vid, index) =>
+                  <button
+                    key={`playlist-item-${index}`}
+                    className={`badge badge-sm cursor-pointer ${playlistState.currentIndex === index ? 'badge-warning' : ''}`}
+                    onClick={() => cbPlayVideodAt(index)}
+                    title={`index: ${index}`}>
+                    {vid}
+                  </button>)}
+                </div>
+              </div>
+            </div>
+            <div className="text-sm">Index: {playlistState.currentIndex}</div>
           </div>
         </Box>
 
@@ -594,36 +704,34 @@ export default function YouTube() {
           </label>
 
           <div>
-            { parseResult && 
+            {parseResult &&
               (<ul className="text-sm p-1">
-                 <li className="flex items-center gap-1">
-                   <span>Video ID:</span>
-                   <code>{parseResult.videoId}</code>
-                   <button
-                     className="btn btn-xs btn-secondary"
-                     onClick={() => { setInputVideoId(parseResult.videoId) }}>
-                     Set
-                   </button>
-                 </li>
-                 <li>Start Time: {parseResult.startTime}</li>
-              {parseResult.listId &&
-                (<li className="flex items-center gap-1">
-                  <span>PlayList ID: </span>
-                  <code>{parseResult.listId}</code>
+                <li className="flex items-center gap-1">
+                  <span>Video ID:</span>
+                  <code>{parseResult.videoId}</code>
                   <button
                     className="btn btn-xs btn-secondary"
-                    onClick={() => { setInputPlayListId(parseResult.listId!) }}>
+                    onClick={() => { setInputVideoId(parseResult.videoId) }}>
                     Set
                   </button>
-                </li>)
-              }
-               </ul>)}
+                </li>
+                <li>Start Time: {parseResult.startTime}</li>
+                {parseResult.listId &&
+                  (<li className="flex items-center gap-1">
+                    <span>PlayList ID: </span>
+                    <code>{parseResult.listId}</code>
+                    <button
+                      className="btn btn-xs btn-secondary"
+                      onClick={() => { setInputPlayListId(parseResult.listId!) }}>
+                      Set
+                    </button>
+                  </li>)}
+              </ul>)}
           </div>
 
           <button
             className="btn btn-sm btn-outline my-1" type="button"
             onClick={() => {
-              console.log('show modal');
               dlgRef.current?.showModal();
             }}>Examples</button>
 
