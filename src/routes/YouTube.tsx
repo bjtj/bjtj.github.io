@@ -319,10 +319,10 @@ export default function YouTube() {
     if (div) {
       // mount
       let extraVars = {
-        ...((savedLastPlayState.loadType === LoadType.PlayList) ? {
-          'playlist': savedLastPlayState.videoIdList?.join(',')
+        ...((savedLastPlayState.loadType === LoadType.PlayList && savedLastPlayState.videoIdList != null) ? {
+          'playlist': savedLastPlayState.videoIdList.join(',')
         } : {}),
-        ...((savedLastPlayState.loadType === LoadType.PlayListId) ? {
+        ...((savedLastPlayState.loadType === LoadType.PlayListId && savedLastPlayState.playlistId != null) ? {
           'list': savedLastPlayState.playlistId
         } : {}),
       };
