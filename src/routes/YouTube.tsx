@@ -254,6 +254,7 @@ export default function YouTube() {
     let player = playerRef.current;
     if (player != null) {
       if (state === YT.PlayerState.UNSTARTED) {
+        console.log(`UNSTARTED getVideoUrl(): ${player.getVideoUrl()}, getVideoData().video_id: ${player.getVideoData().video_id}, playlist: ${player.getPlaylist()}, playlistIndex: ${player.getPlaylistIndex()}`);
         saveLastPlayState(player);
         let update = {
           ...(needResetRef.current ? { originList: player.getPlaylist() } : {}),
