@@ -210,7 +210,7 @@ export default function YouTube() {
   const saveLastPlayState = (player: YT.Player) => {
     let videoData = player.getVideoData();
     let playListId = (videoData as any).list
-    let videoId = videoData.video_id;
+    let videoId = videoData.video_id ?? parseYouTubeUrl(player.getVideoUrl())?.videoId;
     let playlist = player.getPlaylist();
     let playListIndex = player.getPlaylistIndex();
     if (playListId != null) {
@@ -253,8 +253,22 @@ export default function YouTube() {
     console.log(`State Changed: ${state} (${playerStateToString(state)})`);
     let player = playerRef.current;
     if (player != null) {
-      if (state === YT.PlayerState.UNSTARTED) {
-        console.log(`UNSTARTED getVideoUrl(): ${player.getVideoUrl()}, getVideoData().video_id: ${player.getVideoData().video_id}, playlist: ${player.getPlaylist()}, playlistIndex: ${player.getPlaylistIndex()}`);
+
+      if (state === YT.PlayerState.UNSTARTED || state === YT.PlayerState.CUED) {
+        updateVideoData(player);
+        let videoId = getCurrentVideoId(player);
+        let playlist = player.getPlaylist()
+        if (selectedVideoIdInPlaylist != null && videoId != null && videoId !== selectedVideoIdInPlaylist) {
+          let idx = playlist.findIndex(vid => vid === selectedVideoIdInPlaylist);
+          if (idx != null && idx >= 0) {
+            player.playVideoAt(idx);
+            setSelectedVideoIdInPlaylist(undefined);
+            return;
+          }
+        } else {
+          setSelectedVideoIdInPlaylist(undefined);
+        }
+
         saveLastPlayState(player);
         let update = {
           ...(needResetRef.current ? { originList: player.getPlaylist() } : {}),
@@ -272,21 +286,6 @@ export default function YouTube() {
           };
           return newState;
         });
-      }
-
-      if (state === YT.PlayerState.UNSTARTED || state === YT.PlayerState.CUED) {
-        updateVideoData(player);
-        let videoId = getCurrentVideoId(player);
-        let playlist = player.getPlaylist()
-        if (selectedVideoIdInPlaylist != null && videoId != null && videoId !== selectedVideoIdInPlaylist) {
-          let idx = playlist.findIndex(vid => vid === selectedVideoIdInPlaylist);
-          if (idx != null && idx >= 0) {
-            player.playVideoAt(idx);
-            setSelectedVideoIdInPlaylist(undefined);
-          }
-        } else {
-          setSelectedVideoIdInPlaylist(undefined);
-        }
       }
 
       if (state === YT.PlayerState.PLAYING) {
@@ -320,12 +319,14 @@ export default function YouTube() {
     if (div) {
       // mount
       let extraVars = {
-        ...((savedLastPlayState.loadType === LoadType.PlayList && savedLastPlayState.videoIdList != null) ? {
-          'playlist': savedLastPlayState.videoIdList.join(',')
-        } : {}),
-        ...((savedLastPlayState.loadType === LoadType.PlayListId && savedLastPlayState.playlistId != null) ? {
-          'list': savedLastPlayState.playlistId
-        } : {}),
+        ...((
+          savedLastPlayState.loadType === LoadType.PlayList &&
+          savedLastPlayState.videoIdList != null
+        ) ? { 'playlist': savedLastPlayState.videoIdList.join(',') } : {}),
+        ...((
+          savedLastPlayState.loadType === LoadType.PlayListId &&
+          savedLastPlayState.playlistId != null
+        ) ? { 'list': savedLastPlayState.playlistId } : {}),
       };
 
       console.log(`extra vars: ${JSON.stringify(extraVars)}`);
@@ -351,6 +352,26 @@ export default function YouTube() {
             if (autoplay) {
               toast('Auto Play');
               player.playVideo();
+            } else {
+              if (
+                savedLastPlayState.loadType === LoadType.PlayListId &&
+                savedLastPlayState.playlistId != null
+              ) {
+                let { playlistId, playlistIndex } = savedLastPlayState;
+                player.cuePlaylist({
+                  list: playlistId, listType: 'playlist', index: playlistIndex ?? 0
+                });
+              } else if (
+                savedLastPlayState.loadType === LoadType.PlayList &&
+                savedLastPlayState.videoIdList != null
+              ) {
+                let { videoIdList, playlistIndex } = savedLastPlayState;
+                player.cuePlaylist(videoIdList, playlistIndex ?? 0);
+              } else if (savedLastPlayState.videoId != null) {
+                player.cueVideoById(savedLastPlayState.videoId);
+              } else {
+                player.stopVideo();
+              }
             }
             updateVideoData(player);
             let newState = {
@@ -373,7 +394,8 @@ export default function YouTube() {
           onPlaybackRateChange: (_) => {
           },
           onError: (event) => {
-            toast.error(`Error: ${JSON.stringify(event)}`, { position: 'top-center' });
+            console.error(`onError: ${event.data}`);
+            toast.error(`Error: ${event.data}`, { position: 'top-center' });
           },
           onApiChange: ({ target }) => {
             console.log('onApiChange');
@@ -415,13 +437,17 @@ export default function YouTube() {
   const cbLoadPlayListId = () => {
     resetPlaylist();
     playerRef.current?.stopVideo();
-    playerRef.current?.loadPlaylist({list: inputPlayListId, listType: 'playlist', index: 0, startSeconds: 0});
+    playerRef.current?.loadPlaylist({
+      list: inputPlayListId, listType: 'playlist', index: 0, startSeconds: 0
+    });
   };
 
   const cbCuePlayListId = () => {
     resetPlaylist();
     playerRef.current?.stopVideo();
-    playerRef.current?.cuePlaylist({list: inputPlayListId, listType: 'playlist', index: 0, startSeconds: 0});
+    playerRef.current?.cuePlaylist({
+      list: inputPlayListId, listType: 'playlist', index: 0, startSeconds: 0
+    });
   };
 
   const cbSetShuffle = (shuffle: boolean) => {
