@@ -168,6 +168,7 @@ export default function YouTube() {
   const [inputPlayListId, setInputPlayListId] = useLocalStorageState<string>(KEY_INPUT_PLAY_LIST_ID, "OLAK5uy_nQFHiVXIsV7njWTASL1EXd28Kn-2Yq1n0");
   const [parseResult, setParseResult] = useState<ParseYouTubeUrlResult|null>(null);
   const [videoData, setVideoData] = useState<YT.VideoData>();
+  const [videoUrl, setVideoUrl] = useState<string>();
   const [currentTime, setCurrentTime] = useState<number>(-1);
   const [playlistState, setPlaylistState] = useState<PlaylistState>(createInitialPlaylistState);
   const [selectedVideoIdInPlaylist, setSelectedVideoIdInPlaylist] = useState<string>();
@@ -235,7 +236,8 @@ export default function YouTube() {
   }
 
   const updateVideoData = (player: YT.Player) => {
-    let it = player.getVideoData();
+    let it = player.getVideoData() as any;
+    console.log(`updateVideoData.list: ${it.list}`);
     if (it != null) { setVideoData(it); }
   }
 
@@ -255,7 +257,13 @@ export default function YouTube() {
     if (player != null) {
 
       if (state === YT.PlayerState.UNSTARTED || state === YT.PlayerState.CUED) {
+        let videoData = player.getVideoData() as any;
+        console.log(`videoData | videoId: ${videoData.video_id}, list: ${videoData.list}`);
+        console.log(`videoUrl: ${player.getVideoUrl()}`);
+        console.log(`videoData: ${JSON.stringify(videoData)}`);
+
         updateVideoData(player);
+        setVideoUrl(player.getVideoUrl());
         let videoId = getCurrentVideoId(player);
         let playlist = player.getPlaylist()
         if (selectedVideoIdInPlaylist != null && videoId != null && videoId !== selectedVideoIdInPlaylist) {
@@ -318,61 +326,51 @@ export default function YouTube() {
     
     if (div) {
       // mount
-      let extraVars = {
-        ...((
-          savedLastPlayState.loadType === LoadType.PlayList &&
-          savedLastPlayState.videoIdList != null
-        ) ? { 'playlist': savedLastPlayState.videoIdList.join(',') } : {}),
-        ...((
-          savedLastPlayState.loadType === LoadType.PlayListId &&
-          savedLastPlayState.playlistId != null
-        ) ? { 'list': savedLastPlayState.playlistId } : {}),
-      };
-
-      console.log(`extra vars: ${JSON.stringify(extraVars)}`);
-
       new YT.Player(div, {
         videoId: savedLastPlayState.videoId ?? '',
         width: '100%',
         height: '100%',
         playerVars: {
           autoplay: 0,
-          ...extraVars
         },
         events: {
           onReady: (event: YT.PlayerEvent) => {
             console.log('READY!');
             let player = event.target;
             playerRef.current = player;
-            let loadType = savedLastPlayState.loadType;
-            let playlistIndex = savedLastPlayState.playlistIndex ?? -1;
-            if ((loadType === LoadType.PlayList || loadType === LoadType.PlayListId) && playlistIndex >= 0) {
-              player.playVideoAt(playlistIndex);
-            }
-            if (autoplay) {
-              toast('Auto Play');
-              player.playVideo();
-            } else {
-              if (
-                savedLastPlayState.loadType === LoadType.PlayListId &&
-                savedLastPlayState.playlistId != null
-              ) {
-                let { playlistId, playlistIndex } = savedLastPlayState;
+            
+            if (
+              savedLastPlayState.loadType === LoadType.PlayListId &&
+              savedLastPlayState.playlistId != null
+            ) {
+              let { playlistId, playlistIndex } = savedLastPlayState;
+              if (autoplay) {
+                player.loadPlaylist({
+                  list: playlistId, listType: 'playlist', index: playlistIndex ?? 0
+                });
+              } else {
                 player.cuePlaylist({
                   list: playlistId, listType: 'playlist', index: playlistIndex ?? 0
                 });
-              } else if (
-                savedLastPlayState.loadType === LoadType.PlayList &&
-                savedLastPlayState.videoIdList != null
-              ) {
-                let { videoIdList, playlistIndex } = savedLastPlayState;
-                player.cuePlaylist(videoIdList, playlistIndex ?? 0);
-              } else if (savedLastPlayState.videoId != null) {
-                player.cueVideoById(savedLastPlayState.videoId);
+              }
+            } else if (
+              savedLastPlayState.loadType === LoadType.PlayList &&
+              savedLastPlayState.videoIdList != null
+            ) {
+              let { videoIdList, playlistIndex } = savedLastPlayState;
+              if (autoplay) {
+                player.loadPlaylist(videoIdList, playlistIndex ?? 0);
               } else {
-                player.stopVideo();
+                player.cuePlaylist(videoIdList, playlistIndex ?? 0);
+              }
+            } else if (savedLastPlayState.videoId != null) {
+              if (autoplay) {
+                player.loadVideoById(savedLastPlayState.videoId);
+              } else {
+                player.cueVideoById(savedLastPlayState.videoId);
               }
             }
+
             updateVideoData(player);
             let newState = {
               originList: player.getPlaylist(),
@@ -494,11 +492,15 @@ export default function YouTube() {
   return (
     <div className="max-w-lg">
       <h1>YouTube</h1>
+
+      {videoUrl && (
+        <a
+          className="link flex items-center gap-1"
+          href={videoUrl}
+          target="_blank">
+          Open YouTube <ArrowTopRightOnSquareIcon className="size-4" />
+        </a>)}
       
-      <a
-        className="link flex items-center gap-1"
-        href="https://youtube.com"
-        target="_blank">open youtube <ArrowTopRightOnSquareIcon className="size-4" /></a>
 
       <div className="h-1"></div>
 
