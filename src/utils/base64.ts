@@ -1,15 +1,25 @@
 
-
 export const file_to_base64 = async (a_file: File) => {
-    let a_function =
-      (file: File) => new Promise((resolve, reject) => {
-        const reader = new FileReader();
-        reader.readAsDataURL(file);
-        reader.onload = () => {
-          let base64_string = String(reader.result).split(",")[1]
-          resolve(base64_string)
-        };
-        reader.onerror = error => reject(error);
-      })
-    return (await a_function(a_file) as string)
-  }
+  let a_function =
+    (file: File) => new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.readAsDataURL(file);
+      reader.onload = () => {
+        let base64_string = String(reader.result).split(",")[1]
+        resolve(base64_string)
+      };
+      reader.onerror = error => reject(error);
+    })
+  return (await a_function(a_file) as string)
+}
+
+export function encodeBase64(str: string): string {
+  const bytes = new TextEncoder().encode(str);
+  return btoa(String.fromCharCode(...bytes));
+}
+
+export function decodeBase64(base64: string): string {
+  const bytes = Uint8Array.from(atob(base64), c => c.charCodeAt(0));
+  return new TextDecoder().decode(bytes);
+}
+

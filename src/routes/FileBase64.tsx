@@ -5,7 +5,6 @@ import ErrorPanel from '../components/ErrorPanel';
 import HexView from '../components/HexView';
 import { file_to_base64 } from '../utils/base64';
 
-
 export default function FileBase64() {
   const [file, setFile] = useState<File>();
   const [base64, setBase64] = useState<string>();
@@ -41,8 +40,7 @@ export default function FileBase64() {
   }, [file]);
 
   return (
-    <div className="">
-      <h1>File -&gt; Base64</h1>
+    <div>
       <div className="my-3">
         <input type="file" className="file-input" onChange={onFileChange} />
       </div>

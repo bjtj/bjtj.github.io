@@ -171,8 +171,8 @@ const menu: MenuItem[] = [
     name: 'Random'
   },
   {
-    path: '/filebase64',
-    name: 'File -> Base64'
+    path: '/base64',
+    name: 'Base64'
   },
   {
     path: '/imageinfo',

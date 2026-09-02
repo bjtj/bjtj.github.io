@@ -14,7 +14,7 @@ import Start from "./routes/Start";
 import UrlEncoder from "./routes/UrlEncoder";
 import XmlParser from "./routes/XmlParser";
 import Keycode from "./routes/Keycode";
-import FileBase64 from "./routes/FileBase64";
+import Base64 from "./routes/Base64";
 import ImageInfo from "./routes/ImageInfo";
 import WebCam from './routes/Webcam';
 import Json from './routes/Json';
@@ -44,7 +44,7 @@ const router = createHashRouter(
         <Route path="urlencoder" element={<UrlEncoder />} />
         <Route path="xmlparser" element={<XmlParser />} />
         <Route path="keycode" element={<Keycode />} />
-        <Route path="filebase64" element={<FileBase64 />} />
+        <Route path="base64" element={<Base64 />} />
         <Route path="imageinfo" element={<ImageInfo />} />
         <Route path="webcam" element={<WebCam />} />
         <Route path="json" element={<Json />} />
